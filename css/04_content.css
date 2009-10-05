@@ -1,0 +1,515 @@
+.content {
+	float: left;
+	overflow: visible;
+	padding-bottom: 40px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+.content_narrow {
+	width: 664px;
+}
+
+.content_wide {
+	width: 755px;
+}
+
+.content_padding {
+	width: 416px;
+	margin-left: 238px;
+	padding: 24px 0 0 0;
+}
+
+.content_column_right {
+	float: right;
+	width: 263px;
+	padding: 24px 0 0 0;
+}
+
+.content h1 {
+	margin: 0 0 20px 0;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
+	font-size: 25px;
+	font-weight: bold;
+	line-height: 1.05em;
+}
+
+.content h2,
+.dijitDialog h2 {
+	margin: 0 0 10px 0;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: normal;
+	line-height: 1.11em;
+}
+
+.content h3 {
+	margin: 10px 0 15px 0;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 1.285em;
+}
+
+.content h3,
+.content h4,
+.content p,
+.dijitDialog p {
+	margin: 15px 0 10px 0;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	line-height: 1.5em;
+}
+
+.content h4 {
+	margin-bottom: -15px;
+}
+
+.content ul,
+.content ol {
+	margin: 15px 0 10px 0;
+	padding: 0 0 0 40px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	line-height: 1.5em;
+}
+
+.content ul.content_nolist,
+.content ol.content_nolist {
+	list-style-type: none;
+}
+
+.content_slide_content ul,
+.content_slide_content ol {
+	margin: 10px 0 10px 40px;
+	padding: 0 0 0 20px;
+}
+
+.content li {
+	display: list-item;
+	padding-bottom: 4px;
+	list-style-position: inside;
+}
+
+.content ol,
+.content ol li {
+	list-style-type: decimal;
+	list-style-position: outside;
+}
+
+.content ul,
+.content ul li {
+	list-style-image: url(../design/content_li_bullet.gif);
+	list-style-position: outside;
+}
+
+.content ul.content_nolist li ,
+.content ul.content_nolist li {
+	display: block;
+	padding-bottom: 4px;
+	list-style-type: none;
+}
+
+.content a,
+.dijitDialog a {
+	color: #5379B7;
+	text-decoration: underline;
+}
+
+.content a:hover,
+.content a:active,
+.dijitDialog a:hover,
+.dijitDialog a:active {
+	text-decoration: underline;
+}
+
+.content cite.content_customer_cite {
+	display: block;
+	margin: 20px 0 20px 0;
+	color: #476CAA;
+	font-size: 20px;
+	line-height: 1.4em;
+}
+
+/* Content Category Foto List */
+
+.content ul.content_category_foto_list {
+	display: block;
+	list-style-type: none;
+	width: 416px;
+	height: 150px;
+	margin: 0;
+	padding: 0;
+	border-top: #B1C2DC 5px solid;
+}
+
+.content ul.content_category_foto_list li,
+.content ul.content_category_foto_list li a {
+	display: block;
+	float: left;
+	list-style-type: none;
+	height: 150px;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	background-repeat: no-repeat;
+	background-position: left top;
+	text-decoration: none;
+}
+
+.content ul.content_category_foto_list li a span {
+	display: block;
+	width: 133px;
+	height: 38px;
+	margin-top: 105px;
+	padding: 7px 0 0 5px;
+	background: none;
+	cursor: pointer;
+}
+
+.content_category_foto_list_grossprojekte,
+.content_category_foto_list_wohnhaeuser {
+	width: 139px;
+}
+
+.content_category_foto_list_buegersolaranlagen {
+	width: 138px;
+}
+
+.content_category_foto_list_grossprojekte a span,
+.content_category_foto_list_wohnhaeuser a span, 
+.content_category_foto_list_buegersolaranlagen a span {
+	display: block;
+	width: 118px;
+	height: 38px;
+	margin-top: 105px;
+	padding: 7px 0 0 20px;
+	background: url(../design/content_foto_list_bullet.gif) no-repeat 12px 13px;
+	cursor: pointer;
+}
+
+.content_category_foto_list_grossprojekte,
+.content_category_foto_vlist_grossprojekte {
+	background-image: url(../design/content_foto_list_grossprojekte.jpg);
+}
+
+.content_category_foto_list_wohnhaeuser,
+.content_category_foto_vlist_wohnhaeuser {
+	background-image: url(../design/content_foto_list_wohnhaeuser.jpg);
+}
+
+.content_category_foto_list_buegersolaranlagen,
+.content_category_foto_vlist_buegersolaranlagen {
+	background-image: url(../design/content_foto_list_buergersolaranlagen.jpg);
+}
+
+.content_category_foto_list_grossprojekte span,
+.content_category_foto_list_wohnhaeuser span,
+.content_category_foto_list_blau span {
+	border-right: #92AAD6 1px solid;
+}
+
+.content_category_foto_list_blau,
+.content_category_foto_list_blau2 {
+	background-image: url(../design/content_foto_list_blau.gif);
+}
+
+.content_category_foto_list_blau {
+	width: 139px;
+}
+
+.content_category_foto_list_blau2 {
+	width: 138px;
+}
+
+/* Content Category Foto VList */
+
+.content ul.content_category_foto_vlist {
+	display: block;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	background: url(../design/content_category_foto_vlist_bg.gif) repeat-y left;
+}
+
+.content ul.content_category_foto_vlist li {
+	display: block;
+	list-style-type: none;
+	min-height: 105px;
+	margin: 0;
+	padding: 0;
+	background-repeat: no-repeat;
+	background-position: left 5px;
+	text-decoration: none;
+}
+
+* html .content ul.content_category_foto_vlist li,
+* html .content ul.content_category_foto_vlist li a {
+	height: 105px;
+}
+
+* html .content ul.content_category_foto_vlist li,
+* + html .content ul.content_category_foto_vlist li {
+	display: inline;
+}
+
+.content ul.content_category_foto_vlist li a {
+	display: block;
+	min-height: 105px;
+	padding-top: 5px;
+	text-decoration: none;
+}
+
+.content ul.content_category_foto_vlist li span {
+	display: block;
+	margin: 0 30px 0 150px;
+}
+
+.content ul.content_category_foto_vlist li span a {
+	display: inline;
+	height: auto;
+	min-height: auto;
+	padding: 0;
+	text-decoration: underline;
+}
+
+/* Content Gluehbirne */
+
+.content_gluehbirne {
+	display: block;
+	width: 14px;
+	height: 22px;
+	background: url(../design/gluehbirne.gif) no-repeat left top;
+}
+
+/* Content Team Foto List */
+
+.content ul.content_team_foto_list {
+	display: block;
+	list-style-type: none;
+	margin: 30px 0 25px 0;
+	padding: 0;
+}
+
+.content ul.content_team_foto_list li {
+	display: block;
+	clear: left;
+	list-style-type: none;
+	min-height: 138px;
+
+	/* vorübergehend */
+	min-height: 80px;
+	
+	margin: 0;
+	padding: 0;
+}
+
+* html .content ul.content_team_foto_list li,
+* + html .content ul.content_team_foto_list li {
+	display: inline;
+}
+
+* html .content ul.content_team_foto_list li {
+	height: 138px;
+
+	/* vorübergehend */
+	height: 80px;
+}
+
+.content ul.content_team_foto_list li img {
+	display: block;
+	float: left; 
+	margin: 0 10px 0 0;
+	padding: 0;
+	border: none;
+	border-top: #B1C2DC 5px solid;
+}
+
+.content ul.content_team_foto_list li span {
+	display: block;
+	margin: 10px 0 10px 110px;
+
+	/* vorübergehend */
+	margin: 10px 0 10px 0;
+}
+
+
+/* Content Partner Foto List */
+
+.content ul.content_partner_foto_list {
+	display: block;
+	list-style-type: none;
+	margin: 25px 0;
+	padding: 0;
+}
+
+.content ul.content_partner_foto_list li {
+	display: block;
+	clear: left;
+	list-style-type: none;
+	min-height: 80px;
+	margin: 0;
+	padding: 0;
+}
+
+* html .content ul.content_partner_foto_list li,
+* + html .content ul.content_partner_foto_list li {
+	display: inline;
+}
+
+* html .content ul.content_partner_foto_list li {
+	height: 80px;
+}
+
+.content ul.content_partner_foto_list li img {
+	display: block;
+	float: left; 
+	margin: 0 10px 0 0;
+	padding: 0;
+	border: none;
+}
+
+.content ul.content_partner_foto_list li span {
+	display: block;
+	margin: 10px 0 10px 130px;
+}
+
+/* Content Table */
+
+.content_table {
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+
+.content_table th,
+.content_table td {
+	text-align: left;
+	border: #5379B7 1px solid;
+	padding: 2px 0 2px 6px;
+}
+
+.content_table thead th {
+	background-color: #92aad6;
+	color: #FFF;
+}
+
+.content_table tbody th {
+	background-color: #f8cb42;
+}
+
+/* Content Forms */
+
+.content form ul,
+.content form ul li,
+.content form ul li ul,
+.content form ul li ul li {
+	display: block;
+	list-style-type: none;
+	list-style-image: none;
+	margin: 0;
+	padding: 0;
+	line-height: 200%;
+}
+
+.content form ul {
+	margin-bottom: 25px;
+}
+
+.content form ul li ul {
+	margin-bottom: 0;
+}
+
+.content form ul li ul {
+	padding-left: 110px;
+}
+
+.content form .form_label {
+	display: -moz-inline-stack;
+	display: inline-block;
+	width: 110px;
+	font-weight: bold;
+}
+
+.content form .form_label_wide {
+	display: block;
+	width: auto;
+	font-weight: bold;
+}
+
+.content form ul li ul .form_label {
+	clear: none;
+	width: 50px;
+}
+
+.content form .form_radio_label {
+	padding-right: 22px;
+}
+
+.content form .form_checkbox_label {
+	font-weight: bold;
+}
+
+.content form .input_radio,
+.content form .input_checkbox {
+	margin-right: 4px;
+	vertical-align: middle;
+}
+
+.content form .input_text,
+.content form .input_textarea {
+	width: 300px;
+	border: #c7d1dd 1px solid;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.content form .input_text_wide,
+.content form .input_textarea_wide {
+	width: 410px;
+	border: #c7d1dd 1px solid;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.content form .input_text,
+.content form .input_textarea {
+	vertical-align: text-top;
+}
+
+.content form ul li ul .input_text {
+	width: 97px;
+}
+
+.content form fieldset {
+	border: none;
+}
+
+.content form fieldset label {
+	display: block;
+}
+
+.content form h2 {
+	margin-top: 15px;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+/* Content Link Extern */
+
+.content_link_extern,
+.dijitDialog p a.content_link_extern {
+	padding-left: 18px;
+	padding-right: 0;
+	background: url(../design/content_link_extern.gif) no-repeat left center;
+	color: #6081BF;
+	text-decoration: underline;
+}
+
+/* Content HR */
+
+hr.content_hr {
+	position: static;
+	display: block;
+	clear: both;
+	margin: 20px 0;
+	padding: 0;
+	border: none;
+	border-bottom: #FFF 1px solid;
+}

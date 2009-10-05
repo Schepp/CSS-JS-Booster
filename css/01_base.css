@@ -1,0 +1,110 @@
+/* Urspruengliche Gruentoene vor 28.04.2009
+Helles Gruen (z.B. Menuekanten, Metanavigation)
+#D2E57D -> #CBE168
+Dunkles Gruen (z.B. Navigation Gutscheinebox, Form-Buttons)
+#ACC14A -> #9FB43E
+Dunkles Gruen (H1-Headlines)
+#BDCE70 -> #CBE168
+Dunkles Gruen (Footernavigation)
+#9FB43E -> #CBE168
+Dunkles Gruen (Lightbox)
+#ACC14A -> unveraendert
+*/
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+body {
+	position: relative;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background-color: #FFF;
+	background: #FFF url(../design/body_bg.gif) repeat-y center top;
+	color: #6081BF;
+	font-size: 12px;
+	line-height: 133%;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+input, 
+textarea, 
+select,
+button {
+	color: #000;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
+}
+
+ul,
+ol,
+li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+abbr {
+	border: none;
+	text-decoration: none;
+}
+
+em, i {
+	font-style: italic;
+}
+
+strong, b {
+	font-weight: bold;
+}
+
+.clearer {
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+	font-size: 1px;
+}
+
+/* Dojo Reset */ 
+
+.tundra .dijitTextBox, 
+.tundra .dijitComboBox, 
+.tundra .dijitSpinner, 
+.tundra .dijitTextArea, 
+.tundra .dijitInlineEditor input {
+	background-image: none;
+	color: #000;
+	line-height: 15px;
+}
+
+
+
+/* CLEAR FIX*/
+.clearfix:after {content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;}
+.clearfix {display: inline-block;}
+/* Hides from IE-mac \*/
+* html .clearfix { height: 1%;}
+.clearfix {display: block;}
+/* End hide from IE-mac */

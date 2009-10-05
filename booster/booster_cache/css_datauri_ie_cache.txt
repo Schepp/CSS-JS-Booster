@@ -1,0 +1,155 @@
+*{margin:0;padding:0}
+html{height:100%;overflow-x:hidden;overflow-y:scroll}
+body{position:relative;height:100%;background-color:#FFF;background:#FFF url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img0) repeat-y center top;color:#6081BF;font-size:12px;line-height:133%;font-family:Arial, Helvetica, sans-serif;margin:0;padding:0}
+input,textarea,select,button{color:#000;font-family:Arial, Helvetica, sans-serif;font-size:12px}
+h1,h2,h3,h4,h5,h6{font-family:"Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif}
+ul,ol,li{display:block;list-style-type:none;margin:0;padding:0}
+abbr{border:none;text-decoration:none}
+em,i{font-style:italic}
+strong,b{font-weight:700}
+.clearer{display:block;height:0;clear:both;visibility:hidden;font-size:1px}
+.tundra .dijitTextBox,.tundra .dijitComboBox,.tundra .dijitSpinner,.tundra .dijitTextArea,.tundra .dijitInlineEditor input{background-image:none;color:#000;line-height:15px}
+.clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden}
+.clearfix{display:block}
+* html .clearfix{height:1%}
+.page{position:relative;width:944px;height:auto;min-height:100%;background-color:#FFF;margin:0 auto}
+.page_header{position:relative;z-index:0;width:944px;height:311px;padding-top:40px;background:#FFF url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img1) no-repeat right bottom}
+.page_header_logo{display:block;position:absolute;z-index:1;left:28px;top:52px;width:140px;height:94px;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img2) no-repeat left top;text-decoration:none}
+.page_header_plusenergie{display:block;position:absolute;z-index:1;left:212px;top:203px;width:384px;height:116px;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img3) no-repeat left top;text-decoration:none}
+#page_header_slideshow{display:block;position:absolute;z-index:1;left:598px;top:122px;width:340px;height:204px;background:no-repeat left top}
+.page_header_slideshow_foto{display:block;position:absolute;width:340px;height:204px;filter:alpha(opacity=0);-moz-opacity:0;background-color:rgba(255,255,255,0);-khtml-opacity:0;opacity:0}
+.page_header_jahre{position:absolute;z-index:2;left:598px;top:122px;width:148px;height:47px;background:#5379B7 url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img4) no-repeat top left;color:#FFF;font-size:40px;line-height:40px;padding:0 0 0 6px}
+.page_navi_left{position:absolute;left:0;top:259px;width:204px;overflow:hidden}
+.page_content{padding-bottom:64px}
+.page_content_lower{margin-top:36px}
+.page_footer{position:relative;z-index:2;clear:both;width:944px;height:62px;margin:-63px auto 0}
+.page_footer_infos{clear:left;color:#5578BA;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img5) repeat-x bottom;border-top:#B1C2DC 1px solid;font-size:12px;line-height:1.5em;text-align:left;letter-spacing:.04em;margin:0 0 0 206px;padding:4px 0 15px}
+.page_footer_infos a{color:#5578BA;text-decoration:none}
+.page_footer_infos a:hover,.page_footer_infos a:active{text-decoration:underline}
+.page_link_top,.content .page_link_top{position:relative;clear:both;border-bottom:#B1C2DC 1px dotted;text-align:right;margin:30px 0 20px}
+.page_link_top a,.content .page_link_top a{position:absolute;top:-7px;right:20px;background:#FFF url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img6) no-repeat right center;color:#1B5B9E;font-size:10px;font-weight:400!important;line-height:14px;text-decoration:none;white-space:nowrap;zoom:1;padding:0 16px 0 6px}
+.page_link_top a:hover,.content a.page_link_top:hover{text-decoration:underline}
+.page_header_jahre_invisible,.page_header_logo span,.page_header_plusenergie span{position:absolute;left:-10000px}
+.navi_left_main,.navi_left_main li,.navi_left_main li a{position:relative;z-index:0}
+.navi_left_main{display:block;left:4px;bottom:0;width:200px;overflow:visible;background-color:#5379B7;border-bottom:#5379B7 4px solid;font-family:"Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;font-size:13px;line-height:18px;margin:0;padding:0}
+.navi_left_main li{display:block;left:-4px;width:206px;background:transparent url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img7) no-repeat left 9px;margin:0;padding:0}
+.navi_left_main li.selected,.navi_left_main li:hover{background:transparent url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img8) no-repeat left 9px}
+.navi_left_main li a{display:block;width:186px;background:transparent url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img9) no-repeat right top;color:#FFF;text-decoration:none;margin:0 0 0 18px;padding:4px 0 0}
+.navi_left_main li:first-child a{background-image:none}
+.navi_left_main li.selected,.navi_left_main li ul,.navi_left_main li ul li,.navi_left_main li ul li a{position:relative;z-index:1}
+.navi_left_main li ul{display:block;top:1px;left:4px;background:#92AAD6 url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img10) repeat-x bottom;border-top:#FFF 1px solid;border-bottom:#FFF 1px solid;padding:2px 0 11px}
+.navi_left_main li ul li a,.navi_left_main li ul li,.navi_left_main li ul li.selected,.navi_left_main li ul li:hover{background-image:none}
+.navi_left_main li ul li.selected a,.navi_left_main li ul li a:hover{color:#294D88}
+.navi_header_meta li{display:block;position:absolute;top:326px;background-color:#5379B7}
+.navi_header_meta li:hover{background-color:#92AAD6}
+.navi_header_meta_01{left:373px}
+.navi_header_meta_02{left:429px}
+.navi_header_meta_03{left:598px}
+.navi_header_meta li a{display:block;background:transparent url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img11) no-repeat left center;color:#FFF;line-height:25px;text-decoration:none;padding:0 10px 0 16px}
+.navi_header_montagebild{position:absolute;left:-10000px}
+.navi_header_montagebild0{display:block;top:326px;left:238px;background:#92AAD6 url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img11) no-repeat left center;color:#FFF;text-decoration:none;line-height:25px;padding:0 10px 0 16px}
+.navi_header_montagebild0:hover{background-color:#5379B7}
+.navi_categories{border-left:#B1C2DC 1px solid;margin:0 0 40px;padding:0 0 0 6px}
+.navi_categories h2{font-size:18px;font-weight:400;line-height:1.11em;text-align:right;margin:0 0 24px}
+.navi_categories li{width:256px;height:89px;margin-bottom:12px}
+.navi_categories li a{display:block;width:256px;height:89px;background-color:#B2C2DC;background-repeat:no-repeat;background-position:5px 25px;color:#5379B7;font-family:"Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;font-size:15px;text-align:right;line-height:20px;text-decoration:none}
+.navi_categories .navi_categories_wohnhaeuser a{background-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img13)}
+.navi_categories .navi_categories_grossprojekte a{background-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img14)}
+.navi_categories .navi_categories_buegersolaranlagen a{background-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img15)}
+.navi_categories li a span{display:block;background:#FFF url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img16) no-repeat right center;padding:0 14px 0 0}
+* html .navi_smallblock{height:83px}
+.navi_smallblock{min-height:83px}
+.navi_smallblock,.navi_map,.navi_fragebogen{display:block;position:relative;color:#6081BF;border:none;border-left:#B1C2DC 1px solid;text-decoration:none;margin:0 0 30px;padding:0 0 10px 6px}
+.navi_smallblock .content_gluehbirne{position:relative;z-index:1;top:-2px;float:left;margin-bottom:-5px;margin-right:8px}
+.navi_smallblock strong.h2,.navi_map h2,.navi_fragebogen h2{display:block;margin-bottom:5px;font-size:16px;font-weight:700;line-height:1.11em}
+.navi_smallblock span.p{display:block;margin-bottom:5px;font-size:11px;font-weight:700}
+.navi_map p,.navi_fragebogen p{margin-bottom:15px;font-size:11px}
+.navi_smallblock span.p span.a,.navi_map a,.navi_fragebogen a,.dijitDialog p a{background:#FFF url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img17) no-repeat right center;color:#6081BF;text-decoration:underline;padding:0 8px 0 0}
+.navi_fragebogen a.content_link_extern{padding-left:18px;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img18) no-repeat left center;color:#6081BF;text-decoration:underline}
+.navi_smallblock span.p span.a,.navi_fragebogen a{line-height:27px}
+.navi_smallblock_details span.p span.a{line-height:133%}
+.navi_smallblock span.p span.a:hover,.navi_map a:hover{text-decoration:underline}
+.navi_referenzen{background:transparent url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img19) no-repeat right top}
+.navi_infomaterial{background:transparent url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img20) no-repeat right top}
+.navi_beratung{background:transparent url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img21) no-repeat right top}
+.navi_map .navi_mapborder{margin-bottom:5px;background:#b1c2dc url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img22) no-repeat center center;border-bottom:#f8cb42 5px solid;padding:5px}
+.navi_map #map{height:252px;overflow:hidden}
+.navi_smallblock_details img{display:block;margin-bottom:4px;border:#b1c2dc 5px solid}
+.navi_wai{position:absolute;left:-10000px}
+.content{float:left;overflow:visible;padding-bottom:40px;font-family:Arial, Helvetica, sans-serif;font-size:12px}
+.content_narrow{width:664px}
+.content_wide{width:755px}
+.content_padding{width:416px;margin-left:238px;padding:24px 0 0}
+.content_column_right{float:right;width:263px;padding:24px 0 0}
+.content h1{font-family:"Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;font-size:25px;font-weight:700;line-height:1.05em;margin:0 0 20px}
+.content h2,.dijitDialog h2{font-family:"Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;font-size:18px;font-weight:400;line-height:1.11em;margin:0 0 10px}
+.content h3{font-family:Arial, Helvetica, sans-serif;font-size:14px;line-height:1.285em;margin:10px 0 15px}
+.content h3,.content h4,.content p,.dijitDialog p{font-family:Arial, Helvetica, sans-serif;font-size:12px;line-height:1.5em;margin:15px 0 10px}
+.content h4{margin-bottom:-15px}
+.content ul,.content ol{font-family:Arial, Helvetica, sans-serif;font-size:12px;line-height:1.5em;margin:15px 0 10px;padding:0 0 0 40px}
+.content ul.content_nolist,.content ol.content_nolist{list-style-type:none}
+.content_slide_content ul,.content_slide_content ol{margin:10px 0 10px 40px;padding:0 0 0 20px}
+.content li{display:list-item;padding-bottom:4px;list-style-position:inside}
+.content ol,.content ol li{list-style-type:decimal;list-style-position:outside}
+.content ul,.content ul li{list-style-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img23);list-style-position:outside}
+.content ul.content_nolist li,.content ul.content_nolist li{display:block;padding-bottom:4px;list-style-type:none}
+.content a,.dijitDialog a{color:#5379B7;text-decoration:underline}
+.content a:hover,.content a:active,.dijitDialog a:hover,.dijitDialog a:active{text-decoration:underline}
+.content cite.content_customer_cite{display:block;color:#476CAA;font-size:20px;line-height:1.4em;margin:20px 0}
+.content ul.content_category_foto_list{display:block;list-style-type:none;width:416px;height:150px;border-top:#B1C2DC 5px solid;margin:0;padding:0}
+.content ul.content_category_foto_list li,.content ul.content_category_foto_list li a{display:block;float:left;list-style-type:none;height:150px;overflow:hidden;background-repeat:no-repeat;background-position:left top;text-decoration:none;margin:0;padding:0}
+.content ul.content_category_foto_list li a span{display:block;width:133px;height:38px;margin-top:105px;background:none;cursor:pointer;padding:7px 0 0 5px}
+.content_category_foto_list_grossprojekte,.content_category_foto_list_wohnhaeuser{width:139px}
+.content_category_foto_list_buegersolaranlagen{width:138px}
+.content_category_foto_list_grossprojekte a span,.content_category_foto_list_wohnhaeuser a span,.content_category_foto_list_buegersolaranlagen a span{display:block;width:118px;height:38px;margin-top:105px;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img24) no-repeat 12px 13px;cursor:pointer;padding:7px 0 0 20px}
+.content_category_foto_list_grossprojekte,.content_category_foto_vlist_grossprojekte{background-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img25)}
+.content_category_foto_list_wohnhaeuser,.content_category_foto_vlist_wohnhaeuser{background-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img26)}
+.content_category_foto_list_buegersolaranlagen,.content_category_foto_vlist_buegersolaranlagen{background-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img27)}
+.content_category_foto_list_grossprojekte span,.content_category_foto_list_wohnhaeuser span,.content_category_foto_list_blau span{border-right:#92AAD6 1px solid}
+.content_category_foto_list_blau,.content_category_foto_list_blau2{background-image:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img28)}
+.content_category_foto_list_blau{width:139px}
+.content_category_foto_list_blau2{width:138px}
+.content ul.content_category_foto_vlist{display:block;list-style-type:none;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img29) repeat-y left;margin:0;padding:0}
+.content ul.content_category_foto_vlist li{display:block;list-style-type:none;min-height:105px;background-repeat:no-repeat;background-position:left 5px;text-decoration:none;margin:0;padding:0}
+* html .content ul.content_category_foto_vlist li,* html .content ul.content_category_foto_vlist li a{height:105px}
+* html .content ul.content_category_foto_vlist li,* + html .content ul.content_category_foto_vlist li{display:inline}
+.content ul.content_category_foto_vlist li a{display:block;min-height:105px;padding-top:5px;text-decoration:none}
+.content ul.content_category_foto_vlist li span{display:block;margin:0 30px 0 150px}
+.content ul.content_category_foto_vlist li span a{display:inline;height:auto;min-height:auto;text-decoration:underline;padding:0}
+.content_gluehbirne{display:block;width:14px;height:22px;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img30) no-repeat left top}
+.content ul.content_team_foto_list{display:block;list-style-type:none;margin:30px 0 25px;padding:0}
+.content ul.content_team_foto_list li{display:block;clear:left;list-style-type:none;min-height:80px;margin:0;padding:0}
+* html .content ul.content_team_foto_list li,* + html .content ul.content_team_foto_list li{display:inline}
+* html .content ul.content_team_foto_list li{height:80px}
+.content ul.content_team_foto_list li img{display:block;float:left;border:none;border-top:#B1C2DC 5px solid;margin:0 10px 0 0;padding:0}
+.content ul.content_team_foto_list li span{display:block;margin:10px 0}
+.content ul.content_partner_foto_list{display:block;list-style-type:none;margin:25px 0;padding:0}
+.content ul.content_partner_foto_list li{display:block;clear:left;list-style-type:none;min-height:80px;margin:0;padding:0}
+* html .content ul.content_partner_foto_list li,* + html .content ul.content_partner_foto_list li{display:inline}
+* html .content ul.content_partner_foto_list li{height:80px}
+.content ul.content_partner_foto_list li img{display:block;float:left;border:none;margin:0 10px 0 0;padding:0}
+.content ul.content_partner_foto_list li span{display:block;margin:10px 0 10px 130px}
+.content_table{table-layout:fixed;border-collapse:collapse}
+.content_table th,.content_table td{text-align:left;border:#5379B7 1px solid;padding:2px 0 2px 6px}
+.content_table thead th{background-color:#92aad6;color:#FFF}
+.content_table tbody th{background-color:#f8cb42}
+.content form ul,.content form ul li,.content form ul li ul,.content form ul li ul li{display:block;list-style-type:none;list-style-image:none;line-height:200%;margin:0;padding:0}
+.content form ul{margin-bottom:25px}
+.content form ul li ul{margin-bottom:0;padding-left:110px}
+.content form .form_label{display:inline-block;width:110px;font-weight:700}
+.content form .form_label_wide{display:block;width:auto;font-weight:700}
+.content form ul li ul .form_label{clear:none;width:50px}
+.content form .form_radio_label{padding-right:22px}
+.content form .form_checkbox_label{font-weight:700}
+.content form .input_radio,.content form .input_checkbox{margin-right:4px;vertical-align:middle}
+.content form .input_text,.content form .input_textarea{width:300px;border:#c7d1dd 1px solid;font-family:Arial, Helvetica, sans-serif;vertical-align:text-top}
+.content form .input_text_wide,.content form .input_textarea_wide{width:410px;border:#c7d1dd 1px solid;font-family:Arial, Helvetica, sans-serif}
+.content form ul li ul .input_text{width:97px}
+.content form fieldset{border:none}
+.content form fieldset label{display:block}
+.content form h2{margin-top:15px;margin-bottom:5px;font-weight:700}
+.content_link_extern,.dijitDialog p a.content_link_extern{padding-left:18px;padding-right:0;background:url(mhtml:http://192.168.0.7/booster/booster/booster_mhtml.php?dir=../css&nocache=1253898167!img18) no-repeat left center;color:#6081BF;text-decoration:underline}
+hr.content_hr{position:static;display:block;clear:both;border:none;border-bottom:#FFF 1px solid;margin:20px 0;padding:0}
+button{white-space:nowrap;cursor:pointer}
+button::-moz-focus-inner{border:0;padding:0}
+.button_blue{position:relative;display:inline-block;width:auto;height:18px;overflow:visible;background-color:#5379b7;color:#FFF;border-top:#9cb2d5 1px solid;border-left:#9cb2d5 1px solid;border-bottom:#496aa0 1px solid;border-right:#496aa0 1px solid;font-size:11px;line-height:16px;margin:1px 0 0;padding:0 8px}
