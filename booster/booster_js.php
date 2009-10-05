@@ -5,9 +5,9 @@ header("Content-type: text/javascript");
 
 include('booster_inc.php');
 
-((isset($_GET['dir'])) ? $dir = rtrim(preg_replace('/[^a-zA-Z\.\/]/','',$_GET['dir']),'/') : $dir = 'js');
+((isset($_GET['dir'])) ? $dir = rtrim(preg_replace('/[^a-zA-Z0-9,\.\/]/','',$_GET['dir']),'/') : $dir = 'js');
 ((isset($_GET['totalparts'])) ? $totalparts = intval($_GET['totalparts']) : $totalparts = 1);
 ((isset($_GET['part'])) ? $part = intval($_GET['part']) : $part = 0);
 
-echo booster_js('../'.$dir,$totalparts,$part);
+echo booster_js($dir,$totalparts,$part);
 ?>

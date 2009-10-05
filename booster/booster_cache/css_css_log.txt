@@ -1,6 +1,0 @@
-Directory 
-../css/01_base.css
-../css/02_page.css
-../css/03_navi.css
-../css/04_content.css
-../css/05_buttons.css

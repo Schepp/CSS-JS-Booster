@@ -9,5 +9,5 @@ include('booster_inc.php');
 ((isset($_GET['totalparts'])) ? $totalparts = intval($_GET['totalparts']) : $totalparts = 1);
 ((isset($_GET['part'])) ? $part = intval($_GET['part']) : $part = 0);
 
-echo booster_css('../'.$dir,$totalparts,$part);
+echo booster_css($dir,$totalparts,$part);
 ?>

@@ -1,5 +1,0 @@
-Directory 
-../js/01_cufon-yui.js
-../js/02_Aller_400-Aller_700.font.js
-../js/03_Notethis_400.font.js
-../js/06_swfobject.js
