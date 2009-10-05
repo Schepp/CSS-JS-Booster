@@ -15,6 +15,13 @@ $starttime = microtime(TRUE);
 include_once('browser_class_inc.php');
 include_once('csstidy-1.3/class.csstidy.php');
 
+$booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/booster_cache';
+if(!is_dir($booster_cachedir) && !mkdir($booster_cachedir,0777)) 
+{
+	echo 'You need to create a directory '.$booster_cachedir.' with CHMOD 0777 rights';
+	exit;
+}
+
 function booster_getpath($dir = '',$booster_dir = '',$dir_sep = '/')
 {
 	$booster_dir = explode($dir_sep, $booster_dir);
