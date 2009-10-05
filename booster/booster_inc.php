@@ -133,8 +133,8 @@ function booster_getfilescontents($dir = '',$type = '',$recursive = FALSE,$files
 			$filescontent .= "/* ".$files[$i]." */\r\n".preg_replace('/@import[^;]+?;/ms','',file_get_contents($files[$i]))."\r\n\r\n";
 			$log .= $files[$i]."\r\n";
 		}
-		if(strlen($filescontent)) file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_'.$type.'_cache.txt',$filescontent);
-		file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_'.$type.'_log.txt',$log);
+		if(strlen($filescontent)) file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_'.$type.'_cache.txt',$filescontent);
+		file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_'.$type.'_log.txt',$log);
 	}
 	return $filescontent;
 }
@@ -168,8 +168,8 @@ function booster_css_datauri($dir = '',$type = '',$filestime = 0,$filescontent =
 	if($browserArray['browsertype'] == 'MSIE' && floatval($browserArray['version']) < 8)
 	{
 		$mhtmlarray = array();
-		$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_datauri_ie_cache.txt';
-		$mhtmlfile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_datauri_mhtml_cache.txt';
+		$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_ie_cache.txt';
+		$mhtmlfile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_mhtml_cache.txt';
 		
 		$referrer_parsed = parse_url(dirname($_SERVER['REQUEST_URI']));
 		$mhtmlpath = dirname($referrer_parsed['path']);
@@ -222,7 +222,7 @@ $mhtmlcontent .= '*/
 	// If data-URI-compatible browser
 	else
 	{
-		$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_datauri_cache.txt';
+		$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_cache.txt';
 		if(!file_exists($cachefile) || $filestime > filemtime($cachefile))
 		{
 			preg_match_all('/url\((.+\.)(gif|png|jpg)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
@@ -279,9 +279,9 @@ function booster_css($dir = 'css',$totalparts = 2,$part = 0,$recursive = FALSE)
 		{
 			$filestime = booster_getfilestime($dir,$type,$recursive);
 			// If IE < 8 browser
-			if($browserArray['browsertype'] == 'MSIE' && floatval($browserArray['version']) < 8) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_datauri_ie_cache.txt';
+			if($browserArray['browsertype'] == 'MSIE' && floatval($browserArray['version']) < 8) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_ie_cache.txt';
 			// If data-URI-compatible browser
-			else $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_datauri_cache.txt';
+			else $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_cache.txt';
 			
 			if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
 			else
@@ -290,6 +290,7 @@ function booster_css($dir = 'css',$totalparts = 2,$part = 0,$recursive = FALSE)
 				$currentfilescontent = booster_csstidy($currentfilescontent);
 				$filescontent .= booster_css_datauri($dir,$type,$filestime,$currentfilescontent);
 			}
+			$filescontent .= "\n";
 		}
 		next($dirs);
 	}
@@ -302,9 +303,19 @@ function booster_css_markup($dir = 'css',$media = 'all',$rel='stylesheet',$title
 	$markup = '';
 	$booster_path = booster_getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 	$css_path = booster_getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
+	
+	$dirs = explode(',',$dir);
+	reset($dirs);
+	for($i=0;$i<sizeof($dirs);$i++) 
+	{
+		$dirs[key($dirs)] = $css_path.'/'.current($dirs);
+		next($dirs);
+	}
+	$dir = implode(',',$dirs);
+
 	for($j=0;$j<intval($totalparts);$j++)
 	{
-		$markup .= '<link rel="'.$rel.'" media="'.$media.'" title="'.htmlentities($title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($css_path.'/'.$dir,ENT_QUOTES).'&amp;totalparts='.intval($totalparts).'&amp;part='.($j+1).'&amp;nocache='.booster_getfilestime($dir,'css').'" '.(($markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
+		$markup .= '<link rel="'.$rel.'" media="'.$media.'" title="'.htmlentities($title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($totalparts).'&amp;part='.($j+1).'&amp;nocache='.booster_getfilestime($dir,'css').'" '.(($markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
 	}
 	return $markup;
 }
@@ -350,10 +361,12 @@ function booster_js($dir = 'js',$totalparts = 1,$part = 0,$recursive = FALSE)
 		if(is_dir($dir))
 		{
 			$filestime = booster_getfilestime($dir,$type,$recursive);
-			$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/booster_cache/'.preg_replace('/[^a-z]/i','',$dir).'_'.$type.'_cache.txt';
+			$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_'.$type.'_cache.txt';
 			
 			if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
 			else $filescontent .= booster_getfilescontents($dir,$type,$recursive);
+
+			$filescontent .= "\n";
 		}
 		next($dirs);
 	}
@@ -366,9 +379,19 @@ function booster_js_markup($dir = 'js',$totalparts = 1)
 	$markup = '';
 	$booster_path = booster_getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 	$js_path = booster_getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
+	
+	$dirs = explode(',',$dir);
+	reset($dirs);
+	for($i=0;$i<sizeof($dirs);$i++) 
+	{
+		$dirs[key($dirs)] = $js_path.'/'.current($dirs);
+		next($dirs);
+	}
+	$dir = implode(',',$dirs);
+
 	for($j=0;$j<intval($totalparts);$j++)
 	{
-		$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($js_path.'/'.$dir,ENT_QUOTES).'&amp;totalparts='.intval($totalparts).'&amp;part='.($j+1).'&amp;nocache='.booster_getfilestime($dir,'js').'"></script>'."\r\n";
+		$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($totalparts).'&amp;part='.($j+1).'&amp;nocache='.booster_getfilestime($dir,'js').'"></script>'."\r\n";
 	}
 	return $markup;
 }

@@ -5,7 +5,7 @@
 <title>Blog Division</title>
 <script type="text/javascript">beforeload = (new Date()).getTime();</script>
 <?php include('../../booster/booster_inc.php'); ?>
-<?php echo booster_css_markup('css,css2'); ?>
+<?php echo booster_css_markup(); ?>
 </head>
 <body>
 <div id="topPan">
