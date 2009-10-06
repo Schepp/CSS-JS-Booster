@@ -1,5 +1,72 @@
 
 
+----------------------------------------------------------------------------
+Basic Usage
+----------------------------------------------------------------------------
+
+CSS-JS-Booster is - as its name implies - divided into two functionblocks:
+A CSS-optimizing block and a JavaScript-optimizing block.
+
+For both functionalities you first need to include 
+<?php include('booster/booster_inc.php'); ?>
+at the top of your (PHP-interpreted) file. 
+
+Should you happen to only have static HTML-files, try enabling PHP-parsing
+by putting a .htaccess-file into the site's root with following directive:
+
+AddType application/x-httpd-php .html .htm
+
+Then go into the booster-folder and create a folder named "booster_cache"
+and have it CHMOD 0777. 
+
+
+
+For the CSS-part, put all releveant CSS-files into a subfolder "css" of your
+site. Make sure, all declarations pointing to image-files have their paths
+adjusted (i.e. all CSS should be fully functional inside that folder). 
+
+If you have multiple CSS-files rename them so that they are alphabetically 
+sorted in the desired order, e.g.:
+
+01_first.css
+02_second.css
+03_third.css
+
+Then add this declaration in the HTML's head-section:
+
+<?php echo booster_css_markup(); ?>
+
+for example:
+
+<head>
+<title>Webpage</title>
+<?php echo booster_css_markup(); ?>
+</head>
+
+
+
+For the JS-part, put all releveant JS-files into a subfolder "js" of your
+site. 
+
+If you have multiple JS-files rename them so that they are alphabetically 
+sorted in the desired order, e.g.:
+
+01_first.js
+02_second.js
+03_third.js
+
+Then add this declaration either in the HTML's head-section, or - better for
+performance and therefore recommended when you experience no errors - right 
+before the closing </body>:
+
+<?php echo booster_js_markup(); ?>
+
+for example:
+
+<?php echo booster_js_markup(); ?>
+</body>
+</html>
+
 
 ----------------------------------------------------------------------------
 Copyright and License Information for 3rd party elements used in the scripts
