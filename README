@@ -52,7 +52,10 @@ Basic Usage
 CSS-JS-Booster is - as its name implies - divided into two function blocks:
 A CSS-optimizing block and a JavaScript-optimizing block.
 
-For both functionalities you first need to include 
+For both functionalities you first need to go into the booster-folder and 
+create a folder named "booster_cache" and have it CHMOD 0777.
+
+Afterwards include 
 <?php include('booster/booster_inc.php'); ?>
 at the top of your (PHP-interpreted) file. 
 (Adjust the path according to your folder-structure) 
@@ -61,9 +64,6 @@ Should you happen to only have static HTML-files, try enabling PHP-parsing
 by putting a .htaccess-file into the site's root with following directive:
 
 AddType application/x-httpd-php .html .htm
-
-Then go into the booster-folder and create a folder named "booster_cache"
-and have it CHMOD 0777. 
 
 
 
