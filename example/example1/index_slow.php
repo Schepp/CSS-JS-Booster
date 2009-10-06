@@ -100,9 +100,9 @@
     </ul>
   </div>
 </div>
-<script type="text/javascript" src="js/01_cufon-yui.js"></script>
-<script type="text/javascript" src="js/02_Aller_400-Aller_700.font.js"></script>
-<script type="text/javascript" src="js/03_Notethis_400.font.js"></script>
+<script type="text/javascript" src="js/01_jquery-1.3.1.min.js"></script>
+<script type="text/javascript" src="js/02_cufon-yui.js"></script>
+<script type="text/javascript" src="js/03_Sansation_400.font.js"></script>
 <script type="text/javascript" src="js/z_functions.js"></script>
 </body>
 </html>
