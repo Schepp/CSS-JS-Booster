@@ -12,7 +12,7 @@ I'd eat my hat if there aren't enough bugs left, especially regarding
 absolute/relative paths when linking and including and so on. That's what
 the testing is good for (and no, I don't wear no hat...)
 
-What's not a bug is that I don't plan to support browsers older than IE6SP2.
+Not a bug is that I don't plan to support browsers older than IE6SP2.
 It's also not intended to minify or further compress (like with Dean Edwards
  packer) the JS, as I experienced a lot of trouble doing that. 
 Also most large JS-libraries/framework are already heavily minified.
