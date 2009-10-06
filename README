@@ -6,7 +6,7 @@ Important notice
 ----------------------------------------------------------------------------
 
 This piece of code has just been published so that others can start testing
-and/or using and/or enhance it.
+and/or using and/or enhancing it.
 
 I'd eat my hat if there aren't enough bugs left, especially regarding 
 absolute/relative paths when linking and including and so on. That's what
@@ -15,7 +15,7 @@ the testing is good for (and no, I don't wear no hat...)
 Not a bug is that I don't plan to support browsers older than IE6SP2.
 It's also not intended to minify or further compress (like with Dean Edwards
  packer) the JS, as I experienced a lot of trouble doing that. 
-Also most large JS-libraries/framework are already heavily minified.
+Also most large JS-libraries/frameworks are already heavily minified.
 
 ----------------------------------------------------------------------------
 Functionality and Benefits
@@ -27,7 +27,7 @@ optimizing steps related to CSS and JS embedding as possible.
 For CSS these steps are:
 - combine multiple CSS-files resulting in HTTP-requests going down
 - optimize and minify CSS with CSSTidy
-- Embed any CSS-images smaller 32KB as data-URI or MHTML (for IE <= 7)
+- Embed any CSS-images smaller 24KB as data-URI or MHTML (for IE <= 7)
 - Split the output back into 2 even files that can load in parallel
 - GZIP-compress the resulting CSS
 - Have browsers cache the result as long as it remains unchanged
@@ -37,13 +37,24 @@ For JS these steps are:
 - GZIP-compress the resulting JS
 - Have browsers cache the result as long as it remains unchanged
 
++ GZIP-compress the page itself from where those files are called.
+
 Depending on the amount of CSS, CSS-images and JS, this can significantly
 increase loading speed of your site.
+
+
+Naah, your software stinks! Alternatives? Yes, there are!
+
+There is a nifty piece of software build by some smart people over in russia
+called "Web Optimizer" at http://www.web-optimizer.us/ that does what 
+CSS-JS-Booster does, and a little lot more. And there are Wordpress and 
+Joomla-Plugins. It is priced quite reasonable at $99. 
 
 For any full-fledged web 3.0 company with money, their own servers and some 
 technical skills (or instead: even more money), there also exists an 
 enterprise-website-accelerator named "aptimize": http://www.aptimize.com/  
-Just to have mentioned that...
+
+Just to have mentioned those...
 
 ----------------------------------------------------------------------------
 Basic Usage
