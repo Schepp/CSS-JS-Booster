@@ -39,7 +39,11 @@ For JS these steps are:
 
 Depending on the amount of CSS, CSS-images and JS, this can significantly
 increase loading speed of your site.
- 
+
+For any full-fledged web 3.0 company with money, their own servers and some 
+technical skills (or instead: even more money), there also exists an 
+enterprise-website-accelerator named "aptimize": http://www.aptimize.com/  
+Just to have mentioned that...
 
 ----------------------------------------------------------------------------
 Basic Usage
