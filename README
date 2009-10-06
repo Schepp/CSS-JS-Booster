@@ -10,7 +10,7 @@ and/or using and/or enhance it.
 
 I'd eat my hat if there aren't enough bugs left, especially regarding 
 absolute/relative paths when linking and including and so on. That's what
-the testing is good for (and I wear no hat...)
+the testing is good for (andno, I don't wear no hat...)
 
 What's not a bug is that I don't plan to support browsers older than IE6SP2.
 It's also not intended to minify or further compress (like with Dean Edwards
@@ -126,7 +126,7 @@ Q & A for Advanced Usage
 ----------------------------------------------------------------------------
 
 Q: How can I combine files out of multiple CSS- or JS-folders?
-A: By setting it as first argument a comma delimited list of folders: 
+A: By setting as first argument a comma delimited list of folders: 
    booster_css_markup('css_1,css_2');
    booster_js_markup('js_1,js_2');
 
