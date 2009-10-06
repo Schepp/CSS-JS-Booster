@@ -122,15 +122,40 @@ are in a subfolder it should read '../js'.
 
 
 ----------------------------------------------------------------------------
-Q & A and Advanced Usage
+Q & A for Advanced Usage
 ----------------------------------------------------------------------------
 
 Q: How can I combine files out of multiple CSS- or JS-folders?
 A: By setting it as first argument a comma delimited list of folders: 
-<?php booster_css_markup('css1,css2'); ?>
-<?php booster_js_markup('js1,j2'); ?>
+   booster_css_markup('css_1,css_2');
+   booster_js_markup('js_1,js_2');
 
+Q: For CSS, how can I define a different target-medium?
+A: By setting the desired media as second argument:
+   booster_css_markup('css','screen,projection');
 
+Q: For CSS, can I define a second folder to feed an alternate stylesheet?
+A: Sure, e.g. like this:
+   booster_css_markup('css','all','stylesheet');
+   booster_css_markup('css_alt','all','alternate stylesheet');
+
+Q: For CSS, can I define a title?
+A: Yes, comes into play the 4th argument:
+   booster_css_markup('css','all','stylesheet','Standard');
+   
+Q: For CSS, can I influence in how many even parts it gets split?
+A: Yes, by setting the 5th argument:
+   booster_css_markup('css','all','stylesheet','Standard',1);
+   
+Q: For JS, can I increase the number of parts it gets split?
+A: Yes, by setting the second argument:
+   booster_js_markup('js',2);
+   
+Q: For CSS, can I have it output in HTML 4.01 fashion?
+A: Yes, by setting the 6th argument:
+   booster_css_markup('css','all','stylesheet','Standard',2,'HTML');
+   
+   
 
 ----------------------------------------------------------------------------
 Copyright and License Information for 3rd party elements used in the scripts
