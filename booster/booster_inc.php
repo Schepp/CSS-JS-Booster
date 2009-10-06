@@ -209,7 +209,7 @@ Content-Type: multipart/related; boundary="_ANY_STRING_WILL_DO_AS_A_SEPARATOR"
 		{
 			$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
 			$imagetag = 'img'.$i;
-			if(file_exists($imagefile) && filesize($imagefile) < 32000) 
+			if(file_exists($imagefile) && filesize($imagefile) < 24000) 
 			{
 				$filescontent = str_replace($treffer[0][$i],'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$dir.'&nocache='.$filestime.'!'.$imagetag.')',$filescontent);
 
@@ -251,7 +251,7 @@ $mhtmlcontent .= '*/
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
 				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
-				if(file_exists($imagefile) && filesize($imagefile) < 32000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
+				if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 			}
 			file_put_contents($cachefile,$filescontent);
 			chmod($cachefile,0777);
