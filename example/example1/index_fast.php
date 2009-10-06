@@ -5,7 +5,7 @@
 <title>Blog Division</title>
 <script type="text/javascript">beforeload = (new Date()).getTime();</script>
 <?php include('../../booster/booster_inc.php'); ?>
-<?php echo booster_css_markup(); ?>
+<?php echo booster_css_markup('css'); ?>
 </head>
 <body>
 <div id="topPan">
@@ -101,6 +101,6 @@
     </ul>
   </div>
 </div>
-<?php echo booster_js_markup(); ?>
+<?php echo booster_js_markup('js'); ?>
 </body>
 </html>
