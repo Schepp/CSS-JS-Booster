@@ -2,6 +2,19 @@ Copyright (C) 2009 Christian "Schepp" Schaefer
 http://twitter.com/derSchepp
 
 ----------------------------------------------------------------------------
+Important notice
+----------------------------------------------------------------------------
+
+This piece of code has just been published so that others can start testing
+and/or using and/or enhance it.
+
+I'd eat my hat if there aren't enough bugs left, especially regarding 
+absolute/relative paths when linking and including and so on. That's what
+the testing is good for.
+
+What's not a bug is that I don't plan to support browsers older than IE6SP2.
+
+----------------------------------------------------------------------------
 Functionality and Benefits
 ----------------------------------------------------------------------------
 
