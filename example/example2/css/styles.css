@@ -1,0 +1,12 @@
+div {
+	width: 400px;
+	height: 100px;
+	margin: 10px;
+	background-image: url(../images/normalstate.gif);
+	background-repeat: repeat-x;
+	border: #CCC 1px solid;
+}
+
+div:hover {
+	background-image: url(../images/hoverstate.gif);
+}
