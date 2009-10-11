@@ -76,7 +76,7 @@ create a folder named "booster_cache" and have it CHMOD 0777.
 
 Afterwards include 
 <?php 
-include('../../booster/booster_inc.php'); 
+include('booster/booster_inc.php'); 
 $booster = new Booster();
 ?>
 at the top of your (PHP-interpreted) file. 
