@@ -35,5 +35,6 @@ $booster = new Booster();
 $booster->css_dir = $dir;
 $booster->css_totalparts = $totalparts;
 $booster->css_part = $part;
+echo '/* '.$_SERVER['HTTP_IF_MODIFIED_SINCE'].' */';
 echo $booster->css();
 ?>

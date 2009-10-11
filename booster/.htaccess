@@ -6,25 +6,14 @@ FileETag none
 #"Mod_expires" needs to be installed in your Apache server, to use this feature.
 <IfModule mod_expires.c>
 ExpiresActive On
-ExpiresDefault "access plus 1 minutes"
-ExpiresByType text/html "access plus 1 minutes"
-ExpiresByType text/css "access plus 1 months"
-ExpiresByType text/javascript "access plus 1 months"
-ExpiresByType text/plain "access plus 1 months"
-ExpiresByType application/x-javascript "access plus 1 months"
-ExpiresByType application/x-shockwave-flash "access plus 1 months"
-ExpiresByType image/gif "access plus 1 years"
-ExpiresByType image/jpeg "access plus 1 years"
-ExpiresByType image/jpg "access plus 1 years"
-ExpiresByType image/png "access plus 1 years"
-ExpiresByType image/x-icon "access plus 1 years"
+ExpiresDefault "access plus 1 years"
 </IfModule>
 
 #Alternative caching using Apache's "mod_headers", if it's installed.
 #Caching of common files - ENABLED
 <IfModule mod_headers.c>
 Header unset ETag
-<FilesMatch "\.(ico|pdf|js|css|gif|png|jpg|jpeg|ico|txt|html|htm)$">
+<FilesMatch "\.php$">
 Header set Cache-Control "max-age=2592000, public"
 </FilesMatch>
 #Remove comments, to disable video caching to the user's browser

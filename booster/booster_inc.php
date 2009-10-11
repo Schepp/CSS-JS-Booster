@@ -358,20 +358,23 @@ $mhtmlcontent .= '*/
 		$css_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
 		
 		$dirs = explode(',',$this->css_dir);
+		$timestamp_dirs = array();
 		reset($dirs);
 		for($i=0;$i<sizeof($dirs);$i++) 
 		{
 			$dirs[key($dirs)] = $css_path.'/'.current($dirs);
+			array_push($timestamp_dirs,$booster_path.'/'.$css_path.'/'.current($dirs));
 			next($dirs);
 		}
 		$dir = implode(',',$dirs);
-	
+		$timestamp_dir = implode(',',$timestamp_dirs);
+
 		// IE6 fix image flicker
 		if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7) $markup .= '<script type="text/javascript">try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}</script>'."\r\n";
 	
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
-			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
+			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
 		}
 	
 		return $markup;
@@ -434,17 +437,20 @@ $mhtmlcontent .= '*/
 		$js_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
 		
 		$dirs = explode(',',$this->js_dir);
+		$timestamp_dirs = array();
 		reset($dirs);
 		for($i=0;$i<sizeof($dirs);$i++) 
 		{
 			$dirs[key($dirs)] = $js_path.'/'.current($dirs);
+			array_push($timestamp_dirs,$booster_path.'/'.$js_path.'/'.current($dirs));
 			next($dirs);
 		}
 		$dir = implode(',',$dirs);
+		$timestamp_dir = implode(',',$timestamp_dirs);
 	
 		for($j=0;$j<intval($this->js_totalparts);$j++)
 		{
-			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($dir,'js').'"></script>'."\r\n";
+			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 		}
 		return $markup;
 	}
