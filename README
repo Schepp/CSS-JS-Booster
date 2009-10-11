@@ -207,6 +207,27 @@ A: No problem, do this:
  
 
 ----------------------------------------------------------------------------
+.htaccess Acceleration
+----------------------------------------------------------------------------
+
+For an even further speed-boost, either add the contents of 
+
+/htaccess/.htaccess
+
+to your existing .htaccess-file in your site's root, or the file itself 
+shouldn't you have any .htaccess-file installed in your site's root yet. 
+
+Should you happen to get internal server error 500s, then something went
+wrong with my .htaccess and you server-config.
+
+What the .htaccess adds:
+
+- Turns off ETags
+- Adds aggressive caching for all sort of assets like images/favicon/flash
+
+
+
+----------------------------------------------------------------------------
 Copyright and License Information for 3rd party elements used in the scripts
 ----------------------------------------------------------------------------
 
