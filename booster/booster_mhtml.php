@@ -13,7 +13,7 @@
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
+* GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License
 * along with this program. 
@@ -28,9 +28,8 @@ header("Content-type: text/plain");
 include('booster_inc.php');
 
 ((isset($_GET['dir'])) ? $dir = rtrim(preg_replace('/[^a-zA-Z0-9,\.\/]/','',$_GET['dir']),'/') : $dir = 'css');
-$mhtmlfile = 'booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_mhtml_cache.txt';
 
-if(!file_exists($mhtmlfile)) booster_css($dir);
-if(file_exists($mhtmlfile)) echo file_get_contents($mhtmlfile);
-else echo $mhtmlfile;
+$booster = new Booster();
+$booster->css_dir = $dir;
+echo $booster->mhtml();
 ?>

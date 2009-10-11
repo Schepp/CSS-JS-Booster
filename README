@@ -1,6 +1,8 @@
 Copyright (C) 2009 Christian "Schepp" Schaefer
 http://twitter.com/derSchepp
 
+
+
 ----------------------------------------------------------------------------
 Important notice
 ----------------------------------------------------------------------------
@@ -17,6 +19,8 @@ It's also not intended to minify or further compress (like with Dean Edwards
  packer) the JS, as I experienced a lot of trouble doing that. 
 Also most large JS-libraries/frameworks are already heavily minified.
 
+
+
 ----------------------------------------------------------------------------
 Functionality and Benefits
 ----------------------------------------------------------------------------
@@ -31,6 +35,7 @@ For CSS these steps are:
 - Split the output back into 2 even files that can load in parallel
 - GZIP-compress the resulting CSS
 - Have browsers cache the result as long as it remains unchanged
+- If IE6: Issue a JS-command to fix background image caching behaviour 
 
 For JS these steps are:
 - combine multiple JS-files resulting in HTTP-requests going down
@@ -41,6 +46,7 @@ For JS these steps are:
 
 Depending on the amount of CSS, CSS-images and JS, this can significantly
 increase loading speed of your site.
+
 
 
 Naah, your software stinks! Alternatives? Yes, there are!
@@ -56,6 +62,8 @@ enterprise-website-accelerator named "aptimize": http://www.aptimize.com/
 
 Just to have mentioned those...
 
+
+
 ----------------------------------------------------------------------------
 Basic Usage
 ----------------------------------------------------------------------------
@@ -67,7 +75,10 @@ For both functionalities you first need to go into the booster-folder and
 create a folder named "booster_cache" and have it CHMOD 0777.
 
 Afterwards include 
-<?php include('booster/booster_inc.php'); ?>
+<?php 
+include('../../booster/booster_inc.php'); 
+$booster = new Booster();
+?>
 at the top of your (PHP-interpreted) file. 
 (Adjust the path according to your folder-structure) 
 
@@ -91,13 +102,19 @@ sorted in the desired order, e.g.:
 
 Then add this declaration in the HTML's head-section:
 
-<?php echo booster_css_markup('css'); ?>
+<?php 
+$booster->css_dir = 'css';
+echo $booster->css_markup(); 
+?>
 
 for example:
 
 <head>
 <title>Webpage</title>
-<?php echo booster_css_markup('css'); ?>
+<?php 
+$booster->css_dir = 'css';
+echo $booster->css_markup(); 
+?>
 </head>
 
 The argument is the path relativ to the file calling that function. If you 
@@ -119,11 +136,17 @@ Then add this declaration either in the HTML's head-section, or - better for
 performance and therefore recommended when you experience no errors - right 
 before the closing </body>:
 
-<?php echo booster_js_markup('js'); ?>
+<?php 
+$booster->js_dir = 'js';
+echo $booster->js_markup(); 
+?>
 
 for example:
 
-<?php echo booster_js_markup('js'); ?>
+<?php 
+$booster->js_dir = 'js';
+echo $booster->js_markup(); 
+?>
 </body>
 </html>
 
@@ -137,36 +160,51 @@ Q & A for Advanced Usage
 ----------------------------------------------------------------------------
 
 Q: How can I combine files out of multiple CSS- or JS-folders?
-A: By setting as first argument a comma delimited list of folders: 
-   booster_css_markup('css_1,css_2');
-   booster_js_markup('js_1,js_2');
+A: By setting as directory argument a comma delimited list of folders: 
 
-Q: For CSS, how can I define a different target-medium?
-A: By setting the desired media as second argument:
-   booster_css_markup('css','screen,projection');
+   $booster->css_dir = 'css_1,css_2';
+   echo $booster->css_markup();
+
+   or
+
+   $booster->js_dir = 'js_1,js_2';
+   echo $booster->js_markup(); 
+
+
+Q: For CSS, how can I define a different/specific target-medium?
+A: Yepp, by setting the desired media before echoing the markup:
+
+   $booster->css_media = 'screen,projection';
+   echo $booster->css_markup();
+
 
 Q: For CSS, can I define a second folder to feed an alternate stylesheet?
 A: Sure, e.g. like this:
-   booster_css_markup('css','all','stylesheet');
-   booster_css_markup('css_alt','all','alternate stylesheet');
 
-Q: For CSS, can I define a title?
-A: Yes, comes into play the 4th argument:
-   booster_css_markup('css','all','stylesheet','Standard');
-   
+   $booster->css_dir = 'css_2';
+   $booster->css_rel = 'alternate stylesheet';
+   $booster->css_title = 'Alternate Stylesheet';
+   echo $booster->css_markup();
+
+
 Q: For CSS, can I influence in how many even parts it gets split?
-A: Yes, by setting the 5th argument:
-   booster_css_markup('css','all','stylesheet','Standard',1);
+A: Nothing easier than this:
+   $booster->css_totalparts = 4;
+   echo $booster->css_markup();
    
-Q: For JS, can I increase the number of parts it gets split?
+
+Q: For JS, can I increase the number of parts it gets split into?
 A: Yes, by setting the second argument:
-   booster_js_markup('js',2);
+   $booster->js_totalparts = 2;
+   echo $booster->js_markup();
    
+
 Q: For CSS, can I have it output in HTML 4.01 fashion?
-A: Yes, by setting the 6th argument:
-   booster_css_markup('css','all','stylesheet','Standard',2,'HTML');
-   
-   
+A: No problem, do this:
+   $booster->css_markuptype = 'HTML';
+   echo $booster->css_markup();
+  
+ 
 
 ----------------------------------------------------------------------------
 Copyright and License Information for 3rd party elements used in the scripts

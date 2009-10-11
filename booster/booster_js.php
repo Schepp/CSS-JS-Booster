@@ -13,7 +13,7 @@
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
+* GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License
 * along with this program. 
@@ -31,5 +31,9 @@ include('booster_inc.php');
 ((isset($_GET['totalparts'])) ? $totalparts = intval($_GET['totalparts']) : $totalparts = 1);
 ((isset($_GET['part'])) ? $part = intval($_GET['part']) : $part = 0);
 
-echo booster_js($dir,$totalparts,$part);
+$booster = new Booster();
+$booster->js_dir = $dir;
+$booster->js_totalparts = $totalparts;
+$booster->js_part = $part;
+echo $booster->js();
 ?>
