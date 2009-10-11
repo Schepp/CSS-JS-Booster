@@ -22,7 +22,7 @@ echo $booster->css_markup();
       <li><a href="http://www.free-css.com/">Partners</a></li>
       <li class="client"><a href="http://www.free-css.com/">Client </a></li>
     </ul>
-    <a href="http://www.free-css.com/"><img src="../../../example/example1/sub/images/logo.jpg" title="Blog Division" alt="Blog Division" width="191" height="84" border="0" /></a> </div>
+    <a href="http://www.free-css.com/"><img src="../../../examples/example1/images/logo.jpg" title="Blog Division" alt="Blog Division" width="191" height="84" border="0" /></a> </div>
   <div id="toprightPan">
     <ul>
       <li class="home">Home</li>
@@ -84,7 +84,7 @@ echo $booster->css_markup();
 </div>
 <div id="footermainPan">
   <div id="footerPan">
-    <div id="footerlogoPan"><a href="http://www.free-css.com/"><img src="../../../example/example1/sub/images/footerlogo.gif" title="Blog Division" alt="Blog Division" width="189" height="87" border="0" /></a></div>
+    <div id="footerlogoPan"><a href="http://www.free-css.com/"><img src="../../../examples/example1/images/footerlogo.gif" title="Blog Division" alt="Blog Division" width="189" height="87" border="0" /></a></div>
     <ul>
       <li><a href="http://www.free-css.com/">Home</a>| </li>
       <li><a href="http://www.free-css.com/">About Us</a> | </li>
