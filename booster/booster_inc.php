@@ -46,7 +46,7 @@ if(!is_dir($booster_cachedir) && !mkdir($booster_cachedir,0777))
 
 class Booster {
 
-	public $css_dir = 'css';
+	public $css_source = 'css';
 	public $css_media = 'all';
 	public $css_rel= 'stylesheet';
 	public $css_title= 'Standard';
@@ -55,7 +55,7 @@ class Booster {
 	public $css_part = 0;
 	public $css_recursive = FALSE;
 
-	public $js_dir = 'js';
+	public $js_source = 'js';
 	public $js_totalparts = 1;
 	public $js_part = 0;
 	public $js_recursive = FALSE;
@@ -68,44 +68,44 @@ class Booster {
         $this->browserArray = $b->whatbrowser();
     }
 
-	protected function getpath($dir = '',$booster_dir = '',$dir_sep = '/')
+	protected function getpath($source = '',$booster_dir = '',$source_sep = '/')
 	{
-		$booster_dir = explode($dir_sep, $booster_dir);
-		$dir = explode($dir_sep, $dir);
+		$booster_dir = explode($source_sep, $booster_dir);
+		$source = explode($source_sep, $source);
 		$path = '.';
 		$fix = '';
 		$diff = 0;
-		for($i = -1; ++$i < max(($rC = count($booster_dir)), ($dC = count($dir)));)
+		for($i = -1; ++$i < max(($rC = count($booster_dir)), ($dC = count($source)));)
 		{
-			if(isset($booster_dir[$i]) and isset($dir[$i]))
+			if(isset($booster_dir[$i]) and isset($source[$i]))
 			{
 				if($diff)
 				{
-					$path .= $dir_sep.'..';
-					$fix .= $dir_sep.$dir[$i];
+					$path .= $source_sep.'..';
+					$fix .= $source_sep.$source[$i];
 					continue;
 				}
-				if($booster_dir[$i] != $dir[$i])
+				if($booster_dir[$i] != $source[$i])
 				{
 					$diff = 1;
-					$path .= $dir_sep.'..';
-					$fix .= $dir_sep.$dir[$i];
+					$path .= $source_sep.'..';
+					$fix .= $source_sep.$source[$i];
 					continue;
 				}
 			}
-			elseif(!isset($booster_dir[$i]) and isset($dir[$i]))
+			elseif(!isset($booster_dir[$i]) and isset($source[$i]))
 			{
 				for($j = $i-1; ++$j < $dC;)
 				{
-					$fix .= $dir_sep.$dir[$j];
+					$fix .= $source_sep.$source[$j];
 				}
 				break;
 			}
-			elseif(isset($booster_dir[$i]) and !isset($dir[$i]))
+			elseif(isset($booster_dir[$i]) and !isset($source[$i]))
 			{
 				for($j = $i-1; ++$j < $rC;)
 				{
-					$fix = $dir_sep.'..'.$fix;
+					$fix = $source_sep.'..'.$fix;
 				}
 				break;
 			}
@@ -113,43 +113,46 @@ class Booster {
 		return $path.$fix;
 	} 
 
-	protected function getfiles($dir = '',$type = '',$recursive = FALSE,$files = array())
+	protected function getfiles($source = '',$type = '',$recursive = FALSE,$files = array())
 	{
-		$dir = rtrim($dir,'/'); // Remove any trailing slash
-		if(is_dir($dir))
+		$source = rtrim($source,'/'); // Remove any trailing slash
+		if(is_dir($source))
 		{
-			$handle=opendir($dir);
+			$handle=opendir($source);
 			while(false !== ($file = readdir($handle)))
 			{
 				if($file[0] != '.')
 				{
-					if(is_dir($dir.'/'.$file)) 
+					if(is_dir($source.'/'.$file)) 
 					{
-						if($recursive) $files = $this->getfiles($dir.'/'.$file,$type,$recursive,$files);
+						if($recursive) $files = $this->getfiles($source.'/'.$file,$type,$recursive,$files);
 					}
 					else if(substr($file,strlen($file) - strlen($type), strlen($type)) == $type) 
 					{
-						array_push($files,$dir.'/'.$file);
+						array_push($files,$source.'/'.$file);
 					}
 				}
 			}
 			closedir($handle);
 			array_multisort($files, SORT_ASC, $files);
 		}
+		elseif(is_file($source) && substr($source,strlen($source) - strlen($type), strlen($type)) == $type) array_push($files,$source);
 		return $files;
 	}
 
-	protected function getfilestime($dir = '',$type = '',$recursive = FALSE,$filestime = 0)
+	protected function getfilestime($source = '',$type = '',$recursive = FALSE,$filestime = 0)
 	{
-		$dirs = explode(',',$dir);
-		reset($dirs);
-		for($i=0;$i<sizeof($dirs);$i++)
+		if(is_array($source)) $sources = $source;
+		else $sources = explode(',',$source);
+
+		reset($sources);
+		for($i=0;$i<sizeof($sources);$i++)
 		{
-			$dir = current($dirs);
-			$dir = rtrim($dir,'/'); // Remove any trailing slash
-			if(is_dir($dir))
+			$source = current($sources);
+			$source = rtrim($source,'/'); // Remove any trailing slash
+			if(is_dir($source))
 			{
-				$files = $this->getfiles($dir,$type,$recursive);
+				$files = $this->getfiles($source,$type,$recursive);
 				for($i=0;$i<count($files);$i++) 
 				{
 					if(is_dir($files[$i])) 
@@ -162,26 +165,34 @@ class Booster {
 					}
 				}
 			}
-			next($dirs);
+			elseif(is_file($source) && filemtime($source) > $filestime) $filestime = filemtime($source);
+			next($sources);
 		}
 		return $filestime;
 	}
 
-	protected function getfilescontents($dir = '',$type = '',$recursive = FALSE,$filescontent = '')
+	protected function getfilescontents($source = '',$type = '',$recursive = FALSE,$filescontent = '')
 	{
-		$dir = rtrim($dir,'/'); // Remove any trailing slash
-		if(is_dir($dir))
+		$source = rtrim($source,'/'); // Remove any trailing slash
+		$log = 'Source '.$source."\r\n";
+		if(is_dir($source))
 		{
-			$log = 'Directory '.$dir."\r\n";
-			$files = $this->getfiles($dir,$type,$recursive);
+			$files = $this->getfiles($source,$type,$recursive);
 			for($i=0;$i<count($files);$i++) 
 			{
 				$filescontent .= "/* ".$files[$i]." */\r\n".preg_replace('/@import[^;]+?;/ms','',file_get_contents($files[$i]))."\r\n\r\n";
 				$log .= $files[$i]."\r\n";
 			}
-			if(strlen($filescontent)) file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_'.$type.'_cache.txt',$filescontent);
-			file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_'.$type.'_log.txt',$log);
 		}
+		elseif(is_file($source))
+		{
+			$filescontent .= "/* ".$source." */\r\n".preg_replace('/@import[^;]+?;/ms','',file_get_contents($source))."\r\n\r\n";
+			$log .= $source."\r\n";
+		}
+
+		if(strlen($filescontent)) file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt',$filescontent);
+		file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_log.txt',$log);
+
 		return $filescontent;
 	}
 
@@ -207,12 +218,12 @@ class Booster {
 	
 	protected function css_datauri($filestime = 0,$filescontent = '')
 	{
-		// If IE < 8 browser
-		if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 8)
+		// If IE < 8 browser and not on Vista or higher
+		if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 8 && floatval($this->browserArray['ntversion']) < 6)
 		{
 			$mhtmlarray = array();
-			$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$this->css_dir).'_datauri_ie_cache.txt';
-			$mhtmlfile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$this->css_dir).'_datauri_mhtml_cache.txt';
+			$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_ie_cache.txt';
+			$mhtmlfile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
 			
 			$referrer_parsed = parse_url(dirname($_SERVER['REQUEST_URI']));
 			$mhtmlpath = dirname($referrer_parsed['path']);
@@ -228,14 +239,15 @@ Content-Type: multipart/related; boundary="_ANY_STRING_WILL_DO_AS_A_SEPARATOR"
 			preg_match_all('/^([^\{\}]+?\{[^\{\}]+?\:[^\{\}]*?)url\((.+?\.)(gif|png|jpg)\)/ms',$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$this->css_dir.'/'.$treffer[2][$i].$treffer[3][$i];
+				if(is_dir($this->css_source)) $dir = $this->css_source;
+				elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
+				
+				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[2][$i].$treffer[3][$i];
 				$imagetag = 'img'.$i;
-				if(!preg_match('/\:\bhover\b/',$treffer[1][$i]))
+				if(file_exists($imagefile) && filesize($imagefile) < 24000) 
 				{
-					if(file_exists($imagefile) && filesize($imagefile) < 24000) 
-					{
-						$filescontent = str_replace($treffer[0][$i],$treffer[1][$i].'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$this->css_dir.'&nocache='.$filestime.'!'.$imagetag.')',$filescontent);
-	
+					$filescontent = str_replace($treffer[0][$i],$treffer[1][$i].'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$this->css_source.'&nocache='.$filestime.'!'.$imagetag.')',$filescontent);
+
 if(!isset($mhtmlarray[$imagetag])) 
 {
 $mhtmlcontent .= '--_ANY_STRING_WILL_DO_AS_A_SEPARATOR
@@ -246,12 +258,7 @@ Content-Transfer-Encoding:base64
 ';
 $mhtmlarray[$imagetag] = 1;
 }
-		
-					}
-				}
-				else
-				{
-					$filescontent = str_replace($treffer[0][$i],$treffer[1][$i].'url('.$mhtmlpath.'/'.$this->css_dir.'/'.$treffer[2][$i].$treffer[3][$i].')',$filescontent);
+	
 				}
 			}
 
@@ -268,16 +275,25 @@ $mhtmlcontent .= '*/
 			else $filescontent = file_get_contents($cachefile);
 		}
 	
-		// If data-URI-compatible browser
+		// If IE 7 browser on Vista or higher (like IETester under Windows 7 for example), do not change anything (IE7 on Win 6+ Bug)
+		elseif($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 8 && floatval($this->browserArray['ntversion']) >= 6) $filescontent = $filescontent;
+
+		// If any other and then data-URI-compatible browser
 		else
 		{
-			$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$this->css_dir).'_datauri_cache.txt';
+			$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_cache.txt';
 			if(!file_exists($cachefile) || $filestime > filemtime($cachefile))
 			{
 				preg_match_all('/url\((.+\.)(gif|png|jpg)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 				for($i=0;$i<count($treffer[0]);$i++)
 				{
-					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$this->css_dir.'/'.$treffer[1][$i].$treffer[2][$i];
+					if(is_dir($this->css_source)) $dir = $this->css_source;
+					elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
+					
+					$filescontent = '/* '.$dir.' */
+					'.$filescontent;
+					
+					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
 					if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 				}
 				file_put_contents($cachefile,$filescontent);
@@ -314,30 +330,34 @@ $mhtmlcontent .= '*/
 		$filescontent = '';
 		$type = 'css'; // Set file extension to "css"
 	
-		$dirs = explode(',',$this->css_dir);
-		reset($dirs);
-		for($i=0;$i<sizeof($dirs);$i++)
+		if(is_array($this->css_source)) $sources = $this->css_source;
+		else $sources = explode(',',$this->css_source);
+		
+		reset($sources);
+		for($i=0;$i<sizeof($sources);$i++)
 		{
-			$dir = current($dirs);
-			$dir = rtrim($dir,'/'); // Remove any trailing slash
-			if(is_dir($dir))
+			$source = current($sources);
+			$source = rtrim($source,'/'); // Remove any trailing slash
+			if(is_dir($source) || is_file($source))
 			{
-				$filestime = $this->getfilestime($dir,$type,$this->recursive);
-				// If IE < 8 browser
-				if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 8) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_ie_cache.txt';
-				// If data-URI-compatible browser
-				else $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_datauri_cache.txt';
+				$filestime = $this->getfilestime($source,$type,$this->recursive);
+				// If IE < 8 browser and not on Vista or higher
+				if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 8 && floatval($this->browserArray['ntversion']) < 6) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
+				// If IE 7 browser on Vista or higher (like IETester under Windows 7 for example), skip cache
+				elseif($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 8 && floatval($this->browserArray['ntversion']) >= 6) $cachefile = '';
+				// If any other and then data-URI-compatible browser
+				else $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_cache.txt';
 				
-				if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
+				if($cachefile != '' && file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
 				else
 				{
-					$currentfilescontent = $this->getfilescontents($dir,$type,$recursive);
+					$currentfilescontent = $this->getfilescontents($source,$type,$recursive);
 					$currentfilescontent = $this->csstidy($currentfilescontent);
 					$filescontent .= $this->css_datauri($filestime,$currentfilescontent);
 				}
 				$filescontent .= "\n";
 			}
-			next($dirs);
+			next($sources);
 		}
 		$filescontent = $this->css_split($filescontent);
 		return $filescontent;
@@ -345,7 +365,7 @@ $mhtmlcontent .= '*/
 		
 	public function mhtml()
 	{
-		$mhtmlfile = 'booster_cache/'.preg_replace('/[^a-z0-9]/i','',$this->css_dir).'_datauri_mhtml_cache.txt';
+		$mhtmlfile = 'booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
 		if(!file_exists($mhtmlfile)) $this->css();
 		if(file_exists($mhtmlfile)) return file_get_contents($mhtmlfile);
 		else return '';
@@ -357,16 +377,18 @@ $mhtmlcontent .= '*/
 		$booster_path = $this->getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 		$css_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
 		
-		$dirs = explode(',',$this->css_dir);
+		if(is_array($this->css_source)) $sources = $this->css_source;
+		else $sources = explode(',',$this->css_source);
+
 		$timestamp_dirs = array();
-		reset($dirs);
-		for($i=0;$i<sizeof($dirs);$i++) 
+		reset($sources);
+		for($i=0;$i<sizeof($sources);$i++) 
 		{
-			$dirs[key($dirs)] = $css_path.'/'.current($dirs);
-			array_push($timestamp_dirs,$booster_path.'/'.$css_path.'/'.current($dirs));
-			next($dirs);
+			$sources[key($sources)] = $css_path.'/'.current($sources);
+			array_push($timestamp_dirs,$booster_path.'/'.$css_path.'/'.current($sources));
+			next($sources);
 		}
-		$dir = implode(',',$dirs);
+		$source = implode(',',$sources);
 		$timestamp_dir = implode(',',$timestamp_dirs);
 
 		// IE6 fix image flicker
@@ -374,7 +396,7 @@ $mhtmlcontent .= '*/
 	
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
-			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
+			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
 		}
 	
 		return $markup;
@@ -408,23 +430,25 @@ $mhtmlcontent .= '*/
 		$filescontent = '';
 		$type = 'js'; // Set file extension to "js"
 		
-		$dirs = explode(',',$this->js_dir);
-		reset($dirs);
-		for($i=0;$i<sizeof($dirs);$i++)
+		if(is_array($this->js_source)) $sources = $this->js_source;
+		else $sources = explode(',',$this->js_source);
+
+		reset($sources);
+		for($i=0;$i<sizeof($sources);$i++)
 		{
-			$dir = current($dirs);
-			$dir = rtrim($dir,'/'); // Remove any trailing slash
-			if(is_dir($dir))
+			$source = current($sources);
+			$source = rtrim($source,'/'); // Remove any trailing slash
+			if(is_dir($source))
 			{
-				$filestime = $this->getfilestime($dir,$type,$this->js_recursive);
-				$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/booster_cache/'.preg_replace('/[^a-z0-9]/i','',$dir).'_'.$type.'_cache.txt';
+				$filestime = $this->getfilestime($source,$type,$this->js_recursive);
+				$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt';
 				
 				if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
-				else $filescontent .= $this->getfilescontents($dir,$type,$recursive);
+				else $filescontent .= $this->getfilescontents($source,$type,$recursive);
 	
 				$filescontent .= "\n";
 			}
-			next($dirs);
+			next($sources);
 		}
 		if($filescontent != '') $filescontent = $this->js_split($filestime,$filescontent,$this->js_totalparts,$this->js_part);
 		return $filescontent;
@@ -436,21 +460,23 @@ $mhtmlcontent .= '*/
 		$booster_path = $this->getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 		$js_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
 		
-		$dirs = explode(',',$this->js_dir);
+		if(is_array($this->js_source)) $sources = $this->js_source;
+		else $sources = explode(',',$this->js_source);
+		
 		$timestamp_dirs = array();
-		reset($dirs);
-		for($i=0;$i<sizeof($dirs);$i++) 
+		reset($sources);
+		for($i=0;$i<sizeof($sources);$i++) 
 		{
-			$dirs[key($dirs)] = $js_path.'/'.current($dirs);
-			array_push($timestamp_dirs,$booster_path.'/'.$js_path.'/'.current($dirs));
-			next($dirs);
+			$sources[key($sources)] = $js_path.'/'.current($sources);
+			array_push($timestamp_dirs,$booster_path.'/'.$js_path.'/'.current($sources));
+			next($sources);
 		}
-		$dir = implode(',',$dirs);
+		$source = implode(',',$sources);
 		$timestamp_dir = implode(',',$timestamp_dirs);
 	
 		for($j=0;$j<intval($this->js_totalparts);$j++)
 		{
-			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($dir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
+			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 		}
 		return $markup;
 	}

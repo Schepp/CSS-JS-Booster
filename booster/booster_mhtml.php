@@ -27,9 +27,9 @@ header("Content-type: text/plain");
 
 include('booster_inc.php');
 
-((isset($_GET['dir'])) ? $dir = rtrim(preg_replace('/[^a-zA-Z0-9,\.\/]/','',$_GET['dir']),'/') : $dir = 'css');
+((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',$_GET['dir']),'/') : $source = 'css');
 
 $booster = new Booster();
-$booster->css_dir = $dir;
+$booster->css_source = $source;
 echo $booster->mhtml();
 ?>

@@ -29,6 +29,7 @@ class browser
 	 * @var string $platform
 	 */
 	var $platform;
+	var $ntversion = 0;
 	
 	/**
 	 * @var string aol
@@ -70,6 +71,7 @@ class browser
 		if($win)
 		{
 			$this->platform = "Windows";
+			if(preg_match('/Windows NT ([0-9\.]+)/',$this->useragent,$match) > 0) $this->ntversion = floatval($match[1]);
 		}
 		elseif ($linux)
 		{
@@ -571,6 +573,7 @@ class browser
 		return array('browsertype' => $this->browsertype, 
 					 'version' => $this->version, 
 					 'platform' => $this->platform, 
+					 'ntversion' => $this->ntversion, 
 					 'AOL' => $this->aol); 
 	}
 }//end class

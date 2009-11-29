@@ -27,14 +27,13 @@ header("Content-type: text/css");
 
 include('booster_inc.php');
 
-((isset($_GET['dir'])) ? $dir = rtrim(preg_replace('/[^a-zA-Z0-9,\.\/]/','',$_GET['dir']),'/') : $dir = 'css');
+((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',$_GET['dir']),'/') : $source = 'css');
 ((isset($_GET['totalparts'])) ? $totalparts = intval($_GET['totalparts']) : $totalparts = 1);
 ((isset($_GET['part'])) ? $part = intval($_GET['part']) : $part = 0);
 
 $booster = new Booster();
-$booster->css_dir = $dir;
+$booster->css_source = $source;
 $booster->css_totalparts = $totalparts;
 $booster->css_part = $part;
-echo '/* '.$_SERVER['HTTP_IF_MODIFIED_SINCE'].' */';
 echo $booster->css();
 ?>
