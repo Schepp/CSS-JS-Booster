@@ -103,7 +103,7 @@ sorted in the desired order, e.g.:
 Then add this declaration in the HTML's head-section:
 
 <?php 
-$booster->css_dir = 'css';
+$booster->css_source = 'css';
 echo $booster->css_markup(); 
 ?>
 
@@ -112,7 +112,7 @@ for example:
 <head>
 <title>Webpage</title>
 <?php 
-$booster->css_dir = 'css';
+$booster->css_source = 'css';
 echo $booster->css_markup(); 
 ?>
 </head>
@@ -137,14 +137,14 @@ performance and therefore recommended when you experience no errors - right
 before the closing </body>:
 
 <?php 
-$booster->js_dir = 'js';
+$booster->js_source = 'js';
 echo $booster->js_markup(); 
 ?>
 
 for example:
 
 <?php 
-$booster->js_dir = 'js';
+$booster->js_source = 'js';
 echo $booster->js_markup(); 
 ?>
 </body>
@@ -162,14 +162,46 @@ Q & A for Advanced Usage
 Q: How can I combine files out of multiple CSS- or JS-folders?
 A: By setting as directory argument a comma delimited list of folders: 
 
-   $booster->css_dir = 'css_1,css_2';
+   $booster->css_source = 'css_1,css_2';
    echo $booster->css_markup();
 
    or
 
-   $booster->js_dir = 'js_1,js_2';
+   $booster->css_source = array('css_1','css_2');
+   echo $booster->css_markup();
+
+   The same holds true for JS:
+
+   $booster->js_source = 'js_1,js_2';
    echo $booster->js_markup(); 
 
+   or
+
+   $booster->js_source = array('js_1','js_2');
+   echo $booster->js_markup(); 
+
+
+Q: I don't want to have CSS-JS-Booster to pull all the files from inside a 
+   directory, nor do I want to rename the files alphabetically. I rather want 
+   full control over which files to use. Is this possible?
+A: Yes. $booster->css_source and $booster->js_source are very flexible in
+   what they accept as source. You don't need to specify a folder, you can
+   also specify a single file, or multiple files (either comma-separated or as 
+   genuine array). Here are some examples:
+
+   $booster->css_source = 'css_1/reset.css,css_1/base.css';
+   echo $booster->css_markup();
+
+   or
+
+   $booster->css_source = array('css_1/reset.css','css_1/base.css');
+   echo $booster->css_markup();
+
+   or files and folder mixed:
+
+   $booster->css_source = array('css_1/reset.css','css_1/base.css','css_2');
+   echo $booster->css_markup();
+    
 
 Q: For CSS, how can I define a different/specific target-medium?
 A: Yepp, by setting the desired media before echoing the markup:
@@ -181,7 +213,7 @@ A: Yepp, by setting the desired media before echoing the markup:
 Q: For CSS, can I define a second folder to feed an alternate stylesheet?
 A: Sure, e.g. like this:
 
-   $booster->css_dir = 'css_2';
+   $booster->css_source = 'css_2';
    $booster->css_rel = 'alternate stylesheet';
    $booster->css_title = 'Alternate Stylesheet';
    echo $booster->css_markup();
