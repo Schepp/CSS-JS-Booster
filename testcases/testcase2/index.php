@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Vista IE7 Hover Testcase</title>
+<title>Single File Source Testcase</title>
 <?php 
 include('../../booster/booster_inc.php'); 
 $booster = new Booster();
 ?>
 <?php 
-$booster->css_source = 'css';
+$booster->css_source = 'css/styles.css';
 echo $booster->css_markup(); 
 ?>
 </head>
