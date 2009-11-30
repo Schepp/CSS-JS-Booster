@@ -8,34 +8,34 @@ if (isset($_REQUEST['css_text']) && get_magic_quotes_gpc()) {
  	$_REQUEST['css_text'] = stripslashes($_REQUEST['css_text']);
 }
 
-function rmdirr($dirname,$oc=0)
+function rmdirr($sourcename,$oc=0)
 {
 	// Sanity check
-	if (!file_exists($dirname)) {
+	if (!file_exists($sourcename)) {
 	  return false;
 	}
 	// Simple delete for a file
-	if (is_file($dirname) && (time()-fileatime($dirname))>3600) {
-	   return unlink($dirname);
+	if (is_file($sourcename) && (time()-fileatime($sourcename))>3600) {
+	   return unlink($sourcename);
 	}
 	// Loop through the folder
-	if(is_dir($dirname))
+	if(is_dir($sourcename))
 	{
-	$dir = dir($dirname);
-	while (false !== $entry = $dir->read()) {
+	$source = dir($sourcename);
+	while (false !== $entry = $source->read()) {
 	   // Skip pointers
 	   if ($entry == '.' || $entry == '..') {
 		   continue;
 	   }
 	   // Recurse
-	   rmdirr("$dirname/$entry",$oc);
+	   rmdirr("$sourcename/$entry",$oc);
 	}
-	$dir->close();
+	$source->close();
 	}
 	// Clean up
 	if ($oc==1)
 	{
-		return rmdir($dirname);
+		return rmdir($sourcename);
 	}
 }
 
