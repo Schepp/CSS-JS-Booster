@@ -290,9 +290,6 @@ $mhtmlcontent .= '*/
 					if(is_dir($this->css_source)) $dir = $this->css_source;
 					elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
 					
-					$filescontent = '/* '.$dir.' */
-					'.$filescontent;
-					
 					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
 					if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 				}
