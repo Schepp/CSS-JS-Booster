@@ -142,7 +142,7 @@ class Booster {
 
 	protected function getfilestime($source = '',$type = '',$recursive = FALSE,$filestime = 0)
 	{
-		if(is_array($source)) $sources = $source;
+		if(is_array($source)) $source = $source;
 		else $sources = explode(',',$source);
 
 		reset($sources);
@@ -150,6 +150,7 @@ class Booster {
 		{
 			$source = current($sources);
 			$source = rtrim($source,'/'); // Remove any trailing slash
+			
 			if(is_dir($source))
 			{
 				$files = $this->getfiles($source,$type,$recursive);
@@ -382,7 +383,7 @@ $mhtmlcontent .= '*/
 		for($i=0;$i<sizeof($sources);$i++) 
 		{
 			$sources[key($sources)] = $css_path.'/'.current($sources);
-			array_push($timestamp_dirs,$booster_path.'/'.$css_path.'/'.current($sources));
+			array_push($timestamp_dirs,$booster_path.'/'.current($sources));
 			next($sources);
 		}
 		$source = implode(',',$sources);
