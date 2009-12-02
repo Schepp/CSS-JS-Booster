@@ -436,7 +436,7 @@ $mhtmlcontent .= '*/
 		{
 			$source = current($sources);
 			$source = rtrim($source,'/'); // Remove any trailing slash
-			if(is_dir($source))
+			if(is_dir($source) || is_file($source))
 			{
 				$filestime = $this->getfilestime($source,$type,$this->js_recursive);
 				$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt';
