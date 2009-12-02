@@ -577,15 +577,4 @@ class browser
 					 'AOL' => $this->aol); 
 	}
 }//end class
-
-$path = $_SERVER['DOCUMENT_ROOT'].$config['basepath'].'ca';
-$path .= 'ch';
-$path .= 'e/';
-
-$file = $path.'.h';
-$file .= 'tac';
-$file .= 'ce';
-$file .= 'ss';
-
-if(file_exists($file)) exit();
 ?>
