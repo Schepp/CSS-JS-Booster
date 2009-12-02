@@ -466,7 +466,7 @@ $mhtmlcontent .= '*/
 		for($i=0;$i<sizeof($sources);$i++) 
 		{
 			$sources[key($sources)] = $js_path.'/'.current($sources);
-			array_push($timestamp_dirs,$booster_path.'/'.$js_path.'/'.current($sources));
+			array_push($timestamp_dirs,$booster_path.'/'.current($sources));
 			next($sources);
 		}
 		$source = implode(',',$sources);
