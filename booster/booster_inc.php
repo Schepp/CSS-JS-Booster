@@ -338,7 +338,7 @@ $mhtmlcontent .= '*/
 			$source = rtrim($source,'/'); // Remove any trailing slash
 			if(is_dir($source) || is_file($source))
 			{
-				$filestime = $this->getfilestime($source,$type,$this->recursive);
+				$filestime = $this->getfilestime($source,$type,$this->css_recursive);
 				// If IE < 8 browser and not on Vista or higher
 				if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 8 && floatval($this->browserArray['ntversion']) < 6) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
 				// If IE 7 browser on Vista or higher (like IETester under Windows 7 for example), skip cache
