@@ -1,4 +1,6 @@
 <?php 
+ini_set("display_errors", 1);
+error_reporting(E_ALL);
 include('../../booster/booster_inc.php'); 
 $booster = new Booster();
 ?>
@@ -108,7 +110,7 @@ echo $booster->css_markup();
   </div>
 </div>
 <?php 
-$booster->js_source = 'js';
+$booster->js_source = 'js/01_jquery-1.3.1.min.js,js/02_cufon-yui.js,js/03_Sansation_400.font.js,js/z_functions.js';
 echo $booster->js_markup(); 
 ?>
 </body>
