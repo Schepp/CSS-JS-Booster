@@ -21,13 +21,22 @@
 * 
 ------------------------------------------------------------------------*/
 
-header("Cache-Control: max-age=2592000");
-header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 30)))." GMT");
+((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',preg_replace('/!.+/i','',$_GET['dir'])),'/') : $source = 'css');
+$etag = md5($source);
+
+if (@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
+{
+	header('HTTP/1.1 304 Not Modified');
+	exit();
+}
+
+#header("Cache-Control: max-age=2592000");
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: ".gmdate('D, d M Y H:i:s')." GMT");
 header("Content-type: text/plain"); 
+header("ETag: ".$etag);
 
 include('booster_inc.php');
-
-((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',$_GET['dir']),'/') : $source = 'css');
 
 $booster = new Booster();
 $booster->css_source = $source;
