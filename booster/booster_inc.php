@@ -37,13 +37,6 @@ $starttime = microtime(TRUE);
 include_once('browser_class_inc.php');
 include_once('csstidy-1.3/class.csstidy.php');
 
-$booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/booster_cache';
-if(!is_dir($booster_cachedir) && !mkdir($booster_cachedir,0777)) 
-{
-	echo 'You need to create a directory '.$booster_cachedir.' with CHMOD 0777 rights';
-	exit;
-}
-
 class Booster {
 
 	public $css_source = 'css';
@@ -60,10 +53,17 @@ class Booster {
 	public $js_part = 0;
 	public $js_recursive = FALSE;
 
+	public $booster_cachedir = 'booster_cache';
 	public $browserArray;
     
     function __construct()
     {
+		$this->booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir;
+		if(!is_dir($this->booster_cachedir) && !mkdir($this->booster_cachedir,0777)) 
+		{
+			echo 'You need to create a directory "'.$this->booster_cachedir.'" with CHMOD 0777 rights';
+			exit;
+		}
 		$b = new browser();
         $this->browserArray = $b->whatbrowser();
     }
@@ -140,7 +140,7 @@ class Booster {
 		return $files;
 	}
 
-	protected function getfilestime($source = '',$type = '',$recursive = FALSE,$filestime = 0)
+	public function getfilestime($source = '',$type = '',$recursive = FALSE,$filestime = 0)
 	{
 		if(is_array($source)) $source = $source;
 		else $sources = explode(',',$source);
@@ -191,8 +191,8 @@ class Booster {
 			$log .= $source."\r\n";
 		}
 
-		if(strlen($filescontent)) file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt',$filescontent);
-		file_put_contents(str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_log.txt',$log);
+		if(strlen($filescontent)) file_put_contents($this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt',$filescontent);
+		file_put_contents($this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_log.txt',$log);
 
 		return $filescontent;
 	}
@@ -229,8 +229,8 @@ class Booster {
 		)
 		{
 			$mhtmlarray = array();
-			$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_ie_cache.txt';
-			$mhtmlfile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
+			$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_ie_cache.txt';
+			$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
 			
 			$referrer_parsed = parse_url(dirname($_SERVER['REQUEST_URI']));
 			$mhtmlpath = dirname($referrer_parsed['path']);
@@ -277,7 +277,7 @@ $mhtmlcontent .= '
 				preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 				for($i=0;$i<count($treffer[0]);$i++)
 				{
-					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
+					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
 				}
 				file_put_contents($cachefile,$filescontent);
 				chmod($cachefile,0777);
@@ -296,7 +296,7 @@ $mhtmlcontent .= '
 			preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
+				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
 			}
 		}
 
@@ -306,7 +306,7 @@ $mhtmlcontent .= '
 			if(is_dir($this->css_source)) $dir = $this->css_source;
 			elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
 		
-			$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_cache.txt';
+			$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_cache.txt';
 			if(!file_exists($cachefile) || $filestime > filemtime($cachefile))
 			{
 				preg_match_all('/url\((.+\.)(gif|png|jpg)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
@@ -318,7 +318,7 @@ $mhtmlcontent .= '
 				preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 				for($i=0;$i<count($treffer[0]);$i++)
 				{
-					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
+					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
 				}
 				file_put_contents($cachefile,$filescontent);
 				chmod($cachefile,0777);
@@ -374,14 +374,18 @@ $mhtmlcontent .= '
 					)
 				)
 				{
-					$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
+					$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
 				}
-				// If IE < 7 browser and not on Vista or higher
-				#if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) < 6) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
 				// If IE 7 browser on Vista or higher (like IETester under Windows 7 for example), skip cache
-				elseif($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) >= 6) $cachefile = '';
+				elseif($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) >= 6)
+				{
+					$cachefile = '';
+				}
 				// If any other and then data-URI-compatible browser
-				else $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_cache.txt';
+				else 
+				{
+					$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_cache.txt';
+				}
 				
 				if($cachefile != '' && file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
 				else
@@ -479,7 +483,7 @@ $mhtmlcontent .= '
 				$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt';
 				
 				if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
-				else $filescontent .= $this->getfilescontents($source,$type,$recursive);
+				else $filescontent .= $this->getfilescontents($source,$type,$this->js_recursive);
 	
 				$filescontent .= "\n";
 			}

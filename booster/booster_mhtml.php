@@ -22,7 +22,11 @@
 ------------------------------------------------------------------------*/
 
 ((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',preg_replace('/!.+/i','',$_GET['dir'])),'/') : $source = 'css');
-$etag = md5($source);
+
+include('booster_inc.php');
+$booster = new Booster();
+$booster->css_source = $source;
+$etag = md5($source.$booster->getfilestime($source,'css'));
 
 if (@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
 {
@@ -36,9 +40,5 @@ header("Expires: ".gmdate('D, d M Y H:i:s')." GMT");
 header("Content-type: text/plain"); 
 header("ETag: ".$etag);
 
-include('booster_inc.php');
-
-$booster = new Booster();
-$booster->css_source = $source;
 echo $booster->mhtml();
 ?>
