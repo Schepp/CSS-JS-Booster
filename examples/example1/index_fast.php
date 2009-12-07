@@ -38,7 +38,8 @@ echo $booster->css_markup();
     <h2>Coordination</h2>
     <p class="greentext">M Robert</p>
     <p class="browntext">23rd september 2006</p>
-    <p>Blog Division is a free, tableless, W3C-compliant web design layout by Template World. This template has been tested and proven compatible with all major browser environments and operating systems. You are free to modify the design to suit your tastes in any way you like.</p>
+    <p>Your User Agent: <?php echo $booster->browserArray['browsertype'].', Version: '.floatval($booster->browserArray['version']).', OS: '.floatval($booster->browserArray['ntversion']); ?></p>
+	<p>Blog Division is a free, tableless, W3C-compliant web design layout by Template World. This template has been tested and proven compatible with all major browser environments and operating systems. You are free to modify the design to suit your tastes in any way you like.</p>
     <p>We only ask you to not remove "Design by Template World" and the link http://www.templateworld.com from the footer of the template.</p>
     <p>If you are interested in seeing more of our free web template designs feel free to visit our website, Template World. We intend to add at least 25 new free templates in the coming month.</p>
     <ul>
