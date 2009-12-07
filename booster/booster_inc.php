@@ -274,7 +274,11 @@ $mhtmlcontent .= '
 	
 	
 				$filescontent = preg_replace('/(background[^;]+?mhtml)/','*$1',$filescontent);
-				$filescontent = "/* ".$dir." */\r\n".preg_replace('/url\((.+?)\)/','url('.$dir.'/$1)',$filescontent);
+				preg_match_all('/url\((.+?\)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
+				for($i=0;$i<count($treffer[0]);$i++)
+				{
+					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
+				}
 				file_put_contents($cachefile,$filescontent);
 				chmod($cachefile,0777);
 				file_put_contents($mhtmlfile,$mhtmlcontent);
@@ -288,8 +292,12 @@ $mhtmlcontent .= '
 		{
 			if(is_dir($this->css_source)) $dir = $this->css_source;
 			elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
-		
-			$filescontent = "/* ".$dir." */\r\n".preg_replace('/url\((.+?)\)/','url('.$dir.'/$1)',$filescontent);
+
+			preg_match_all('/url\((.+?\)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
+			for($i=0;$i<count($treffer[0]);$i++)
+			{
+				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
+			}
 		}
 
 		// If any other and then data-URI-compatible browser
@@ -307,7 +315,11 @@ $mhtmlcontent .= '
 					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
 					if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 				}
-				$filescontent = "/* ".$dir." */\r\n".preg_replace('/url\((.+?)\)/','url('.$dir.'/$1)',$filescontent);
+				preg_match_all('/url\((.+?\)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
+				for($i=0;$i<count($treffer[0]);$i++)
+				{
+					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
+				}
 				file_put_contents($cachefile,$filescontent);
 				chmod($cachefile,0777);
 			}
