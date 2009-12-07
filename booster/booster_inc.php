@@ -274,7 +274,7 @@ $mhtmlcontent .= '
 	
 	
 				$filescontent = preg_replace('/(background[^;]+?mhtml)/','*$1',$filescontent);
-				preg_match_all('/url\((.+?\)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
+				preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 				for($i=0;$i<count($treffer[0]);$i++)
 				{
 					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
@@ -293,7 +293,7 @@ $mhtmlcontent .= '
 			if(is_dir($this->css_source)) $dir = $this->css_source;
 			elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
 
-			preg_match_all('/url\((.+?\)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
+			preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
 				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
@@ -315,7 +315,7 @@ $mhtmlcontent .= '
 					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
 					if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 				}
-				preg_match_all('/url\((.+?\)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
+				preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 				for($i=0;$i<count($treffer[0]);$i++)
 				{
 					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
@@ -365,8 +365,19 @@ $mhtmlcontent .= '
 			if(is_dir($source) || is_file($source))
 			{
 				$filestime = $this->getfilestime($source,$type,$this->css_recursive);
+				// If IE 6/7 on XP or IE 7 on Vista/Win7
+				if(
+					$this->browserArray['browsertype'] == 'MSIE' && 
+					(
+						(round(floatval($this->browserArray['version'])) == 6 && floatval($this->browserArray['ntversion']) < 6) || 
+						(round(floatval($this->browserArray['version'])) == 7 && floatval($this->browserArray['ntversion']) >= 6)
+					)
+				)
+				{
+					$cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
+				}
 				// If IE < 7 browser and not on Vista or higher
-				if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) < 6) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
+				#if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) < 6) $cachefile = str_replace('\\','/',dirname(__FILE__)).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
 				// If IE 7 browser on Vista or higher (like IETester under Windows 7 for example), skip cache
 				elseif($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) >= 6) $cachefile = '';
 				// If any other and then data-URI-compatible browser
