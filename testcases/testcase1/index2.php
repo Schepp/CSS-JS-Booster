@@ -13,7 +13,7 @@ echo $booster->css_markup();
 ?>
 </head>
 <body>
-	<a href="index2.php">Index2</a>
+	<a href="index.php">Index1</a>
 	<a class="div1">Link 1</a>
 	<a class="div2">Link 2</a>
 	<div class="div1">Div 1</div>
