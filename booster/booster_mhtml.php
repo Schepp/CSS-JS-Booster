@@ -26,7 +26,7 @@
 include('booster_inc.php');
 $booster = new Booster();
 $booster->css_source = $source;
-$etag = md5($source.$booster->getfilestime($source,'css'));
+$etag = md5($source.$booster->mhtmltime($source));
 
 if (@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
 {

@@ -23,6 +23,8 @@
 
 @ini_set('zlib.output_compression',2048);
 @ini_set('zlib.output_compression_level',4);
+@ini_set("display_errors", 1);
+@error_reporting(E_ALL);
 
 if (
 isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
@@ -47,6 +49,9 @@ class Booster {
 	public $css_markuptype = 'XHTML';
 	public $css_part = 0;
 	public $css_recursive = FALSE;
+	public $css_stringmode = FALSE;
+	public $css_stringbase = './';
+	public $css_stringtime = 0;
 
 	public $js_source = 'js';
 	public $js_totalparts = 1;
@@ -54,19 +59,30 @@ class Booster {
 	public $js_recursive = FALSE;
 
 	public $booster_cachedir = 'booster_cache';
-	public $browserArray;
+	private $booster_cachedir_transformed = FALSE;
+	public $browser;
+	public $debug = FALSE;
     
     function __construct()
     {
-		$this->booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir;
-		if(!is_dir($this->booster_cachedir) && !mkdir($this->booster_cachedir,0777)) 
+		$this->css_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
+		$this->browser = new browser();
+    }
+
+	public function setcachedir($dir = 'booster_cache')
+	{
+		if(!$this->booster_cachedir_transformed) 
 		{
-			echo 'You need to create a directory "'.$this->booster_cachedir.'" with CHMOD 0777 rights';
+			$this->booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir;
+			$this->booster_cachedir_transformed = TRUE;
+		}
+		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
+		{
+			echo "/* You need to create a directory \"".$this->booster_cachedir."\" with CHMOD 0777 rights!!! */\r\n\r\n";
+			echo "body *:before {content: \"You need to create a directory ".$this->booster_cachedir." with CHMOD 0777 rights!!!\";}\r\n\r\n";
 			exit;
 		}
-		$b = new browser();
-        $this->browserArray = $b->whatbrowser();
-    }
+	}
 
 	protected function getpath($source = '',$booster_dir = '',$source_sep = '/')
 	{
@@ -175,24 +191,23 @@ class Booster {
 	protected function getfilescontents($source = '',$type = '',$recursive = FALSE,$filescontent = '')
 	{
 		$source = rtrim($source,'/'); // Remove any trailing slash
-		$log = 'Source '.$source."\r\n";
 		if(is_dir($source))
 		{
 			$files = $this->getfiles($source,$type,$recursive);
 			for($i=0;$i<count($files);$i++) 
 			{
-				$filescontent .= "/* ".$files[$i]." */\r\n".preg_replace('/@import[^;]+?;/ms','',file_get_contents($files[$i]))."\r\n\r\n";
-				$log .= $files[$i]."\r\n";
+				if($this->debug) $filescontent .= "/* import: ".$files[$i]." */\r\n";
+				$filescontent .= preg_replace('/@import[^;]+?;/ms','',file_get_contents($files[$i]))."\r\n\r\n";
 			}
 		}
 		elseif(is_file($source))
 		{
-			$filescontent .= "/* ".$source." */\r\n".preg_replace('/@import[^;]+?;/ms','',file_get_contents($source))."\r\n\r\n";
-			$log .= $source."\r\n";
+			if($this->debug) $filescontent .= "/* import: ".$source." */\r\n";
+			$filescontent .= preg_replace('/@import[^;]+?;/ms','',file_get_contents($source))."\r\n\r\n";
 		}
+		else $filescontent .= preg_replace('/@import[^;]+?;/ms','',file_get_contents($source))."\r\n\r\n";
 
 		if(strlen($filescontent)) file_put_contents($this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt',$filescontent);
-		file_put_contents($this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_log.txt',$log);
 
 		return $filescontent;
 	}
@@ -219,21 +234,27 @@ class Booster {
 	
 	protected function css_datauri($filestime = 0,$filescontent = '')
 	{
+		$this->setcachedir($this->booster_cachedir);
 		// If IE 6/7 on XP or IE 7 on Vista/Win7
 		if(
-			$this->browserArray['browsertype'] == 'MSIE' && 
+			$this->browser->family == 'MSIE' && $this->browser->platform == 'Windows' && 
 			(
-				(round(floatval($this->browserArray['version'])) == 6 && floatval($this->browserArray['ntversion']) < 6) || 
-				(round(floatval($this->browserArray['version'])) == 7 && floatval($this->browserArray['ntversion']) >= 6)
+				(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
+				(round(floatval($this->browser->familyversion)) == 7 && floatval($this->browser->platformversion) >= 6)
 			)
 		)
 		{
 			$mhtmlarray = array();
-			$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_ie_cache.txt';
-			$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
+		
+			if(!$this->css_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_ie_cache.txt';
+			else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($this->css_source)).'_datauri_ie_cache.txt';
+
+			if(!$this->css_stringmode) $mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
+			else $mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($this->css_source)).'_datauri_mhtml_cache.txt';
 			
 			$referrer_parsed = parse_url(dirname($_SERVER['REQUEST_URI']));
-			$mhtmlpath = dirname($referrer_parsed['path']);
+			#$mhtmlpath = dirname($referrer_parsed['path']);
+			$mhtmlpath = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),$_SERVER['DOCUMENT_ROOT']);
 			
 			if(!file_exists($cachefile) || $filestime > filemtime($cachefile))
 			{
@@ -247,12 +268,14 @@ $mhtmlcontent = 'Content-Type: multipart/related; boundary="_ANY_STRING_WILL_DO_
 			{
 				if(is_dir($this->css_source)) $dir = $this->css_source;
 				elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
+				else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
 				
 				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[2][$i].$treffer[3][$i];
 				$imagetag = 'img'.$i;
 				if(file_exists($imagefile) && filesize($imagefile) < 24000) 
 				{
-					$filescontent = str_replace($treffer[0][$i],$treffer[1][$i].'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$this->css_source.'!'.$imagetag.')',$filescontent);
+					if(!$this->css_stringmode) $filescontent = str_replace($treffer[0][$i],$treffer[1][$i].'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$this->css_source.'!'.$imagetag.')',$filescontent);
+					else $filescontent = str_replace($treffer[0][$i],$treffer[1][$i].'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.md5($this->css_source).'!'.$imagetag.')',$filescontent);
 
 if(!isset($mhtmlarray[$imagetag])) 
 {
@@ -288,10 +311,14 @@ $mhtmlcontent .= '
 		}
 	
 		// If IE 6 browser on Vista or higher (like IETester under Vista / Windows 7 for example)
-		elseif($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) >= 6)
+		elseif(
+			$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && 
+			$this->browser->platform == 'Windows' && floatval($this->browser->platformversion) >= 6
+		)
 		{
 			if(is_dir($this->css_source)) $dir = $this->css_source;
 			elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
+			else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
 
 			preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
@@ -305,14 +332,22 @@ $mhtmlcontent .= '
 		{
 			if(is_dir($this->css_source)) $dir = $this->css_source;
 			elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
+			else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
+			
+			if($this->debug) echo "/* lastmodified: ".intval($this->css_stringtime)." / ".date("d.m.Y H:i:s",$this->css_stringtime)." */\r\n";
+			if($this->debug) echo "/* dir: ".$dir." */\r\n";
 		
-			$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_cache.txt';
+			if(!$this->css_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_cache.txt';
+			else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($this->css_source)).'_datauri_cache.txt';
+			
 			if(!file_exists($cachefile) || $filestime > filemtime($cachefile))
 			{
 				preg_match_all('/url\((.+\.)(gif|png|jpg)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
+				if($this->debug) echo "/* image-findings: ".count($treffer[0])." */\r\n";
 				for($i=0;$i<count($treffer[0]);$i++)
 				{
 					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
+					if($this->debug) echo "/* imagefile: ".$imagefile." */\r\n";
 					if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 				}
 				preg_match_all('/url\((.+?)\)/',$filescontent,$treffer,PREG_PATTERN_ORDER);
@@ -320,17 +355,17 @@ $mhtmlcontent .= '
 				{
 					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
 				}
-				file_put_contents($cachefile,$filescontent);
-				chmod($cachefile,0777);
+				@file_put_contents($cachefile,$filescontent);
+				@chmod($cachefile,0777);
 			}
-			else $filescontent = file_get_contents($cachefile);
+			else if(file_exists($cachefile)) $filescontent = file_get_contents($cachefile);
 		}
 		return $filescontent;
 	}
 
 	protected function css_split($filescontent = '')
 	{
-		if($this->css_totalparts == 1 || $this->css_part == 0) return $filescontent;
+		if($this->css_totalparts == 1 || $this->css_part == 0 || $this->css_stringmode) return $filescontent;
 		else
 		{
 			$filescontentlines = explode("\n",$filescontent);
@@ -351,46 +386,55 @@ $mhtmlcontent .= '
 		
 	public function css()
 	{
+		$this->setcachedir($this->booster_cachedir);
 		$filescontent = '';
 		$type = 'css'; // Set file extension to "css"
 	
 		if(is_array($this->css_source)) $sources = $this->css_source;
-		else $sources = explode(',',$this->css_source);
+		elseif(!$this->css_stringmode) $sources = explode(',',$this->css_source);
+		else $sources = array($this->css_source);
 		
 		reset($sources);
 		for($i=0;$i<sizeof($sources);$i++)
 		{
 			$source = current($sources);
 			$source = rtrim($source,'/'); // Remove any trailing slash
-			if(is_dir($source) || is_file($source))
+			if($source != '')
 			{
-				$filestime = $this->getfilestime($source,$type,$this->css_recursive);
+				if(is_dir($source) || is_file($source)) $filestime = $this->getfilestime($source,$type,$this->css_recursive);
+				else $filestime = $this->css_stringtime;
 				// If IE 6/7 on XP or IE 7 on Vista/Win7
 				if(
-					$this->browserArray['browsertype'] == 'MSIE' && 
+					$this->browser->family == 'MSIE' && $this->browser->platform == 'Windows' && 
 					(
-						(round(floatval($this->browserArray['version'])) == 6 && floatval($this->browserArray['ntversion']) < 6) || 
-						(round(floatval($this->browserArray['version'])) == 7 && floatval($this->browserArray['ntversion']) >= 6)
+						(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
+						(round(floatval($this->browser->familyversion)) == 7 && floatval($this->browser->platformversion) >= 6)
 					)
 				)
 				{
-					$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
+					if(!$this->css_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_cache.txt';
+					else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($source)).'_datauri_cache.txt';
 				}
 				// If IE 7 browser on Vista or higher (like IETester under Windows 7 for example), skip cache
-				elseif($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7 && floatval($this->browserArray['ntversion']) >= 6)
+				elseif(
+					$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && 
+					$this->browser->platform == 'Windows' && floatval($this->browser->platformversion) >= 6
+				)
 				{
 					$cachefile = '';
 				}
 				// If any other and then data-URI-compatible browser
 				else 
 				{
-					$cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_cache.txt';
+					if(!$this->css_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_cache.txt';
+					else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($source)).'_datauri_cache.txt';
 				}
 				
-				if($cachefile != '' && file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
+				if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
 				else
 				{
-					$currentfilescontent = $this->getfilescontents($source,$type,$this->css_recursive);
+					if(is_dir($source) || is_file($source)) $currentfilescontent = $this->getfilescontents($source,$type,$this->css_recursive);
+					else $currentfilescontent = $source;
 					$currentfilescontent = $this->csstidy($currentfilescontent);
 					$filescontent .= $this->css_datauri($filestime,$currentfilescontent);
 				}
@@ -402,9 +446,16 @@ $mhtmlcontent .= '
 		return $filescontent;
 	}
 		
+	public function mhtmltime()
+	{
+		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
+		if(file_exists($mhtmlfile)) return filemtime($mhtmlfile);
+		else return 0;
+	}
+	
 	public function mhtml()
 	{
-		$mhtmlfile = 'booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
+		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
 		if(!file_exists($mhtmlfile)) $this->css();
 		if(file_exists($mhtmlfile)) return file_get_contents($mhtmlfile);
 		else return '';
@@ -431,7 +482,7 @@ $mhtmlcontent .= '
 		$timestamp_dir = implode(',',$timestamp_dirs);
 
 		// IE6 fix image flicker
-		if($this->browserArray['browsertype'] == 'MSIE' && floatval($this->browserArray['version']) < 7) $markup .= '<script type="text/javascript">try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}</script>'."\r\n";
+		if($this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && $this->browser->platform == 'Windows') $markup .= '<script type="text/javascript">try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}</script>'."\r\n";
 	
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
@@ -480,7 +531,7 @@ $mhtmlcontent .= '
 			if(is_dir($source) || is_file($source))
 			{
 				$filestime = $this->getfilestime($source,$type,$this->js_recursive);
-				$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/booster_cache/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt';
+				$cachefile = str_replace('\\','/',str_replace('\\','/',dirname(__FILE__))).'/'.$this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt';
 				
 				if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
 				else $filescontent .= $this->getfilescontents($source,$type,$this->js_recursive);
