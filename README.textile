@@ -229,11 +229,13 @@ echo $booster->css_markup();
 *Q: For CSS, can I define a second folder to feed an alternate stylesheet?*
 A: Sure, e.g. like this:
 
-bc. $booster->css_source = 'css_2';
+bc. $booster->css_source = 'css_1';
+echo $booster->css_markup();
+//
+$booster->css_source = 'css_2';
 $booster->css_rel = 'alternate stylesheet';
 $booster->css_title = 'Alternate Stylesheet';
 echo $booster->css_markup();
-
 
 *Q: For CSS, can I influence in how many even parts it gets split?*
 A: Nothing easier than this:
@@ -249,7 +251,7 @@ bc. $booster->js_totalparts = 2;
 echo $booster->js_markup();
 
 
-*Q: For CSS, can I have it output in HTML 4.01 fashion?*
+*Q: For CSS link-tag, can I have its output-markup in HTML 4.01 fashion?*
 A: No problem, do this:
 
 bc. $booster->css_markuptype = 'HTML';
