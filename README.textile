@@ -183,7 +183,7 @@ echo $booster->js_markup();
 *Q: I don't want to have CSS-JS-Booster to pull all the files from inside a 
 directory, nor do I want to rename the files alphabetically. I rather want 
 full control over which files to use. Is this possible?*
-A: Yes. $booster->css_source and $booster->js_source are very flexible in
+A: Yes. @$booster->css_source@ and @$booster->js_source@ are very flexible in
 what they accept as source. You don't need to specify a folder, you can
 also specify a single file, or multiple files (either comma-separated or as 
 genuine array). Here are some examples:
@@ -200,6 +200,23 @@ or files and folder mixed in an array:
 
 bc. $booster->css_source = array('css_1/reset.css','css_1/base.css','css_2');
 echo $booster->css_markup();
+
+
+*Q: I don't want to have CSS-JS-Booster to pull files form anywhere at all. 
+I rather want to pass it a CSS-/Javascript-string and have that optimized. 
+Is this possible?*
+A: Yes, @$booster->css_source@ and @$booster->js_source@ can now also accept 
+code-strings as source. But you have to switch the respective booster-part to 
+stringmode before by setting @$booster->css_stringmode = TRUE;@ or 
+@$booster->js_stringmode = TRUE;@. Here is an example:
+
+bc. $booster = new Booster();
+$booster->css_stringmode = TRUE;
+$booster->css_source = '.div1 {
+	display: block;
+	width: 400px;
+}';
+echo $booster->css(); 
 
 
 *Q: For CSS, how can I define a different/specific target-medium?*
@@ -252,10 +269,10 @@ shouldn't you have any *.htaccess*-file installed in your site's root yet.
 Should you happen to get internal server error 500s, then something went
 wrong with my .htaccess and you server-config.
 
-What the .htaccess adds on top:
+What the *.htaccess* adds on top:
 
-*Turns off ETags
-*Adds aggressive caching for all sort of assets like images/favicon/flash
+* Turns off ETags
+* Adds aggressive caching for all sort of assets like images/favicon/flash
 
 
 
