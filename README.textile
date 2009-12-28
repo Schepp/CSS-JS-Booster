@@ -3,9 +3,7 @@ Copyright (C) 2009 Christian "Schepp" Schaefer
 
 
 
-----------------------------------------------------------------------------
-Important notice
-----------------------------------------------------------------------------
+h1. Important notice
 
 This piece of code is still quite fresh so that others can start testing
 and/or using and/or enhancing it.
@@ -20,26 +18,24 @@ Also most large JS-libraries/frameworks are already offered heavily minified.
 
 
 
-----------------------------------------------------------------------------
-Functionality and Benefits
-----------------------------------------------------------------------------
+h1. Functionality and Benefits
 
 CSS-JS-Booster is a PHP-script that tries to automate as many performance
 optimizing steps related to CSS and JS embedding as possible.
 
 For CSS these steps are:
-*combine multiple CSS-files resulting in HTTP-requests going down
-*optimize and minify CSS with CSSTidy
-*Embed any CSS-images smaller 24KB as data-URI or MHTML (for IE <= 7)
-*Split the output back into 2 even files that can load in parallel
-*GZIP-compress the resulting CSS
-*Have browsers cache the result as long as it remains unchanged
-*If IE6: Issue a JS-command to fix background image caching behaviour 
+* combine multiple CSS-files resulting in HTTP-requests going down
+* optimize and minify CSS with CSSTidy
+* Embed any CSS-images smaller 24KB as data-URI or MHTML (for IE <= 7)
+* Split the output back into 2 even files that can load in parallel
+* GZIP-compress the resulting CSS
+* Have browsers cache the result as long as it remains unchanged
+* If IE6: Issue a JS-command to fix background image caching behaviour 
 
 For JS these steps are:
-*combine multiple JS-files resulting in HTTP-requests going down
-*GZIP-compress the resulting JS
-*Have browsers cache the result as long as it remains unchanged
+* combine multiple JS-files resulting in HTTP-requests going down
+* GZIP-compress the resulting JS
+* Have browsers cache the result as long as it remains unchanged
 
 + GZIP-compresses the page calling those files.
 
@@ -68,9 +64,7 @@ Just to have mentioned those...
 
 
 
-----------------------------------------------------------------------------
-Basic Usage
-----------------------------------------------------------------------------
+h1. Basic Usage
 
 CSS-JS-Booster is - as its name implies - divided into two function blocks:
 A CSS-optimizing block and a JavaScript-optimizing block.
@@ -114,13 +108,13 @@ echo $booster->css_markup();
 
 for example:
 
-@<head>
+@==<head>
 <title>Webpage</title>
 <?php 
 $booster->css_source = 'css';
 echo $booster->css_markup(); 
 ?>
-</head>@
+</head>==@
 
 The argument is the path relativ to the file calling that function. If you 
 are in a subfolder it should read *../css*.
@@ -148,21 +142,19 @@ echo $booster->js_markup();
 
 for example:
 
-@<?php 
+@==<?php 
 $booster->js_source = 'js';
 echo $booster->js_markup(); 
 ?>
 </body>
-</html>@
+</html>==@
 
 The argument is the path relativ to the file calling that function. If you 
 are in a subfolder it should read *../js*.
 
 
 
-----------------------------------------------------------------------------
-Q & A for Advanced Usage
-----------------------------------------------------------------------------
+h1. Q & A for Advanced Usage
 
 Q: How can I combine files out of multiple CSS- or JS-folders?
 A: By setting as directory argument a comma delimited list of folders: 
@@ -246,9 +238,7 @@ A: No problem, do this:
   
  
 
-----------------------------------------------------------------------------
-.htaccess Acceleration
-----------------------------------------------------------------------------
+h1. .htaccess Acceleration
 
 For an even further speed-boost, either add the contents of 
 
@@ -267,9 +257,7 @@ What the .htaccess adds on top:
 
 
 
-----------------------------------------------------------------------------
-Copyright and License Information for 3rd party elements used in the scripts
-----------------------------------------------------------------------------
+h1. Copyright and License Information for 3rd party elements used in the scripts
 
 CSSTidy 1.3 is taken from here:
 "http://csstidy.sourceforge.net/":http://csstidy.sourceforge.net/
@@ -278,9 +266,7 @@ You find its license inside booster's csstidy-1.3-folder
 Browser detection was rewritten based on work from Paul Scott found here:
 "http://www.phpclasses.org/browse/file/12369.html":http://www.phpclasses.org/browse/file/12369.html
 
-----------------------------------------------------------------------------
-Copyright and License Information for 3rd party elements used in example1
-----------------------------------------------------------------------------
+h1. Copyright and License Information for 3rd party elements used in example1
 
 HTML and CSS Template named "Blog Division" is taken from here:
 "http://www.free-css.com/free-css-templates/page1/blog-division.php":http://www.free-css.com/free-css-templates/page1/blog-division.php
