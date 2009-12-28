@@ -73,22 +73,22 @@ class Booster {
 
     /**
      * Defines source to take the CSS stylesheets from.
-	 * 
-	 * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
-	 * When passing foldernames, containing files will be processed in alphabetical order.
-	 * The variable also accepts a stylesheet-string.
-	 * Defaults to "css".
+     * 
+     * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
+     * When passing foldernames, containing files will be processed in alphabetical order.
+     * The variable also accepts a stylesheet-string.
+     * Defaults to "css".
      * @var    mixed
      * @access public 
-	 * @see    $css_stringmode
+     * @see    $css_stringmode
      */
 	public $css_source = 'css';
 
     /**
      * Defines media-attribute for CSS markup output
 	 *
-	 * Specify differing media-types like "print", "handheld", etc.
-	 * Defaults to "all".
+     * Specify differing media-types like "print", "handheld", etc.
+     * Defaults to "all".
      * @var    string 
      * @access public 
      */
@@ -97,8 +97,8 @@ class Booster {
     /**
      * Defines rel-attribute for CSS markup output
 	 *
-	 * Specify differing relations like "alternate stylesheet"
-	 * Defaults to "stylesheet".
+     * Specify differing relations like "alternate stylesheet"
+     * Defaults to "stylesheet".
      * @var    string 
      * @access public 
      */
@@ -107,8 +107,8 @@ class Booster {
     /**
      * Defines a title-attribute for CSS markup output
 	 *
-	 * If you like to title multiple stylesheets
-	 * Defaults to "Standard".
+     * If you like to title multiple stylesheets
+     * Defaults to "Standard".
      * @var    string 
      * @access public 
      */
@@ -117,7 +117,7 @@ class Booster {
     /**
      * Defines the markup language to use.
 	 *
-	 * Defaults to "XHTML".
+     * Defaults to "XHTML".
      * @var    string 
      * @access public 
      */
@@ -126,10 +126,10 @@ class Booster {
     /**
      * Defines in how many parts the CSS output shall be split
 	 *
-	 * As newer browsers support more than 2 concurrent parallel connections 
-	 * to a webserver you can decrease loading-time by splitting the output up 
-	 * into more than one file.
-	 * Defaults to "2".
+     * As newer browsers support more than 2 concurrent parallel connections 
+     * to a webserver you can decrease loading-time by splitting the output up 
+     * into more than one file.
+     * Defaults to "2".
      * @var    number 
      * @access public 
      */
@@ -139,8 +139,8 @@ class Booster {
      * Defines which part to ouput when retrieving CSS in multiple parts
 	 *
      * Used by accompagning script "booster_css.php"
-	 * Defaults to "0".
-	 * @var    number 
+     * Defaults to "0".
+     * @var    number 
      * @access public 
      */
 	public $css_part = 0;
@@ -149,8 +149,8 @@ class Booster {
      * Defines if source-file retrieval shall be recursive
 	 *
      * Only matters when passing folders as source-parameter.
-	 * If set to "TRUE" contents of folders found inside source-folder are also fetched.
-	 * Defaults to "FALSE".
+     * If set to "TRUE" contents of folders found inside source-folder are also fetched.
+     * Defaults to "FALSE".
      * @var    boolean 
      * @access public  
      */
@@ -160,11 +160,11 @@ class Booster {
      * Switches on string-mode, when passing styleheet-strings as source
 	 *
      * Instead of folders and files to read and parse you can also pass
-	 * stylesheet-code as source. But, this only works if you switch string-mode on.
-	 * Defaults to "FALSE".
+     * stylesheet-code as source. But, this only works if you switch string-mode on.
+     * Defaults to "FALSE".
      * @var    boolean 
      * @access public  
-	 * @see    $css_source
+     * @see    $css_source
      */
 	public $css_stringmode = FALSE;
 
@@ -172,30 +172,30 @@ class Booster {
      * Defines the base-folder for all files referenced in stylesheet-string
 	 *
      * When being in string-mode, the booster prepends this path going out from the caller-location 
-	 * in order to find all referenced files.
-	 * Defaults to "./".
+     * in order to find all referenced files.
+     * Defaults to "./".
      * @var    string 
      * @access public 
-	 * @see    $css_stringmode
+     * @see    $css_stringmode
      */
 	public $css_stringbase = './';
 
     /**
      * Used to store the date of last change of a stylesheet-string
 	 *
-	 * Is set to the file-time of the calling script during construction.
+     * Is set to the file-time of the calling script during construction.
      * @var    integer 
      * @access private  
-	 * @see    $css_stringmode
+     * @see    $css_stringmode
      */
 	private $css_stringtime = 0;
 
     /**
      * Defines source to take the JS from.
-	 * 
-	 * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
-	 * When passing foldernames, containing files will be processed in alphabetical order.
-	 * Defaults to "js".
+     * 
+     * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
+     * When passing foldernames, containing files will be processed in alphabetical order.
+     * Defaults to "js".
      * @var    mixed 
      * @access public 
      */
@@ -204,10 +204,10 @@ class Booster {
     /**
      * Defines in how many parts the JS output shall be split
 	 *
-	 * Newer browsers support more than 2 concurrent parallel connections 
-	 * but NOT for JS-files. So here one single output-file would be best. 
-	 * You can still uppen the number of output-files here if like.
-	 * Defaults to "1".
+     * Newer browsers support more than 2 concurrent parallel connections 
+     * but NOT for JS-files. So here one single output-file would be best. 
+     * You can still uppen the number of output-files here if like.
+     * Defaults to "1".
      * @var    integer 
      * @access public  
      */
@@ -217,7 +217,7 @@ class Booster {
      * Defines which part to ouput when retrieving JS in multiple parts
 	 *
      * Used by accompagning script "booster_js.php"
-	 * Defaults to "0".
+     * Defaults to "0".
      * @var    integer 
      * @access public  
      */
@@ -227,8 +227,8 @@ class Booster {
      * Defines if source-file retrieval shall be recursive
 	 *
      * Only matters when passing folders as source-parameter.
-	 * If set to "TRUE" contents of folders found inside source-folder are also fetched.
-	 * Defaults to "FALSE".
+     * If set to "TRUE" contents of folders found inside source-folder are also fetched.
+     * Defaults to "FALSE".
      * @var    boolean 
      * @access public  
      */
@@ -238,11 +238,11 @@ class Booster {
      * Switches on string-mode, when passing javascript-strings as source
 	 *
      * Instead of folders and files to read and parse you can also pass
-	 * javascript-code as source. But, this only works if you switch string-mode on.
-	 * Defaults to "FALSE".
+     * javascript-code as source. But, this only works if you switch string-mode on.
+     * Defaults to "FALSE".
      * @var    boolean 
      * @access public  
-	 * @see    $css_source
+     * @see    $css_source
      */
 	public $js_stringmode = FALSE;
 
@@ -250,7 +250,7 @@ class Booster {
      * Defines the directory to use for caching
 	 *
      * The directory is relative to "booster"-folder and should be write-enabled
-	 * Defaults to "booster_cache".
+     * Defaults to "booster_cache".
      * @var    string 
      * @access public 
      */
@@ -260,7 +260,7 @@ class Booster {
      * Used to remember if the working-path has already been calculated.
      * @var    boolean 
      * @access private 
- 	 * @see    setcachedir
+      * @see    setcachedir
     */
 	private $booster_cachedir_transformed = FALSE;
 
@@ -268,7 +268,7 @@ class Booster {
      * Used to to store user-agent info
      * @var    object 
      * @access public 
-	 * @see    __construct
+     * @see    __construct
      */
 	public $browser;
 
@@ -283,7 +283,7 @@ class Booster {
      * Constructor
      * 
      * Sets @var $css_stringtime to caller file time
-	 * Invokes new browser object for further use
+     * Invokes new browser object for further use
      * 
      * @return void   
      * @access public 
@@ -553,10 +553,10 @@ class Booster {
      * Css_datauri embeds external files like images into the stylesheet
      * 
      * Depending on the browser and operating system, this funtion does the following:
-	 * IE 6 and 7 on XP and IE 7 on Vista or higher don't understand data-URIs, but a proprietary format named MHTML. 
-	 * So they get served that.
-	 * Any other common browser understands data-URIs, even IE 8 up to a file-size of 24KB, so those get data-URI-embedding
-	 * IE 6 on Vista or higher doesn't understand any of the embeddings so it just gets standard styles.
+     * IE 6 and 7 on XP and IE 7 on Vista or higher don't understand data-URIs, but a proprietary format named MHTML. 
+     * So they get served that.
+     * Any other common browser understands data-URIs, even IE 8 up to a file-size of 24KB, so those get data-URI-embedding
+     * IE 6 on Vista or higher doesn't understand any of the embeddings so it just gets standard styles.
      * 
      * @param  integer   $filestime    timestamp of the last modification of the content following
      * @param  string    $filescontent stylesheet-content
