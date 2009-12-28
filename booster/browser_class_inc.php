@@ -1,10 +1,32 @@
 <?php
 
 /**
- * Class to detect which browser is currently accessing the page/site
- * @author Christian "Schepp" Schaefer
+ * Class to detect which browser on which OS is currently accessing the page/site
+ * 
  * This class is loosely based on scripts by Paul Scott, which in turn is very loosely based on scripts by Gary White
- * @package browser
+ * 
+ * PHP version 5
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published 
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.
+ * If not, see <http://www.gnu.org/licenses/lgpl-3.0.txt>
+ * 
+ * @category  PHP 
+ * @package   browser 
+ * @author    Christian Schepp Schaefer <schaepp@gmx.de> <http://twitter.com/derSchepp>
+ * @copyright 2009 Christian Schepp Schaefer
+ * @license   http://www.gnu.org/copyleft/lesser.html The GNU LESSER GENERAL PUBLIC LICENSE, Version 3.0
+ * @link      http://github.com/Schepp/CSS-JS-Booster/blob/master/booster/browser_class_inc.php 
  */
 
 class browser 
@@ -69,6 +91,28 @@ class browser
 	 */
 	public $platformtype = "desktop";
 
+	/**
+	 * @var array $mobileagents contains a list of useragent-strings found in mobile agents
+	 */
+	public $mobileagents = array(
+	'Android',
+	'Blackberry',
+	'Blazer',
+	'Handspring',
+	'iPhone',
+	'iPod',
+	'Kyocera',
+	'LG',
+	'Motorola',
+	'Nokia',
+	'Palm',
+	'PlayStation Portable',
+	'Samsung',
+	'Smartphone',
+	'SonyEricsson',
+	'Symbian',
+	'WAP'
+	);
 
 	/**
 	 * Class constructor
@@ -144,33 +188,13 @@ class browser
 			if(preg_match('/Playstation Portable[);\s]+([0-9\.]+)/i',$this->useragent,$match) > 0) $this->platformversion = floatval($match[1]);
 		}
 		// Mobile only Devices
-		// TODO: This should be a public class variable for easy extension/updating
 		else
 		{
-			$mobileAgents = array(
-			'Android',
-			'Blackberry',
-			'Blazer',
-			'Handspring',
-			'iPhone',
-			'iPod',
-			'Kyocera',
-			'LG',
-			'Motorola',
-			'Nokia',
-			'Palm',
-			'PlayStation Portable',
-			'Samsung',
-			'Smartphone',
-			'SonyEricsson',
-			'Symbian',
-			'WAP'
-			);
-			for($i=0;$i<count($mobileAgents);$i++)
+			for($i=0;$i<count($this->mobileagents);$i++)
 			{
-				if(preg_match("/".$mobileAgents[$i]."/i", $this->useragent) == 1)
+				if(preg_match("/".$this->mobileagents[$i]."/i", $this->useragent) == 1)
 				{
-					$this->platform = $mobileAgents[$i];
+					$this->platform = $this->mobileagents[$i];
 					$this->platformtype = "mobile";
 					break;
 				} 
@@ -449,6 +473,4 @@ class browser
 		}
 	}
 }
-
-
 ?>
