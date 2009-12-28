@@ -91,6 +91,7 @@ class browser
 	 */
 	public $platformtype = "desktop";
 
+
 	/**
 	 * @var array $mobileagents contains a list of useragent-strings found in mobile agents
 	 */
@@ -113,6 +114,7 @@ class browser
 	'Symbian',
 	'WAP'
 	);
+
 
 	/**
 	 * Class constructor
