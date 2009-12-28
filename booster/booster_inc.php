@@ -603,7 +603,6 @@ class Booster {
 				// identifier for the cache-files
 				$identifier = preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source);
 				// The external absolute path to where "booster_mhtml.php" resides
-				$mhtmlpath = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),$_SERVER['DOCUMENT_ROOT']);
 				$referrer_parsed = parse_url(dirname($_SERVER['REQUEST_URI']));
 				$mhtmlpath = dirname($referrer_parsed['path']);
 			}
@@ -613,33 +612,8 @@ class Booster {
 				// identifier for the cache-files
 				$identifier = md5($this->css_source);
 				// The external absolute path to where "booster_mhtml.php" resides
-				// @todo Path calculation for string-mode is still not functional
-				$referrer_parsed = parse_url(dirname($_SERVER['REQUEST_URI']));
-				#$mhtmlpath = dirname($referrer_parsed['path']);
 				$mhtmlpath = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
 			}
-			
-			$p = array();
-			$p['p1'] = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
-			$p['p2'] = $this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
-			$p['p3'] = $this->getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
-			$p['p4'] = $this->getpath(rtrim($_SERVER['DOCUMENT_ROOT'],'/'),dirname($_SERVER['SCRIPT_FILENAME']));
-			$p['p5'] = $this->getpath(rtrim($_SERVER['DOCUMENT_ROOT'],'/'),str_replace('\\','/',dirname(__FILE__)));
-			$p['p6'] = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
-			$p['p7'] = $this->getpath($p['p1'],$p['p3']);
-			$p['p8'] = $this->getpath($p['p3'],$p['p1']);
-			$p['p9'] = dirname($_SERVER['SCRIPT_FILENAME']);
-			$p['p10'] = rtrim($_SERVER['DOCUMENT_ROOT'],'/');
-			$p['p11'] = str_replace('\\','/',dirname(__FILE__));
-			
-			echo "/* \r\n";
-			reset($p);
-			for($i=0;$i<sizeof($p);$i++)
-			{
-				echo key($p).": ".current($p)." \r\n";
-				next($p);
-			}
-			echo "*/\r\n\r\n";
 			
 			// Cachefile for the styles
 			$cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_cache.txt';
