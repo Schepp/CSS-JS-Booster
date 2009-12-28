@@ -158,85 +158,85 @@ are in a subfolder it should read *../js*.
 
 h1. Q & A for Advanced Usage
 
-Q: How can I combine files out of multiple CSS- or JS-folders?
+*Q: How can I combine files out of multiple CSS- or JS-folders?*
 A: By setting as directory argument a comma delimited list of folders: 
 
-   bc. $booster->css_source = 'css_1,css_2';
-   echo $booster->css_markup();
+bc. $booster->css_source = 'css_1,css_2';
+echo $booster->css_markup();
 
-   or
+or
 
-   bc. $booster->css_source = array('css_1','css_2');
-   echo $booster->css_markup();
+bc. $booster->css_source = array('css_1','css_2');
+echo $booster->css_markup();
 
-   The same holds true for JS:
+The same holds true for JS:
 
-   bc. $booster->js_source = 'js_1,js_2';
-   echo $booster->js_markup();
+bc. $booster->js_source = 'js_1,js_2';
+echo $booster->js_markup();
 
-   or
+or
 
-   bc. $booster->js_source = array('js_1','js_2');
-   echo $booster->js_markup();
+bc. $booster->js_source = array('js_1','js_2');
+echo $booster->js_markup();
 
 
-Q: I don't want to have CSS-JS-Booster to pull all the files from inside a 
-   directory, nor do I want to rename the files alphabetically. I rather want 
-   full control over which files to use. Is this possible?
+*Q: I don't want to have CSS-JS-Booster to pull all the files from inside a 
+directory, nor do I want to rename the files alphabetically. I rather want 
+full control over which files to use. Is this possible?*
 A: Yes. $booster->css_source and $booster->js_source are very flexible in
-   what they accept as source. You don't need to specify a folder, you can
-   also specify a single file, or multiple files (either comma-separated or as 
-   genuine array). Here are some examples:
+what they accept as source. You don't need to specify a folder, you can
+also specify a single file, or multiple files (either comma-separated or as 
+genuine array). Here are some examples:
 
-   bc. $booster->css_source = 'css_1/reset.css,css_1/base.css';
-   echo $booster->css_markup();
+bc. $booster->css_source = 'css_1/reset.css,css_1/base.css';
+echo $booster->css_markup();
 
-   or
+or
 
-   bc. $booster->css_source = array('css_1/reset.css','css_1/base.css');
-   echo $booster->css_markup();
+bc. $booster->css_source = array('css_1/reset.css','css_1/base.css');
+echo $booster->css_markup();
 
-   or files and folder mixed:
+or files and folder mixed:
 
-   bc. $booster->css_source = array('css_1/reset.css','css_1/base.css','css_2');
-   echo $booster->css_markup();
-    
+bc. $booster->css_source = array('css_1/reset.css','css_1/base.css','css_2');
+echo $booster->css_markup();
 
-Q: For CSS, how can I define a different/specific target-medium?
+
+*Q: For CSS, how can I define a different/specific target-medium?*
 A: By setting the desired media before echoing the markup:
 
-   bc. $booster->css_media = 'screen,projection';
-   echo $booster->css_markup();
+bc. $booster->css_media = 'screen,projection';
+echo $booster->css_markup();
 
 
-Q: For CSS, can I define a second folder to feed an alternate stylesheet?
+*Q: For CSS, can I define a second folder to feed an alternate stylesheet?*
 A: Sure, e.g. like this:
 
-   bc. $booster->css_source = 'css_2';
-   $booster->css_rel = 'alternate stylesheet';
-   $booster->css_title = 'Alternate Stylesheet';
-   echo $booster->css_markup();
+bc. $booster->css_source = 'css_2';
+$booster->css_rel = 'alternate stylesheet';
+$booster->css_title = 'Alternate Stylesheet';
+echo $booster->css_markup();
 
 
-Q: For CSS, can I influence in how many even parts it gets split?
+*Q: For CSS, can I influence in how many even parts it gets split?*
 A: Nothing easier than this:
-   
-   bc. $booster->css_totalparts = 4;
-   echo $booster->css_markup();
-   
 
-Q: For JS, can I increase the number of parts it gets split into?
+bc. $booster->css_totalparts = 4;
+echo $booster->css_markup();
+
+
+*Q: For JS, can I increase the number of parts it gets split into?*
 A: Yes, by setting the second argument:
-   
-   bc. $booster->js_totalparts = 2;
-   echo $booster->js_markup();
-   
 
-Q: For CSS, can I have it output in HTML 4.01 fashion?
+bc. $booster->js_totalparts = 2;
+echo $booster->js_markup();
+
+
+*Q: For CSS, can I have it output in HTML 4.01 fashion?*
 A: No problem, do this:
-   
-   bc. $booster->css_markuptype = 'HTML';
-   echo $booster->css_markup();
+
+bc. $booster->css_markuptype = 'HTML';
+echo $booster->css_markup();
   
  
 
