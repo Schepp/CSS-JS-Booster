@@ -164,7 +164,7 @@ A: By setting as directory argument a comma delimited list of folders:
 bc. $booster->css_source = 'css_1,css_2';
 echo $booster->css_markup();
 
-or
+or an array
 
 bc. $booster->css_source = array('css_1','css_2');
 echo $booster->css_markup();
@@ -191,12 +191,12 @@ genuine array). Here are some examples:
 bc. $booster->css_source = 'css_1/reset.css,css_1/base.css';
 echo $booster->css_markup();
 
-or
+or as array
 
 bc. $booster->css_source = array('css_1/reset.css','css_1/base.css');
 echo $booster->css_markup();
 
-or files and folder mixed:
+or files and folder mixed in an array:
 
 bc. $booster->css_source = array('css_1/reset.css','css_1/base.css','css_2');
 echo $booster->css_markup();
