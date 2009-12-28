@@ -87,7 +87,7 @@ class Booster {
 
     /**
      * Defines media-attribute for CSS markup output
-	 *
+     *
      * Specify differing media-types like "print", "handheld", etc.
      * Defaults to "all".
      * @var    string 
@@ -97,7 +97,7 @@ class Booster {
 
     /**
      * Defines rel-attribute for CSS markup output
-	 *
+     *
      * Specify differing relations like "alternate stylesheet"
      * Defaults to "stylesheet".
      * @var    string 
@@ -107,7 +107,7 @@ class Booster {
 
     /**
      * Defines a title-attribute for CSS markup output
-	 *
+     *
      * If you like to title multiple stylesheets
      * Defaults to "Standard".
      * @var    string 
@@ -117,7 +117,7 @@ class Booster {
 
     /**
      * Defines the markup language to use.
-	 *
+     *
      * Defaults to "XHTML".
      * @var    string 
      * @access public 
@@ -126,7 +126,7 @@ class Booster {
 
     /**
      * Defines in how many parts the CSS output shall be split
-	 *
+     *
      * As newer browsers support more than 2 concurrent parallel connections 
      * to a webserver you can decrease loading-time by splitting the output up 
      * into more than one file.
@@ -138,7 +138,7 @@ class Booster {
 
     /**
      * Defines which part to ouput when retrieving CSS in multiple parts
-	 *
+     *
      * Used by accompagning script "booster_css.php"
      * Defaults to "0".
      * @var    number 
@@ -148,7 +148,7 @@ class Booster {
 
     /**
      * Defines if source-file retrieval shall be recursive
-	 *
+     *
      * Only matters when passing folders as source-parameter.
      * If set to "TRUE" contents of folders found inside source-folder are also fetched.
      * Defaults to "FALSE".
@@ -159,7 +159,7 @@ class Booster {
 
     /**
      * Switches on string-mode, when passing styleheet-strings as source
-	 *
+     *
      * Instead of folders and files to read and parse you can also pass
      * stylesheet-code as source. But, this only works if you switch string-mode on.
      * Defaults to "FALSE".
@@ -171,7 +171,7 @@ class Booster {
 
     /**
      * Defines the base-folder for all files referenced in stylesheet-string
-	 *
+     *
      * When being in string-mode, the booster prepends this path going out from the caller-location 
      * in order to find all referenced files.
      * Defaults to "./".
@@ -183,7 +183,7 @@ class Booster {
 
     /**
      * Used to store the date of last change of a stylesheet-string
-	 *
+     *
      * Is set to the file-time of the calling script during construction.
      * @var    integer 
      * @access private  
@@ -204,7 +204,7 @@ class Booster {
 
     /**
      * Defines in how many parts the JS output shall be split
-	 *
+     *
      * Newer browsers support more than 2 concurrent parallel connections 
      * but NOT for JS-files. So here one single output-file would be best. 
      * You can still uppen the number of output-files here if like.
@@ -216,7 +216,7 @@ class Booster {
 
     /**
      * Defines which part to ouput when retrieving JS in multiple parts
-	 *
+     *
      * Used by accompagning script "booster_js.php"
      * Defaults to "0".
      * @var    integer 
@@ -226,7 +226,7 @@ class Booster {
 
     /**
      * Defines if source-file retrieval shall be recursive
-	 *
+     *
      * Only matters when passing folders as source-parameter.
      * If set to "TRUE" contents of folders found inside source-folder are also fetched.
      * Defaults to "FALSE".
@@ -237,7 +237,7 @@ class Booster {
 
     /**
      * Switches on string-mode, when passing javascript-strings as source
-	 *
+     *
      * Instead of folders and files to read and parse you can also pass
      * javascript-code as source. But, this only works if you switch string-mode on.
      * Defaults to "FALSE".
@@ -249,7 +249,7 @@ class Booster {
 
     /**
      * Defines the directory to use for caching
-	 *
+     *
      * The directory is relative to "booster"-folder and should be write-enabled
      * Defaults to "booster_cache".
      * @var    string 
