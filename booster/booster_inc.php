@@ -60,7 +60,8 @@ include_once('csstidy-1.3/class.csstidy.php');
 /**
  * CSS-JS-BOOSTER
  * 
- * Long description (if any) ...
+ * An easy to use PHP-Library that combines, optimizes, dataURI-fies, re-splits, 
+ * compresses and caches your CSS and JS for quicker loading times.
  * 
  * @category  PHP 
  * @package   CSS-JS-Booster 
