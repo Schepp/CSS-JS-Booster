@@ -1002,7 +1002,7 @@ class Booster {
 	}
 	
     /**
-     * Js fetches and optimizes all stylesheet-files
+     * Js fetches and optimizes all javascript-files
      * 
      * @return string optimized javascript-code
      * @access public 
@@ -1012,7 +1012,7 @@ class Booster {
 		// Call Setcachedir to make sure, cache-path has been calculated
 		$this->setcachedir();
 
-		// Empty storage for stylesheet-contents to come
+		// Empty storage for javascript-contents to come
 		$filescontent = '';
 		// Specify file extension "js" for security reasons
 		$type = 'js';
