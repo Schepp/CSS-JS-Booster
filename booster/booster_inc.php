@@ -77,7 +77,7 @@ class Booster {
      * 
      * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
      * When passing foldernames, containing files will be processed in alphabetical order.
-     * The variable also accepts a stylesheet-string.
+     * The variable also accepts a stylesheet-string if you set css_stringmode to "TRUE"
      * Defaults to "css".
      * @var    mixed
      * @access public 
@@ -196,9 +196,11 @@ class Booster {
      * 
      * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
      * When passing foldernames, containing files will be processed in alphabetical order.
+     * The variable also accepts a javascript-string if you set js_stringmode to "TRUE"
      * Defaults to "js".
      * @var    mixed 
      * @access public 
+     * @see    $js_stringmode
      */
 	public $js_source = 'js';
 
@@ -243,7 +245,7 @@ class Booster {
      * Defaults to "FALSE".
      * @var    boolean 
      * @access public  
-     * @see    $css_source
+     * @see    $js_source
      */
 	public $js_stringmode = FALSE;
 
@@ -303,7 +305,7 @@ class Booster {
      */
 	public function setcachedir()
 	{
-		// Check if @var booster_cachedir_transformed is still FALSE
+		// Check if @var $booster_cachedir_transformed is still "FALSE"
 		if(!$this->booster_cachedir_transformed) 
 		{
 			$this->booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir;
@@ -965,7 +967,7 @@ class Booster {
 	
 
     /**
-     * Js_split takes a multiline JS-string and splits it according to @var $css_totalparts and @var $css_part
+     * Js_split takes a multiline JS-string and splits it according to @var $js_totalparts and @var $js_part
      * 
      * @param  string    $filescontent contents to split
      * @return string    requested part-number of splitted content
