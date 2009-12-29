@@ -94,7 +94,7 @@ function booster_wp() {
 				for($j=0;$j<count($media);$j++) 
 				{
 					$media[key($media)] = implode(',',$media[key($media)]);
-					$booster_out .= '<link type="text/css" rel="'.key($media).'" media="'.key($css_files).'" src="'.$root_to_booster_path.'/booster_css.php?dir='.$media[key($media)].'" />';
+					$booster_out .= '<link type="text/css" rel="'.key($media).'" media="'.key($css_files).'" href="'.htmlentities($root_to_booster_path.'/booster_css.php?dir='.$media[key($media)],ENT_QUOTES).'" />';
 					$booster_out .= "\r\n";
 					next($media);
 				}
@@ -121,7 +121,7 @@ function booster_wp() {
 				else $out = str_replace($treffer[0][$i],$treffer[0][$i].'<!-- '.$filename.' -->',$out);
 			}
 			$js_files = implode(',',$js_files);
-			$booster_out .= '<script type="text/javascript" src="'.$root_to_booster_path.'/booster_js.php?dir='.$js_files.'"></script>';
+			$booster_out .= '<script type="text/javascript" src="'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_files,ENT_QUOTES).'"></script>';
 			$booster_out .= "\r\n";
 			
 			// Outputting the result
