@@ -31,12 +31,12 @@
  */
 
 // Starting zlib-compressed output
-@ini_set('zlib.output_compression',2048);
-@ini_set('zlib.output_compression_level',4);
+#@ini_set('zlib.output_compression',2048);
+#@ini_set('zlib.output_compression_level',4);
 
 // Turning on strict error reporting
-@ini_set("display_errors", 1);
-@error_reporting(E_ALL);
+#@ini_set("display_errors", 1);
+#@error_reporting(E_ALL);
 
 // Starting gzip-compressed output if zlib-compression is turned off
 if (
@@ -250,6 +250,28 @@ class Booster {
 	public $js_stringmode = FALSE;
 
     /**
+     * Defines the base-folder for all files referenced in javascript-string
+     *
+     * When being in string-mode, the booster prepends this path going out from the caller-location 
+     * in order to find all referenced files.
+     * Defaults to "./".
+     * @var    string 
+     * @access public 
+     * @see    $js_stringmode
+     */
+	public $js_stringbase = './';
+
+    /**
+     * Used to store the date of last change of a javascript-string
+     *
+     * Is set to the file-time of the calling script during construction.
+     * @var    integer 
+     * @access private  
+     * @see    $js_stringmode
+     */
+	private $js_stringtime = 0;
+
+    /**
      * Defines the directory to use for caching
      *
      * The directory is relative to "booster"-folder and should be write-enabled
@@ -294,6 +316,7 @@ class Booster {
     public function __construct()
     {
 		$this->css_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
+		$this->js_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		$this->browser = new browser();
     }
 
@@ -329,7 +352,7 @@ class Booster {
      * @return string    relative path between @var $path1 and @var $path2
      * @access protected 
      */
-	protected function getpath($path1 = '',$path2 = '',$path1_sep = '/')
+	public function getpath($path1 = '',$path2 = '',$path1_sep = '/')
 	{
 		$path2 = explode($path1_sep, $path2);
 		$path1 = explode($path1_sep, $path1);
