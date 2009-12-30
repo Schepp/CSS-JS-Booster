@@ -127,35 +127,44 @@ function booster_wp() {
 			// JS-part
 			$js_rel_files = array();
 			$js_abs_files = array();
-			preg_match_all('/<script.*?src=[\'"]*([^\'"]+\.js)[\'"]*.*?<\/script>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
+			$js_plain = '';
+			preg_match_all('/<script[^>]*>(.*?)<\/script>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++) 
 			{
-				// Convert file's URI into an absolute local path
-				$filename = preg_replace('/^http:\/\/[^\/]+/',rtrim($_SERVER['DOCUMENT_ROOT'],'/'),$treffer[1][$i]);
-				// Remove any parameters from file's URI
-				$filename = preg_replace('/\?.*$/','',$filename);
-				// If file exists
-				if(file_exists($filename))
+				if(preg_match('/<script.*?src=[\'"]*([^\'"]+\.js)[\'"]*.*?<\/script>/ims',$treffer[0][$i],$srctreffer))
 				{
-					// Put file-reference inside a comment
-					$out = str_replace($treffer[0][$i],'<!-- '.$treffer[0][$i].' -->',$out);
-
-					// Calculate relative path from Booster to file
-					$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
-					$filename = $booster_to_file_path.'/'.basename($filename);
+					// Convert file's URI into an absolute local path
+					$filename = preg_replace('/^http:\/\/[^\/]+/',rtrim($_SERVER['DOCUMENT_ROOT'],'/'),$srctreffer[1]);
+					// Remove any parameters from file's URI
+					$filename = preg_replace('/\?.*$/','',$filename);
+					// If file exists
+					if(file_exists($filename))
+					{
+						// Put file-reference inside a comment
+						$out = str_replace($srctreffer[0],'<!-- '.$srctreffer[0].' -->',$out);
 	
-					// Enqueue file to array
-					array_push($js_rel_files,$filename);
-					array_push($js_abs_files,$root_to_booster_path.'/'.$filename);
+						// Calculate relative path from Booster to file
+						$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
+						$filename = $booster_to_file_path.'/'.basename($filename);
+		
+						// Enqueue file to array
+						array_push($js_rel_files,$filename);
+						array_push($js_abs_files,$root_to_booster_path.'/'.$filename);
+					}
+					// Leave untouched but put calculated local file name into a comment for debugging
+					else $out = str_replace($srctreffer[0],$srctreffer[0].'<!-- '.$filename.' -->',$out);
 				}
-				// Leave untouched but put calculated local file name into a comment for debugging
-				else $out = str_replace($treffer[0][$i],$treffer[0][$i].'<!-- '.$filename.' -->',$out);
+				else 
+				{
+					$js_plain .= $treffer[1][$i];
+					$out = str_replace($treffer[0][$i],'<!-- '.$treffer[0][$i].' -->',$out);
+				}
 			}
 			
 			// Creating Booster markup
 			$js_rel_files = implode(',',$js_rel_files);
 			$js_abs_files = implode(',',$js_abs_files);
-			$booster_out .= '<script type="text/javascript" src="'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>';
+			$booster_out .= '<script type="text/javascript" src="'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'">'.$js_plain.'</script>';
 			$booster_out .= "\r\n";
 			
 			
