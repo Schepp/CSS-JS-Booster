@@ -31,8 +31,8 @@
  */
 
 // Starting zlib-compressed output
-#@ini_set('zlib.output_compression',2048);
-#@ini_set('zlib.output_compression_level',4);
+@ini_set('zlib.output_compression',2048);
+@ini_set('zlib.output_compression_level',4);
 
 // Turning on strict error reporting
 #@ini_set("display_errors", 1);
@@ -394,7 +394,10 @@ class Booster {
 				break;
 			}
 		}
-		return $path.$fix;
+		$pathfix = $path.$fix;
+		// Remove any unneccessary "./"
+		$pathfix = preg_replace('/(?<!\.)\.\//','',$pathfix);
+		return $pathfix;
 	} 
 
     /**
@@ -456,7 +459,7 @@ class Booster {
 	public function getfilestime($source = '',$type = '',$recursive = FALSE,$filestime = 0)
 	{
 		// Load @var $source with an array made form @var $source parameter
-		if(is_array($source)) $source = $source;
+		if(is_array($source)) $sources = $source;
 		else $sources = explode(',',$source);
 
 		reset($sources);
@@ -590,7 +593,7 @@ class Booster {
      * @see    function  Setcachedir
      * @access protected 
      */
-	protected function css_datauri($filestime = 0,$filescontent = '')
+	protected function css_datauri($filestime = 0,$filescontent = '',$dir = '')
 	{
 		// Call Setcachedir to make sure, cache-path has been calculated
 		$this->setcachedir();
@@ -601,13 +604,8 @@ class Booster {
 		// Any files
 		$regex_url = '/url\([\'"]*(.+?\..+?)[\'"]*\)/msi';
 
-		// Prepare @var $dir that we need to prepend as path to any images we find to get the full path
-		// if @var $css_source is a folder
-		if(is_dir($this->css_source)) $dir = $this->css_source;
-		// if @var $css_source is a file
-		elseif(is_file($this->css_source)) $dir = dirname($this->css_source);
-		// if @var $css_source is code-string
-		else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
+		// identifier for the cache-files
+		$identifier = md5($filescontent);
 		
 		// --------------------------------------------------------------------------------------
 
@@ -622,85 +620,60 @@ class Booster {
 		{
 			// The @var $mhtmlarray collects references to all processed images so that we can look up if we already have embedded a certain image
 			$mhtmlarray = array();
-		
-			// If we are in normal mode use filename of the sourcefile as cache filename
-			if(!$this->css_stringmode) 
-			{
-				// identifier for the cache-files
-				$identifier = preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source);
-				// The external absolute path to where "booster_mhtml.php" resides
-				$referrer_parsed = parse_url(dirname($_SERVER['REQUEST_URI']));
-				$mhtmlpath = dirname($referrer_parsed['path']);
-			}
-			// If we are in string mode (which means no available filenames) do an md5 of the contents as cache filename
-			else 
-			{
-				// identifier for the cache-files
-				$identifier = md5($this->css_source);
-				// The external absolute path to where "booster_mhtml.php" resides
-				$mhtmlpath = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
-			}
-			
-			// Cachefile for the styles
-			$cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_cache.txt';
+			// The external absolute path to where "booster_mhtml.php" resides
+			$mhtmlpath = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
 			// Cachefile for the extra MHTML-data
 			$mhtmlfile = $this->booster_cachedir.'/'.$identifier.'_datauri_mhtml_cache.txt';
 			
 			
 			
-			// Check if cachefile already exists and if it is newer than the timestamp given
-			if(!file_exists($cachefile) || $filestime > filemtime($cachefile))
+			// Start putting together the styles and MHTML
+			$mhtmlcontent = "Content-Type: multipart/related; boundary=\"_ANY_STRING_WILL_DO_AS_A_SEPARATOR\"\r\n\r\n";
+
+			preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				// If not, start putting together the styles and MHTML
-				$mhtmlcontent = "Content-Type: multipart/related; boundary=\"_ANY_STRING_WILL_DO_AS_A_SEPARATOR\"\r\n\r\n";
-	
-				preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
-				for($i=0;$i<count($treffer[0]);$i++)
+				// Calculate full image path
+				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
+				// Create a new anchor-tag for the MHTML-file
+				$imagetag = 'img'.$i;
+				
+				// If image-file exists and if file-size is lower than 24 KB
+				if(file_exists($imagefile) && filesize($imagefile) < 24000) 
 				{
-					// Calculate full image path
-					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
-					// Create a new anchor-tag for the MHTML-file
-					$imagetag = 'img'.$i;
-					
-					// If image-file exists and if file-size is lower than 24 KB
-					if(file_exists($imagefile) && filesize($imagefile) < 24000) 
+					// Replace reference to image with reference to MHTML-file with corresponding anchor
+					$filescontent = str_replace($treffer[0][$i],'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$identifier.'!'.$imagetag.')',$filescontent);
+
+					// Look up in our list if we did not already process that exact file, if not append it
+					if(!isset($mhtmlarray[$imagetag])) 
 					{
-						// Replace reference to image with reference to MHTML-file with corresponding anchor
-						$filescontent = str_replace($treffer[0][$i],'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$identifier.'!'.$imagetag.')',$filescontent);
-	
-						// Look up in our list if we did not already process that exact file, if not append it
-						if(!isset($mhtmlarray[$imagetag])) 
-						{
-							$mhtmlcontent .= "--_ANY_STRING_WILL_DO_AS_A_SEPARATOR\r\n";
-							$mhtmlcontent .= "Content-Location:".$imagetag."\r\n";
-							$mhtmlcontent .= "Content-Transfer-Encoding:base64\r\n\r\n";
-							$mhtmlcontent .= base64_encode(file_get_contents($imagefile))."==\r\n";
-							
-							// Put file on our processed-list
-							$mhtmlarray[$imagetag] = 1;
-						}
+						$mhtmlcontent .= "--_ANY_STRING_WILL_DO_AS_A_SEPARATOR\r\n";
+						$mhtmlcontent .= "Content-Location:".$imagetag."\r\n";
+						$mhtmlcontent .= "Content-Transfer-Encoding:base64\r\n\r\n";
+						$mhtmlcontent .= base64_encode(file_get_contents($imagefile))."==\r\n";
+						
+						// Put file on our processed-list
+						$mhtmlarray[$imagetag] = 1;
 					}
 				}
-				$mhtmlcontent .= "\r\n\r\n";
-		
-				// Hack suggested by Stoyan Stafanov: prepend a star in front of background-property
-				$filescontent = preg_replace('/(background[^;]+?mhtml)/','*$1',$filescontent);
-				
-				// Scan for any left file-references and adjust their path
-				preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
-				for($i=0;$i<count($treffer[0]);$i++)
-				{
-					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
-				}
-				
-				// Store the cache-files
-				@file_put_contents($cachefile,$filescontent);
-				@chmod($cachefile,0777);
-				@file_put_contents($mhtmlfile,$mhtmlcontent);
-				@chmod($mhtmlfile,0777);
 			}
-			// Cache-file exists
-			else $filescontent = file_get_contents($cachefile);
+			$mhtmlcontent .= "\r\n\r\n";
+	
+			// Hack suggested by Stoyan Stefanov: prepend a star in front of background-property
+			$filescontent = preg_replace('/(background[^;]+?mhtml)/','*$1',$filescontent);
+			
+			// Scan for any left file-references and adjust their path
+			preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			for($i=0;$i<count($treffer[0]);$i++)
+			{
+				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+			}
+			
+			// Store the cache-files
+			// @file_put_contents($cachefile,$filescontent);
+			// @chmod($cachefile,0777);
+			@file_put_contents($mhtmlfile,$mhtmlcontent);
+			@chmod($mhtmlfile,0777);
 		}
 		
 		// --------------------------------------------------------------------------------------
@@ -716,7 +689,7 @@ class Booster {
 			preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
+				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
 			}
 		}
 		
@@ -728,41 +701,28 @@ class Booster {
 			if($this->debug) $filescontent .= "/* lastmodified: ".intval($this->css_stringtime)." / ".date("d.m.Y H:i:s",$this->css_stringtime)." */\r\n";
 			if($this->debug) $filescontent .= "/* dir: ".$dir." */\r\n";
 		
-			// If we are in normal mode use filename of the sourcefile as cache filename
-			if(!$this->css_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_cache.txt';
-			// If we are in string mode (which means no available filenames) do an md5 of the contents as cache filename
-			else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($this->css_source)).'_datauri_cache.txt';
-			
-			
-			
-			// Check if cachefile already exists and if it is newer than the timestamp given
-			if(!file_exists($cachefile) || $filestime > filemtime($cachefile))
+			preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			if($this->debug) echo "/* image-findings: ".count($treffer[0])." */\r\n";
+			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
-				if($this->debug) echo "/* image-findings: ".count($treffer[0])." */\r\n";
-				for($i=0;$i<count($treffer[0]);$i++)
-				{
-					// Calculate full image path
-					$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
-					if($this->debug) echo "/* imagefile: ".$imagefile." */\r\n";
-					
-					// If image-file exists and if file-size is lower than 24 KB
-					if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
-				}
-
-				// Scan for any left file-references and adjust their path
-				preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
-				for($i=0;$i<count($treffer[0]);$i++)
-				{
-					if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.$dir.'/'.$treffer[1][$i].')',$filescontent);
-				}
+				// Calculate full image path
+				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
+				if($this->debug) echo "/* imagefile: ".$imagefile." */\r\n";
 				
-				// Store the cache-file
-				@file_put_contents($cachefile,$filescontent);
-				@chmod($cachefile,0777);
+				// If image-file exists and if file-size is lower than 24 KB
+				if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 			}
-			// Cache-file exists
-			else if(file_exists($cachefile)) $filescontent = file_get_contents($cachefile);
+
+			// Scan for any left file-references and adjust their path
+			preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			for($i=0;$i<count($treffer[0]);$i++)
+			{
+				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+			}
+			
+			// Store the cache-file
+			//@file_put_contents($cachefile,$filescontent);
+			//@chmod($cachefile,0777);
 		}
 		
 		// --------------------------------------------------------------------------------------
@@ -829,62 +789,48 @@ class Booster {
 		// if @var $css_stringmode is set
 		else $sources = array($this->css_source);
 		
-		reset($sources);
-		for($i=0;$i<sizeof($sources);$i++)
-		{
-			$source = current($sources);
-			// Remove any trailing slash
-			$source = rtrim($source,'/');
-			if($source != '')
-			{
-				// If current source is a folder or file, get its most recent filetime
-				if(is_dir($source) || is_file($source)) $filestime = $this->getfilestime($source,$type,$this->css_recursive);
-				// If current source is a string read the filetime from @var $css_stringtime
-				else $filestime = $this->css_stringtime;
-				
+		
+		// if @var $css_stringmode is not set: newest filedate within the source array
+		if(!$this->css_stringmode) $filestime = $this->getfilestime($sources,$type,$this->css_recursive);
+		// if @var $css_stringmode is set
+		else $filestime = $this->css_stringtime;
+		// identifier for the cache-files
+		$identifier = md5(implode('',$sources));
+		// Defining the cache-filename
+			// If IE 6/7 on XP or IE 7 on Vista/Win7
+			if(
+				$this->browser->family == 'MSIE' && $this->browser->platform == 'Windows' && 
+				(
+					(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
+					(round(floatval($this->browser->familyversion)) == 7 && floatval($this->browser->platformversion) >= 6)
+				)
+			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_cache.txt';
 			
-				// Defining the cache-filename
-					// If IE 6/7 on XP or IE 7 on Vista/Win7
-					if(
-						$this->browser->family == 'MSIE' && $this->browser->platform == 'Windows' && 
-						(
-							(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
-							(round(floatval($this->browser->familyversion)) == 7 && floatval($this->browser->platformversion) >= 6)
-						)
-					)
-					{
-						// If we are in normal mode use filename of the sourcefile as cache filename
-						if(!$this->css_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_ie_cache.txt';
-						// If we are in string mode (which means no available filenames) do an md5 of the contents as cache filename
-						else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($source)).'_datauri_ie_cache.txt';
-					}
-					
-					
-					// If IE 6 browser on Vista or higher (like IETester under Windows 7 for example), skip cache
-					elseif(
-						$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && 
-						$this->browser->platform == 'Windows' && floatval($this->browser->platformversion) >= 6
-					)
-					{
-						// No cache file
-						$cachefile = '';
-					}
-					
-					
-					// If any other and (then we assume) data-URI-compatible browser
-					else 
-					{
-						// If we are in normal mode use filename of the sourcefile as cache filename
-						if(!$this->css_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_datauri_cache.txt';
-						// If we are in string mode (which means no available filenames) do an md5 of the contents as cache filename
-						else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($source)).'_datauri_cache.txt';
-					}
-				
-				
-				// If that cache-file is there, fetch its contents
-				if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
-				// if that cache-file does not exist, create it
-				else
+			
+			// If IE 6 browser on Vista or higher (like IETester under Windows 7 for example), skip dataURI
+			elseif(
+				$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && 
+				$this->browser->platform == 'Windows' && floatval($this->browser->platformversion) >= 6
+			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_cache.txt';
+			
+			
+			// If any other and (then we assume) data-URI-compatible browser
+			else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_cache.txt';
+
+		
+		
+		// If that cache-file is there, fetch its contents
+		if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
+		// if that cache-file does not exist or is too old, create it
+		else
+		{
+			reset($sources);
+			for($i=0;$i<sizeof($sources);$i++)
+			{
+				$source = current($sources);
+				// Remove any trailing slash
+				$source = rtrim($source,'/');
+				if($source != '')
 				{
 					// If current source is a folder or file, get its contents
 					if(is_dir($source) || is_file($source)) $currentfilescontent = $this->getfilescontents($source,$type,$this->css_recursive);
@@ -893,14 +839,24 @@ class Booster {
 					
 					// Optimize stylesheets with CSS Tidy
 					$currentfilescontent = $this->css_tidy($currentfilescontent);
-
+		
+					// Prepare @var $dir that we need to prepend as path to any images we find to get the full path
+					// if @var $css_source is a folder
+					if(is_dir($source)) $dir = $source;
+					// if @var $css_source is a file
+					elseif(is_file($source)) $dir = dirname($source);
+					// if @var $css_source is code-string
+					else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
 					// Embed media to save HTTP-requests
-					$filescontent .= $this->css_datauri($filestime,$currentfilescontent);
+					$filescontent .= $this->css_datauri($filestime,$currentfilescontent,$dir);
 				}
-				$filescontent .= "\n";
+				next($sources);
 			}
-			next($sources);
+			// Write cache-file
+			file_put_contents($cachefile,$filescontent);
 		}
+		$filescontent .= "\n";
+		
 		// Split results up in order to have multiple parts load in parallel and get the currently requested part back
 		$filescontent = $this->css_split($filescontent);
 		
@@ -930,7 +886,6 @@ class Booster {
 	public function mhtml()
 	{
 		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
-		if(!file_exists($mhtmlfile)) $this->css();
 		if(file_exists($mhtmlfile)) return file_get_contents($mhtmlfile);
 		else return '';
 	}
@@ -1040,6 +995,7 @@ class Booster {
 		// Specify file extension "js" for security reasons
 		$type = 'js';
 		
+	
 		// Prepare @var $sources as an array
 		// if @var $js_source is an array
 		if(is_array($this->js_source)) $sources = $this->js_source;
@@ -1047,43 +1003,43 @@ class Booster {
 		elseif(!$this->js_stringmode) $sources = explode(',',$this->js_source);
 		// if @var $js_stringmode is set
 		else $sources = array($this->js_source);
+		
+		
+		// if @var $js_stringmode is not set: newest filedate within the source array
+		if(!$this->js_stringmode) $filestime = $this->getfilestime($sources,$type,$this->js_recursive);
+		// if @var $js_stringmode is set
+		else $filestime = $this->js_stringtime;
+		// identifier for the cache-files
+		$identifier = md5(implode('',$sources));
 
-		reset($sources);
-		for($i=0;$i<sizeof($sources);$i++)
+
+		// Defining the cache-filename
+		$cachefile = $this->booster_cachedir.'/'.$identifier.'_js_cache.txt';
+
+		// If cache-file exists and cache-file date is newer than code-date, read from there
+		if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
+		// There is no cache-file or it is outdated, create it
+		else 
 		{
-			$source = current($sources);
-			// Remove any trailing slash
-			$source = rtrim($source,'/');
-			
-			if($source != '')
+			reset($sources);
+			for($i=0;$i<sizeof($sources);$i++)
 			{
-				// If current source is a folder or file, get its most recent filetime
-				if(is_dir($source) || is_file($source)) $filestime = $this->getfilestime($source,$type,$this->js_recursive);
-				// If current source is a string read the filetime from @var $js_stringtime
-				else $filestime = $this->js_stringtime;
-
-				// If we are in normal mode use filename of the sourcefile as cache filename
-				if(!$this->js_stringmode) $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt';
-				// If we are in string mode (which means no available filenames) do an md5 of the contents as cache filename
-				else $cachefile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',md5($source)).'_datauri_cache.txt';
+				$source = current($sources);
+				// Remove any trailing slash
+				$source = rtrim($source,'/');
 				
-				// If cache-file exists and cache-file date is newer than code-date, read from there
-				if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
-				// There is no cache-file or it is outdated, create it
-				else 
-				{
-					// If current source is a folder or file, get its contents
-					if(is_dir($source) || is_file($source)) $currentfilescontent = $this->getfilescontents($source,$type,$this->js_recursive);
-					// If current source is already a string
-					else $currentfilescontent = $source;
+				// If current source is a folder or file, get its contents
+				if(is_dir($source) || is_file($source)) $filescontent .= $this->getfilescontents($source,$type,$this->js_recursive);
+				// If current source is already a string
+				else $filescontent .= $source;
 
-					@file_put_contents($cachefile,$currentfilescontent);
-					$filescontent .= $currentfilescontent;
-				}
-				$filescontent .= "\n";
+				next($sources);
 			}
-			next($sources);
+			// Write cache-file
+			file_put_contents($cachefile,$filescontent);
 		}
+		$filescontent .= "\n";
+
 		// Split results up
 		$filescontent = $this->js_split($filescontent);
 		

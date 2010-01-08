@@ -85,7 +85,7 @@ function booster_wp() {
 				if(file_exists($filename))
 				{
 					// Put file-reference inside a comment
-					$out = str_replace($treffer[0][$i],'<!-- '.$treffer[0][$i].' -->',$out);
+					$out = str_replace($treffer[0][$i],'<!-- Processed by Booster '.$treffer[0][$i].' -->',$out);
 
 					// Calculate relative path from Booster to file
 					$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
@@ -102,7 +102,7 @@ function booster_wp() {
 					array_push($css_abs_files[$media][$rel],$root_to_booster_path.'/'.$filename);
 				}
 				// Leave untouched but put calculated local file name into a comment for debugging
-				else $out = str_replace($treffer[0][$i],$treffer[0][$i].'<!-- '.$filename.' -->',$out);
+				else $out = str_replace($treffer[0][$i],$treffer[0][$i].'<!-- Booster had a problems finding '.$filename.' -->',$out);
 			}
 
 			// Creating Booster markup for each media and relation seperately

@@ -26,7 +26,7 @@
 include('booster_inc.php');
 $booster = new Booster();
 $booster->css_source = $source;
-$etag = md5($source.$booster->mhtmltime($source));
+$etag = md5($source.$booster->mhtmltime());
 
 if (@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
 {
@@ -34,7 +34,6 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
 	exit();
 }
 
-#header("Cache-Control: max-age=2592000");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: ".gmdate('D, d M Y H:i:s')." GMT");
 header("Content-type: text/plain"); 
