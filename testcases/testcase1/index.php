@@ -4,6 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Vista IE7 Hover Testcase</title>
 <?php 
+ini_set("display_errors", 1);
+error_reporting(2048);
 include('../../booster/booster_inc.php'); 
 $booster = new Booster();
 ?>
