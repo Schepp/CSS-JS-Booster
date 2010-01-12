@@ -55,6 +55,7 @@ function booster_wp() {
 		ob_end_clean();
 		$booster_out = '';
 		$booster = new Booster();
+		$booster->debug = TRUE;
 
 		// Calculate relative path from root to Booster directory
 		$root_to_booster_path = $booster->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',dirname(realpath($_SERVER['SCRIPT_FILENAME']))));
@@ -66,7 +67,7 @@ function booster_wp() {
 			
 			// CSS part
 			$css_rel_files = array();
-			preg_match_all('/<link.*?href=[\'"]*([^\'"]+\.css)[\'"]*[^>]*?>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
+			preg_match_all('/<link[^>]*?href=[\'"]*?([^\'"]+?\.css)[\'"]*?[^>]*?>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++) 
 			{
 				// Get media-type
@@ -116,7 +117,7 @@ function booster_wp() {
 				{
 					$media_rel[key($media_rel)] = implode(',',$media_rel[key($media_rel)]);
 					$media_abs[key($media_rel)] = implode(',',$media_abs[key($media_rel)]);
-					$booster_out .= '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="'.htmlentities($root_to_booster_path.'/booster_css.php?dir='.$media_rel[key($media_rel)],ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />';
+					$booster_out .= '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="'.htmlentities($root_to_booster_path.'/booster_css.php?dir='.$media_rel[key($media_rel)],ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />'."\r\n";
 					$booster_out .= "\r\n";
 					next($media_rel);
 				}
@@ -141,7 +142,7 @@ function booster_wp() {
 					if(file_exists($filename))
 					{
 						// Put file-reference inside a comment
-						$out = str_replace($srctreffer[0],'<!-- '.$srctreffer[0].' -->',$out);
+						$out = str_replace($srctreffer[0],'<!-- Processed by Booster '.$srctreffer[0].' -->',$out);
 	
 						// Calculate relative path from Booster to file
 						$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
@@ -152,7 +153,7 @@ function booster_wp() {
 						array_push($js_abs_files,$root_to_booster_path.'/'.$filename);
 					}
 					// Leave untouched but put calculated local file name into a comment for debugging
-					else $out = str_replace($srctreffer[0],$srctreffer[0].'<!-- '.$filename.' -->',$out);
+					else $out = str_replace($srctreffer[0],$srctreffer[0].'<!-- Booster had a problems finding '.$filename.' -->',$out);
 				}
 				else 
 				{
@@ -164,7 +165,9 @@ function booster_wp() {
 			// Creating Booster markup
 			$js_rel_files = implode(',',$js_rel_files);
 			$js_abs_files = implode(',',$js_abs_files);
-			$booster_out .= '<script type="text/javascript" src="'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'">'.$js_plain.'</script>';
+			$js_plain = preg_replace('/\/\*.*?\*\//ims','',$js_plain);
+			$booster_out .= '<script type="text/javascript" src="'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
+			<script type="text/javascript">'.$js_plain.'</script>';
 			$booster_out .= "\r\n";
 			
 			

@@ -354,6 +354,8 @@ class Booster {
      */
 	public function getpath($path1 = '',$path2 = '',$path1_sep = '/')
 	{
+		$path2 = realpath($path2);
+		$path1 = realpath($path1);
 		$path2 = explode($path1_sep, $path2);
 		$path1 = explode($path1_sep, $path1);
 		$path = '.';
@@ -531,15 +533,18 @@ class Booster {
 		else $currentfilecontent = $source;
 
 		// Find and resolve import-rules
-		preg_match_all('/@import(\s|url\()[\'"]*(.+\.)[\'"]*\)*([^;]*);/',$currentfilecontent,$treffer,PREG_PATTERN_ORDER);
-		if($this->debug) echo "/* import-rule-findings: ".count($treffer[0])." */\r\n";
+		preg_match_all('/@import\surl\([\'"]*?([^\'")]+\.css)[\'"]*?\);/ims',$currentfilecontent,$treffer,PREG_PATTERN_ORDER);
+		if($this->debug) $filescontent .= "/* import-rule-findings: ".count($treffer[0])." */\r\n";
 		for($i=0;$i<count($treffer[0]);$i++)
 		{
-			$importfile = dirname($source).'/'.$treffer[2][$i];
-			if(trim($treffer[3][$i]) != '') $mediatype = trim($treffer[3][$i]);
-			else $mediatype = 'all';
-			if($this->debug) $filescontent .= "/* importfile: ".$importfile." */\r\n";
-			if(file_exists($importfile)) $currentfilecontent = str_replace($treffer[0][$i],"@media ".$mediatype." {\r\n".getfilescontents($importfile,$type)."}\r\n",$currentfilecontent);
+			$importfile = realpath(dirname($source)).'/'.$treffer[1][$i];
+			if(file_exists($importfile)) $currentfilecontent = str_replace($treffer[0][$i],$this->getfilescontents($importfile,$type)."\r\n",$currentfilecontent);
+			
+			// @todo media-type sensivity
+			#if(trim($treffer[2][$i]) != '') $mediatype = trim($treffer[2][$i]);
+			#else $mediatype = 'all';
+			#if($this->debug) $filescontent .= "/* importfile: ".$importfile." */\r\n";
+			#if(file_exists($importfile)) $currentfilecontent = str_replace($treffer[0][$i],"@media ".$mediatype." {\r\n".$this->getfilescontents($importfile,$type)."}\r\n",$currentfilecontent);
 		}
 		
 		// Append to @var $filescontent
