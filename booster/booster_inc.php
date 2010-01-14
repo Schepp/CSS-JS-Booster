@@ -354,8 +354,8 @@ class Booster {
      */
 	public function getpath($path1 = '',$path2 = '',$path1_sep = '/')
 	{
-		$path2 = realpath($path2);
-		$path1 = realpath($path1);
+		$path2 = str_replace('\\','/',realpath($path2));
+		$path1 = str_replace('\\','/',realpath($path1));
 		$path2 = explode($path1_sep, $path2);
 		$path1 = explode($path1_sep, $path1);
 		$path = '.';
