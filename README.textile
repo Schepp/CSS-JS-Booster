@@ -278,6 +278,26 @@ What the *.htaccess* adds on top:
 
 
 
+h1. Wordpress Plugin
+
+CSS-JS-Booster also works as a Wordpress plugin.
+
+*Installation*
+
+* Copy the whole booster folder into wp-content/plugins/
+* Create a subfolder booster_cache inside wp-content/plugins/booster/ and CHMOD it to 0777 (write-permissions)
+* Go into the admin-panel to the plugins and activate “CSS-JS-Booster”
+* Copy the contents of the file htaccess/.htaccess and append them to the contents of the .htaccess-file in the root of your Wordpress-site
+
+*Compatibility with other plugins*
+
+CSS-JS-Booster may in rare cases break some other plugins.
+I noticed for example that plugins trying to calculate file-paths based on the src-attribute of the script-tag break.
+So you need to check yourself.
+
+
+
+
 h1. Copyright and License Information for 3rd party elements used in the scripts
 
 CSSTidy 1.3 is taken from here:
