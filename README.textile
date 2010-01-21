@@ -62,7 +62,8 @@ Just to have mentioned those...
 
 
 
-h1. Basic Usage
+h1. System Requirements
+
 CSS-JS-Booster absolutely requires PHP 5. No PHP 4, sorry...
 Version-wise it is tested up until PHP 5.3. 
 
