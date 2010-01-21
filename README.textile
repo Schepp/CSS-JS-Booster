@@ -71,6 +71,12 @@ Version-wise it is tested up until PHP 5.3.
 
 h1. Basic Usage
 
+CSS-JS-Booster is a standalone-library as well as a Wordpress-plugin. 
+If you are interested in the Wordpress-part, you can skip all of this and 
+scroll down to where you will find a Wordpress install guide.
+
+Now, coming to the standalone-library...
+
 CSS-JS-Booster is - as its name implies - divided into two function blocks:
 A CSS-optimizing block and a JavaScript-optimizing block.
 
