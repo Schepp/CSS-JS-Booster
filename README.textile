@@ -5,11 +5,9 @@ Copyright (C) 2009 Christian "Schepp" Schaefer
 
 h1. Important notice
 
-This piece of code is still quite fresh so that others can start testing
-and/or using and/or enhancing it.
-
-There shouldn't be too many bugs left, what it still needs is more inline-
-commenting.
+This piece of code is still fresh so that others can start testing
+and/or using and/or enhancing it. That said, there shouldn't be too many bugs 
+left. If you find some, contact me or open an issue in the bugtracker.
 
 Not a bug is that I don't plan to support browsers older than IE6SP2.
 It's also not intended to minify or further compress (like with Dean Edwards
@@ -61,6 +59,12 @@ technical skills (or instead: even more money), there also exists an
 enterprise-website-accelerator named "aptimize":http://www.aptimize.com/  
 
 Just to have mentioned those...
+
+
+
+h1. Basic Usage
+CSS-JS-Booster absolutely requires PHP 5. No PHP 4, sorry...
+Version-wise it is tested up until PHP 5.3. 
 
 
 
