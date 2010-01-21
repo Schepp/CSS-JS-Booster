@@ -165,13 +165,23 @@ function booster_wp() {
 			$js_rel_files = implode(',',$js_rel_files);
 			$js_abs_files = implode(',',$js_abs_files);
 			$js_plain = preg_replace('/\/\*.*?\*\//ims','',$js_plain);
+			$js_plain .= "\r\n";
+			$js_plain .= 'jQuery(document).ready(function () {
+				jQuery("img[longdesc]").each(function (i) {
+					jQuery(this).attr("src",jQuery(this).attr("longdesc"));
+				});
+			});
+			';
+			
 			$booster_out .= '<script type="text/javascript" src="/'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
 			<script type="text/javascript">'.$js_plain.'</script>';
 			$booster_out .= "\r\n";
 			
-			
 			// Injecting the result
 			$out = str_replace('</head>',$booster_out.'</head>',$out);
+			
+			// Replace image-tags for deferred loading
+			$out = preg_replace('/(<img[^>]+?)(src=[\'"]?)([^\'"]+\.(gif|jpg|png))/ims','$1longdesc="$3" $2',$out);
 		}
 		
 		// Recreate output buffer
