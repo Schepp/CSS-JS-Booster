@@ -52,18 +52,13 @@ function booster_wp() {
 	// Dump output buffer
 	if($out = ob_get_contents())
 	{
-		ob_end_clean();
 		$booster_out = '';
 		$booster = new Booster();
 		$booster->debug = TRUE;
 
 		// Calculate relative path from root to Booster directory
-		$root_to_booster_path = $booster->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',dirname(realpath($_SERVER['SCRIPT_FILENAME']))));
+		$root_to_booster_path = $booster->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',dirname(realpath(ABSPATH))));
 		
-		// Extract root path
-		$root_path = parse_url(get_option('siteurl'));
-		$root_path = rtrim($root_path['path'],'/');
-
 		if(preg_match_all('/<head.*<\/head>/ims',$out,$headtreffer,PREG_PATTERN_ORDER) > 0)
 		{
 			// Prevent processing of conditional comments
@@ -121,7 +116,7 @@ function booster_wp() {
 				{
 					$media_rel[key($media_rel)] = implode(',',$media_rel[key($media_rel)]);
 					$media_abs[key($media_rel)] = implode(',',$media_abs[key($media_rel)]);
-					$booster_out .= '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="'.$root_path.'/'.htmlentities($root_to_booster_path.'/booster_css.php?dir='.$media_rel[key($media_rel)],ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />'."\r\n";
+					$booster_out .= '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="/'.htmlentities($root_to_booster_path.'/booster_css.php?dir='.$media_rel[key($media_rel)],ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />'."\r\n";
 					$booster_out .= "\r\n";
 					next($media_rel);
 				}
@@ -170,7 +165,7 @@ function booster_wp() {
 			$js_rel_files = implode(',',$js_rel_files);
 			$js_abs_files = implode(',',$js_abs_files);
 			$js_plain = preg_replace('/\/\*.*?\*\//ims','',$js_plain);
-			$booster_out .= '<script type="text/javascript" src="'.$root_path.'/'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
+			$booster_out .= '<script type="text/javascript" src="/'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
 			<script type="text/javascript">'.$js_plain.'</script>';
 			$booster_out .= "\r\n";
 			
@@ -180,12 +175,15 @@ function booster_wp() {
 		}
 		
 		// Recreate output buffer
+		ob_end_clean();
 		if (
 		isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
 		&& substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') 
 		&& function_exists('ob_gzhandler') 
 		&& !ini_get('zlib.output_compression')
+		&& !function_exists('wp_cache_ob_callback')
 		) @ob_start('ob_gzhandler');
+		elseif(function_exists('wp_cache_ob_callback')) @ob_start('wp_cache_ob_callback');
 		else @ob_start();
 		
 		// Output page
