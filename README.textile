@@ -25,14 +25,14 @@ For CSS these steps are:
 * combine multiple CSS-files resulting in HTTP-requests going down
 * optimize and minify CSS with CSSTidy
 * Embed any CSS-images smaller 24KB as data-URI or MHTML (for IE <= 7)
-* Split the output back into 2 even files that can load in parallel
+* Split the output back into 2 even files that can load in parallel (not for WP)
 * GZIP-compress the resulting CSS
 * Have browsers cache the result as long as it remains unchanged
 * If IE6: Issue a JS-command to fix background image caching behaviour 
 
 For JS these steps are:
 * combine multiple JS-files resulting in HTTP-requests going down
-* Minify the JS through the Google Closure Compiler Webservice 
+* Minify the JS through the Google Closure Compiler Webservice (not for WP)
 * GZIP-compress the resulting JS
 * Have browsers cache the result as long as it remains unchanged
 
@@ -281,7 +281,6 @@ A: Yes, you can:
 
 bc. $booster->js_minify = FALSE;
 echo $booster->js_markup();
-
 
 
 *Q: I need to debug CSS (e.g. in Firebug) or JS in the console - but I cannot 
