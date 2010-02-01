@@ -32,6 +32,7 @@ For CSS these steps are:
 
 For JS these steps are:
 * combine multiple JS-files resulting in HTTP-requests going down
+* Minify the JS through the Google Closure Compiler Webservice 
 * GZIP-compress the resulting JS
 * Have browsers cache the result as long as it remains unchanged
 
