@@ -166,6 +166,12 @@ echo $booster->js_markup();
 The argument is the path relativ to the file calling that function. If you 
 are in a subfolder it should read *../js*.
 
+*Notice:* Don't worry if on the very first call of your page your Javascript
+doesn't get loaded or your page takes long time to load. This is normal as 
+this is the delay caused by Google's Closure compiler shrinking the scripts.
+Once it has been successfully shrinked it won't be shrinked again as long as 
+you do not change your Javascript.  
+
 
 
 h1. Q & A for Advanced Usage
