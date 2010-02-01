@@ -35,8 +35,8 @@
 @ini_set('zlib.output_compression_level',4);
 
 // Turning on strict error reporting
-#@ini_set("display_errors", 1);
-#@error_reporting(E_ALL);
+@ini_set("display_errors", 1);
+@error_reporting(E_ALL);
 
 // Starting gzip-compressed output if zlib-compression is turned off
 if (
@@ -607,7 +607,8 @@ class Booster {
 		
 		// Prepare different RegExes
 		// Media-files (currently images and fonts)
-		$regex_embed = '/url\([\'"]*(.+?\.)(gif|png|jpg|eot|otf|svg|ttf)[\'"]*\)/msi';
+		$regex_embed = '/url\([\'"]*(.+?\.)(gif|png|jpg|otf|ttf|woff)[\'"]*\)/msi';
+		$regex_embed_ie = '/url\([\'"]*(.+?\.)(gif|png|jpg|eot)[\'"]*\)/msi';
 		// Any files
 		$regex_url = '/url\([\'"]*(.+?\..+?)[\'"]*\)/msi';
 
@@ -630,15 +631,15 @@ class Booster {
 			// The external absolute path to where "booster_mhtml.php" resides
 			$mhtmlpath = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
 			// Cachefile for the extra MHTML-data
-			$mhtmlfile = $this->booster_cachedir.'/'.$identifier.'_datauri_mhtml_cache.txt';
+			$mhtmlfile = $this->booster_cachedir.'/'.$identifier.'_datauri_mhtml_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 			
 			
 			
 			// Start putting together the styles and MHTML
 			$mhtmlcontent = "Content-Type: multipart/related; boundary=\"_ANY_STRING_WILL_DO_AS_A_SEPARATOR\"\r\n\r\n";
 
-			preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
-			for($i=0;$i<count($treffer[0]);$i++)
+			preg_match_all($regex_embed_ie,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			if(!$this->debug) for($i=0;$i<count($treffer[0]);$i++)
 			{
 				// Calculate full image path
 				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
@@ -705,19 +706,35 @@ class Booster {
 		// If any other and (then we assume) data-URI-compatible browser
 		else
 		{
-			if($this->debug) $filescontent .= "/* lastmodified: ".intval($this->css_stringtime)." / ".date("d.m.Y H:i:s",$this->css_stringtime)." */\r\n";
-			if($this->debug) $filescontent .= "/* dir: ".$dir." */\r\n";
-		
-			preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
-			if($this->debug) echo "/* image-findings: ".count($treffer[0])." */\r\n";
-			for($i=0;$i<count($treffer[0]);$i++)
+			if($this->browser->family == 'MSIE') preg_match_all($regex_embed_ie,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			else preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			if(!$this->debug) for($i=0;$i<count($treffer[0]);$i++)
 			{
 				// Calculate full image path
 				$imagefile = str_replace('\\','/',dirname(__FILE__)).'/'.$dir.'/'.$treffer[1][$i].$treffer[2][$i];
-				if($this->debug) echo "/* imagefile: ".$imagefile." */\r\n";
+				if($this->debug) $filescontent .= "/* embed-file: ".$imagefile." */\r\n";
+				
+				// Switch to right MIME-type
+				switch(strtolower($treffer[2][$i]))
+				{
+					default:
+					case 'gif':
+					case 'jpg':
+					case 'png':
+						$mimetype = 'image/'.strtolower($treffer[2][$i]);
+						break;
+					case 'eot':
+						$mimetype = 'application/vnd.ms-fontobject';
+						break;
+					case 'otf':
+					case 'ttf':
+					case 'woff':
+						$mimetype = 'application/octet-stream';
+						break;
+				}
 				
 				// If image-file exists and if file-size is lower than 24 KB
-				if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:image/'.$treffer[2][$i].';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
+				if(file_exists($imagefile) && filesize($imagefile) < 24000) $filescontent = str_replace($treffer[0][$i],'url(data:'.$mimetype.';base64,'.base64_encode(file_get_contents($imagefile)).')',$filescontent);
 			}
 
 			// Scan for any left file-references and adjust their path
@@ -811,23 +828,23 @@ class Booster {
 					(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
 					(round(floatval($this->browser->familyversion)) == 7 && floatval($this->browser->platformversion) >= 6)
 				)
-			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_cache.txt';
+			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 			
 			
 			// If IE 6 browser on Vista or higher (like IETester under Windows 7 for example), skip dataURI
 			elseif(
 				$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && 
 				$this->browser->platform == 'Windows' && floatval($this->browser->platformversion) >= 6
-			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_cache.txt';
+			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 			
 			
 			// If any other and (then we assume) data-URI-compatible browser
-			else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_cache.txt';
+			else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 
 		
 		
 		// If that cache-file is there, fetch its contents
-		if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
+		if(file_exists($cachefile) && filemtime($cachefile) >= $filestime && filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))) $filescontent .= file_get_contents($cachefile);
 		// if that cache-file does not exist or is too old, create it
 		else
 		{
@@ -879,7 +896,7 @@ class Booster {
      */
 	public function mhtmltime()
 	{
-		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
+		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 		if(file_exists($mhtmlfile)) return filemtime($mhtmlfile);
 		else return 0;
 	}
@@ -892,7 +909,7 @@ class Booster {
      */
 	public function mhtml()
 	{
-		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_cache.txt';
+		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 		if(file_exists($mhtmlfile)) return file_get_contents($mhtmlfile);
 		else return '';
 	}
@@ -942,7 +959,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the CSS was updated
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
-			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
+			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
 		}
 	
 		return $markup;
@@ -1060,10 +1077,10 @@ class Booster {
 
 
 		// Defining the cache-filename
-		$cachefile = $this->booster_cachedir.'/'.$identifier.'_js_cache.txt';
+		$cachefile = $this->booster_cachedir.'/'.$identifier.'_js_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 
 		// If cache-file exists and cache-file date is newer than code-date, read from there
-		if(file_exists($cachefile) && filemtime($cachefile) >= $filestime) $filescontent .= file_get_contents($cachefile);
+		if(file_exists($cachefile) && filemtime($cachefile) >= $filestime && filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))) $filescontent .= file_get_contents($cachefile);
 		// There is no cache-file or it is outdated, create it
 		else 
 		{
@@ -1082,7 +1099,7 @@ class Booster {
 				next($sources);
 			}
 			// Minify
-			$filescontent = $this->js_minify($filescontent);
+			if(!$this->debug) $filescontent = $this->js_minify($filescontent);
 
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
@@ -1138,7 +1155,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the JS was updated
 		for($j=0;$j<intval($this->js_totalparts);$j++)
 		{
-			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
+			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 		}
 
 		return $markup;
