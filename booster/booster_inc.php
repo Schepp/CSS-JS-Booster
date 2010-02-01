@@ -862,7 +862,7 @@ class Booster {
 					else $currentfilescontent = $source;
 					
 					// Optimize stylesheets with CSS Tidy
-					$currentfilescontent = $this->css_tidy($currentfilescontent);
+					if(!$this->debug) $currentfilescontent = $this->css_tidy($currentfilescontent);
 		
 					// Prepare @var $dir that we need to prepend as path to any images we find to get the full path
 					// if @var $css_source is a folder
