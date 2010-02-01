@@ -1037,7 +1037,7 @@ class Booster {
 			}
 			fclose($fp);
 			echo '<pre>'.$js_minified.'</pre>';
-			$js_minified = preg_replace('/HTTP.+X-XSS-Protection: 0/ims','',$js_minified);
+			$js_minified = preg_replace('/HTTP.+Protection: [0-9][\r\n]{2}/ims','',$js_minified);
 		}
 		return $js_minified;
 	}
