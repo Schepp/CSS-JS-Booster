@@ -987,6 +987,45 @@ class Booster {
 	}
 	
     /**
+     * Js_minify takes a JS-string and tries to minify it with the Google Closure Webservice
+     * 
+     * @param  string    $filescontent contents to minify
+     * @return string    minified Javascript
+     * @access protected 
+     */
+	protected function js_minify($filescontent = '')
+	{
+		// Working vars
+		$js_minified = '';
+		$host = "closure-compiler.appspot.com";
+		$service_uri = "/compile";
+		$vars = 'js_code='.urlencode($filescontent).'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
+		
+		// Compose HTTP request header
+		$header = "Host: $host\r\n";
+		$header .= "User-Agent: PHP Script\r\n";
+		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
+		$header .= "Content-Length: ".strlen($vars)."\r\n";
+		$header .= "Connection: close\r\n\r\n";
+		
+		$fp = pfsockopen($host, 80, $errno, $errstr);
+		// If we cannot open connection to Google Closure
+		if(!$fp) $js_minified = $filescontent;
+		else 
+		{
+			fputs($fp, "POST $service_uri  HTTP/1.0\r\n");
+			fputs($fp, $header.$vars);
+			while (!feof($fp)) {
+				$js_minified .= fgets($fp, 128);
+			}
+			fclose($fp);
+			echo '<pre>'.$js_minified.'</pre>';
+			$js_minified = preg_replace('/HTTP.+X-XSS-Protection: 0/ims','',$js_minified);
+		}
+		return $js_minified;
+	}
+	
+    /**
      * Js fetches and optimizes all javascript-files
      * 
      * @return string optimized javascript-code
@@ -1042,6 +1081,9 @@ class Booster {
 
 				next($sources);
 			}
+			// Minify
+			$filescontent = $this->js_minify($filescontent);
+
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
 		}
