@@ -35,8 +35,8 @@
 @ini_set('zlib.output_compression_level',4);
 
 // Turning on strict error reporting
-@ini_set("display_errors", 1);
-@error_reporting(E_ALL);
+#@ini_set("display_errors", 1);
+#@error_reporting(E_ALL);
 
 // Starting gzip-compressed output if zlib-compression is turned off
 if (
