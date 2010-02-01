@@ -32,7 +32,7 @@ include('booster_inc.php');
 ((isset($_GET['part'])) ? $part = intval($_GET['part']) : $part = 0);
 
 $booster = new Booster();
-if(isset($_GET['debug'])) $booster->debug = TRUE;
+if(isset($_GET['debug']) && $_GET['debug'] == 1) $booster->debug = TRUE;
 $booster->css_source = $source;
 $booster->css_totalparts = $totalparts;
 $booster->css_part = $part;

@@ -229,6 +229,16 @@ class Booster {
 	public $js_part = 0;
 
     /**
+     * Defines if Google Closure Compiler should be used
+     *
+     * Used by accompagning script "booster_js.php"
+     * Defaults to "TRUE".
+     * @var    boolean 
+     * @access public  
+     */
+	public $js_minify = TRUE;
+
+    /**
      * Defines if source-file retrieval shall be recursive
      *
      * Only matters when passing folders as source-parameter.
@@ -878,6 +888,7 @@ class Booster {
 			}
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
+			@chmod($cachefile,0777);
 		}
 		$filescontent .= "\n";
 		
@@ -1012,32 +1023,36 @@ class Booster {
      */
 	protected function js_minify($filescontent = '')
 	{
-		// Working vars
-		$js_minified = '';
-		$host = "closure-compiler.appspot.com";
-		$service_uri = "/compile";
-		$vars = 'js_code='.urlencode($filescontent).'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
-		
-		// Compose HTTP request header
-		$header = "Host: $host\r\n";
-		$header .= "User-Agent: PHP Script\r\n";
-		$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-		$header .= "Content-Length: ".strlen($vars)."\r\n";
-		$header .= "Connection: close\r\n\r\n";
-		
-		$fp = pfsockopen($host, 80, $errno, $errstr);
-		// If we cannot open connection to Google Closure
-		if(!$fp) $js_minified = $filescontent;
-		else 
+		if(preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
 		{
-			fputs($fp, "POST $service_uri  HTTP/1.0\r\n");
-			fputs($fp, $header.$vars);
-			while (!feof($fp)) {
-				$js_minified .= fgets($fp, 128);
+			// Working vars
+			$js_minified = '';
+			$host = "closure-compiler.appspot.com";
+			$service_uri = "/compile";
+			$vars = 'js_code='.urlencode($filescontent).'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
+			
+			// Compose HTTP request header
+			$header = "Host: $host\r\n";
+			$header .= "User-Agent: PHP Script\r\n";
+			$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
+			$header .= "Content-Length: ".strlen($vars)."\r\n";
+			$header .= "Connection: close\r\n\r\n";
+			
+			$fp = pfsockopen($host, 80, $errno, $errstr);
+			// If we cannot open connection to Google Closure
+			if(!$fp) $js_minified = $filescontent;
+			else 
+			{
+				fputs($fp, "POST $service_uri  HTTP/1.0\r\n");
+				fputs($fp, $header.$vars);
+				while (!feof($fp)) {
+					$js_minified .= fgets($fp);
+				}
+				fclose($fp);
+				$js_minified = preg_replace('/HTTP.+Protection: [0-9][\r\n]{2}/ims','',$js_minified);
 			}
-			fclose($fp);
-			$js_minified = preg_replace('/HTTP.+Protection: [0-9][\r\n]{2}/ims','',$js_minified);
 		}
+		else $js_minified = $filescontent;
 		return $js_minified;
 	}
 	
@@ -1098,10 +1113,11 @@ class Booster {
 				next($sources);
 			}
 			// Minify
-			if(!$this->debug) $filescontent = $this->js_minify($filescontent);
+			if(!$this->debug && $this->js_minify) $filescontent = $this->js_minify($filescontent);
 
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
+			@chmod($cachefile,0777);
 		}
 		$filescontent .= "\n";
 

@@ -274,8 +274,25 @@ A: No problem, do this:
 
 bc. $booster->css_markuptype = 'HTML';
 echo $booster->css_markup();
+
+
+*Q: The JS-minification seems to break my scripts. Can I disable it?*
+A: Yes, you can:
+
+bc. $booster->js_minify = FALSE;
+echo $booster->js_markup();
+
+
+
+*Q: I need to debug CSS (e.g. in Firebug) or JS in the console - but I cannot 
+find anything due to dataURI-fication and minification...*
+A: Yes I know, that's hard. In this case turn debug-mode on before outputting:
+
+bc. $booster->debug = TRUE;
+echo $booster->css_markup();
+echo $booster->js_markup();
   
- 
+
 
 h1. .htaccess Acceleration
 

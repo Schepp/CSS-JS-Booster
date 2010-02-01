@@ -54,7 +54,6 @@ function booster_wp() {
 	{
 		$booster_out = '';
 		$booster = new Booster();
-		$booster->debug = TRUE;
 
 		// Calculate relative path from root to Booster directory
 		$root_to_booster_path = $booster->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',dirname(realpath(ABSPATH))));
@@ -116,7 +115,7 @@ function booster_wp() {
 				{
 					$media_rel[key($media_rel)] = implode(',',$media_rel[key($media_rel)]);
 					$media_abs[key($media_rel)] = implode(',',$media_abs[key($media_rel)]);
-					$booster_out .= '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="/'.htmlentities($root_to_booster_path.'/booster_css.php?dir='.$media_rel[key($media_rel)],ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />'."\r\n";
+					$booster_out .= '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="/'.htmlentities($root_to_booster_path.'/booster_css.php?dir='.$media_rel[key($media_rel)],ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />'."\r\n";
 					$booster_out .= "\r\n";
 					next($media_rel);
 				}
@@ -173,7 +172,7 @@ function booster_wp() {
 			});
 			';
 			
-			$booster_out .= '<script type="text/javascript" src="/'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
+			$booster_out .= '<script type="text/javascript" src="/'.htmlentities($root_to_booster_path.'/booster_js.php?dir='.$js_rel_files,ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
 			<script type="text/javascript">'.$js_plain.'</script>';
 			$booster_out .= "\r\n";
 			
