@@ -184,7 +184,7 @@ function booster_wp() {
 		isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
 		&& substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') 
 		&& function_exists('ob_gzhandler') 
-		&& !ini_get('zlib.output_compression')
+		&& (!ini_get('zlib.output_compression') || intval(ini_get('zlib.output_compression')) <= 0) 
 		&& !function_exists('wp_cache_ob_callback')
 		) @ob_start('ob_gzhandler');
 		elseif(function_exists('wp_cache_ob_callback')) @ob_start('wp_cache_ob_callback');
