@@ -43,7 +43,7 @@ if (
 isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
 && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') 
 && function_exists('ob_gzhandler') 
-&& !ini_get('zlib.output_compression')
+&& (!ini_get('zlib.output_compression') || intval(ini_get('zlib.output_compression')) != 2048)
 && !function_exists('booster_wp')
 ) @ob_start('ob_gzhandler');
 else @ob_start();
