@@ -4,8 +4,8 @@ Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: combines, optimizes, dataURI-fies, re-splits, compresses and caches your CSS and JS for quicker loading times
 Version: 0.1
-Author: Christian Schepp Schaefer <schaepp@gmx.de> <http://twitter.com/derSchepp>
-Author URI: http://github.com/Schepp/CSS-JS-Booster
+Author: Christian "Schepp" Schaefer
+Author URI: http://twitter.com/derSchepp
 */
 
 /*  Copyright 2009  Christian Schepp Schaefer  (email : schaepp@gmx.de)
