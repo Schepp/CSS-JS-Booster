@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: combines, optimizes, dataURI-fies, re-splits, compresses and caches your CSS and JS for quicker loading times
-Version: 0.1.1
+Version: 0.1.2
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -169,11 +169,12 @@ function booster_wp() {
 					jQuery(this).attr("src",jQuery(this).attr("longdesc"));
 				});
 			});
-			try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}
+			';
+			$js_plain = 'try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}
 			';
 			
 			$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/booster/booster_js.php?dir='.$js_rel_files.(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
-			<script type="text/javascript">try{'.$js_plain.'}catch(e){}</script>';
+			<script type="text/javascript">'.$js_plain.'</script>';
 			$booster_out .= "\r\n";
 			#$booster_out .= "\r\n<!-- ".$js_abs_files." -->\r\n";
 			
@@ -181,7 +182,7 @@ function booster_wp() {
 			$out = str_replace('</head>',$booster_out.'</head>',$out);
 			
 			// Replace image-tags for deferred loading
-			$out = preg_replace('/(<img[^>]+?)(src=[\'"]?)([^\'"]+\.(gif|jpg|png))/ims','$1longdesc="$3" $2',$out);
+			#$out = preg_replace('/(<img[^>]+?)(src=[\'"]?)([^\'"]+\.(gif|jpg|png))/ims','$1longdesc="$3" $2',$out);
 		}
 		
 		// Recreate output buffer
