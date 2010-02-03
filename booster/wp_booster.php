@@ -108,6 +108,10 @@ function booster_wp() {
 				next($css_rel_files);
 			}
 			
+			// Injecting the result
+			$out = str_replace('</title>',"</title>\r\n".$booster_out,$out);
+			$booster_out = '';
+			
 			
 			// JS-part
 			$js_rel_files = array();
