@@ -1,0 +1,42 @@
+#CSS-JS-Booster Start#################################################
+#Turn ETagging off
+FileETag none
+
+#Turn ETagging on for MHTML-file
+<FilesMatch ".*booster_mhtml\.php$">  
+FileETag MTime Size
+</FilesMatch>
+
+#Force caching of some common files for some time in the browser's cache, to save bandwidth.
+#"Mod_expires" needs to be installed in your Apache server, to use this feature.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 minutes"
+  ExpiresByType text/html "access plus 1 minutes"
+  ExpiresByType text/css "access plus 1 months"
+  ExpiresByType text/javascript "access plus 1 months"
+  ExpiresByType text/plain "access plus 1 months"
+  ExpiresByType application/x-javascript "access plus 1 months"
+  ExpiresByType application/x-shockwave-flash "access plus 1 months"
+  ExpiresByType image/gif "access plus 1 years"
+  ExpiresByType image/jpeg "access plus 1 years"
+  ExpiresByType image/jpg "access plus 1 years"
+  ExpiresByType image/png "access plus 1 years"
+  ExpiresByType image/x-icon "access plus 1 years"
+  <FilesMatch ".*booster_mhtml\.php$">
+    ExpiresActive Off
+  </FilesMatch>
+</IfModule>
+
+#Alternative caching using Apache's "mod_headers", if it's installed.
+#Caching of common files - ENABLED
+<IfModule mod_headers.c>
+<FilesMatch "\.(ico|pdf|js|css|gif|png|jpg|jpeg|ico|txt|html|htm)$">
+Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>
+#Remove comments, to disable video caching to the user's browser
+#<FilesMatch "\.(flv|wmv|avi|mpg|3gp|rm|mpeg|mp4|qt|mov|divx|xvid|wmv|asf|dat|xml)$">
+#Header set Cache-Control "max-age=0, public"
+#</FilesMatch>
+</IfModule>
+#CSS-JS-Booster End#################################################
