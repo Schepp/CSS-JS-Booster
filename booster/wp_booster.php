@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: combines, optimizes, dataURI-fies, re-splits, compresses and caches your CSS and JS for quicker loading times
-Version: 0.1.2
+Version: 0.1.5
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -32,11 +32,33 @@ if(!defined('WP_CONTENT_DIR')) define('WP_CONTENT_DIR',ABSPATH.'wp-content');
 if(!defined('WP_PLUGIN_URL')) define('WP_PLUGIN_URL',WP_CONTENT_URL.'/plugins');
 if(!defined('WP_PLUGIN_DIR')) define('WP_PLUGIN_DIR',WP_CONTENT_DIR.'/plugins');
 
+function booster_htaccess() {
+	$wp_htacessfile = get_home_path().'.htaccess';
+	$booster_htacessfile = rtrim(str_replace('\\','/',realpath(dirname(__FILE__))),'/').'/htaccess/.htaccess';
+	$booster_cachedir = rtrim(str_replace('\\','/',realpath(dirname(__FILE__))),'/').'/booster_cache';
+	if(file_exists($booster_htacessfile))
+	{
+		if(file_exists($wp_htacessfile) && is_writable($wp_htacessfile))
+		{
+			$wp_htacessfile_contents = file_get_contents($wp_htacessfile);
+			$wp_htacessfile_contents = preg_replace('/[\r\n]?#CSS-JS-Booster Start#################################################.*#CSS-JS-Booster End#################################################/ims','',$wp_htacessfile_contents);
+			$wp_htacessfile_contents = $wp_htacessfile_contents."\r\n".file_get_contents($booster_htacessfile);
+		}
+		else $wp_htacessfile_contents = file_get_contents($booster_htacessfile);
+		@file_put_contents($wp_htacessfile,$wp_htacessfile_contents);
+	}
+	@mkdir($booster_cachedir,0777);
+}
+register_activation_hook(__FILE__,'booster_htaccess');
+
 function booster_wp() {
 	// Dump output buffer
 	if($out = ob_get_contents())
 	{
+		$js_plain = '';
 		$booster_out = '';
+		$booster_folder = explode('/',rtrim(str_replace('\\','/',realpath(dirname(__FILE__))),'/'));
+		$booster_folder = $booster_folder[count($booster_folder) - 1];
 		$booster = new Booster();
 		$booster->js_minify = FALSE;
 
@@ -54,11 +76,11 @@ function booster_wp() {
 			for($i=0;$i<count($treffer[0]);$i++) 
 			{
 				// Get media-type
-				if(preg_match('/media=[\'"]*([^\'"]+)[\'"]*/ims',$treffer[0][0],$mediatreffer)) $media = $mediatreffer[1];
+				if(preg_match('/media=[\'"]*([^\'"]+)[\'"]*/ims',$treffer[0][$i],$mediatreffer)) $media = $mediatreffer[1];
 				else $media = 'all';
 
 				// Get relation
-				if(preg_match('/rel=[\'"]*([^\'"]+)[\'"]*/ims',$treffer[0][0],$reltreffer)) $rel = $reltreffer[1];
+				if(preg_match('/rel=[\'"]*([^\'"]+)[\'"]*/ims',$treffer[0][$i],$reltreffer)) $rel = $reltreffer[1];
 				else $rel = 'stylesheet';
 
 				// Convert file's URI into an absolute local path
@@ -100,7 +122,19 @@ function booster_wp() {
 				{
 					$media_rel[key($media_rel)] = implode(',',$media_rel[key($media_rel)]);
 					$media_abs[key($media_rel)] = implode(',',$media_abs[key($media_rel)]);
-					$booster_out .= '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="'.get_option('siteurl').'/wp-content/plugins/booster/booster_css.php?dir='.$media_rel[key($media_rel)].(($booster->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />'."\r\n";
+					$link = '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_css.php?dir='.$media_rel[key($media_rel)].(($booster->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />';
+					if(key($css_rel_files) != 'print')
+					{
+						$booster_out .= $link."\r\n";
+					}
+					else
+					{
+						$booster_out .= '<noscript>'.$link.'</noscript>'."\r\n";
+						$js_plain .= 'jQuery(document).ready(function () {
+							jQuery("head").append("'.addslashes($link).'");
+						});
+						';
+					}
 					$booster_out .= "\r\n";
 					#$booster_out .= "\r\n<!-- ".$media_abs[key($media_rel)]." -->\r\n";
 					next($media_rel);
@@ -116,7 +150,6 @@ function booster_wp() {
 			// JS-part
 			$js_rel_files = array();
 			$js_abs_files = array();
-			$js_plain = '';
 			preg_match_all('/<script[^>]*>(.*?)<\/script>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++) 
 			{
@@ -163,26 +196,16 @@ function booster_wp() {
 			$js_rel_files = implode(',',$js_rel_files);
 			$js_abs_files = implode(',',$js_abs_files);
 			$js_plain = preg_replace('/\/\*.*?\*\//ims','',$js_plain);
-			//$js_plain .= "\r\n";
-			$js_plain .= 'jQuery(document).ready(function () {
-				jQuery("img[longdesc]").each(function (i) {
-					jQuery(this).attr("src",jQuery(this).attr("longdesc"));
-				});
-			});
-			';
-			$js_plain = 'try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}
+			$js_plain .= 'try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}
 			';
 			
-			$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/booster/booster_js.php?dir='.$js_rel_files.(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
+			$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_js.php?dir='.$js_rel_files.(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
 			<script type="text/javascript">'.$js_plain.'</script>';
 			$booster_out .= "\r\n";
 			#$booster_out .= "\r\n<!-- ".$js_abs_files." -->\r\n";
 			
 			// Injecting the result
 			$out = str_replace('</head>',$booster_out.'</head>',$out);
-			
-			// Replace image-tags for deferred loading
-			#$out = preg_replace('/(<img[^>]+?)(src=[\'"]?)([^\'"]+\.(gif|jpg|png))/ims','$1longdesc="$3" $2',$out);
 		}
 		
 		// Recreate output buffer
