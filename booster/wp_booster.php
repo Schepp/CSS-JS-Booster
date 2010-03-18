@@ -2,8 +2,8 @@
 /*
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
-Description: combines, optimizes, dataURI-fies, re-splits, compresses and caches your CSS and JS for quicker loading times
-Version: 0.1.5
+Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
+Version: 0.1.6
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -76,7 +76,11 @@ function booster_wp() {
 			for($i=0;$i<count($treffer[0]);$i++) 
 			{
 				// Get media-type
-				if(preg_match('/media=[\'"]*([^\'"]+)[\'"]*/ims',$treffer[0][$i],$mediatreffer)) $media = $mediatreffer[1];
+				if(preg_match('/media=[\'"]*([^\'"]+)[\'"]*/ims',$treffer[0][$i],$mediatreffer)) 
+				{
+					$media = preg_replace('/[^a-z]+/i','',$mediatreffer[1]);
+					if(trim($media) == '') $media = 'all';
+				}
 				else $media = 'all';
 
 				// Get relation

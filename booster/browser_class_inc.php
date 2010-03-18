@@ -77,7 +77,8 @@ class browser
 	function __construct()
 	{
 		//set the useragent property
-		$this->useragent = $_SERVER['HTTP_USER_AGENT'];
+		$this->useragent = '';
+		if(isset($_SERVER['HTTP_USER_AGENT'])) $this->useragent = $_SERVER['HTTP_USER_AGENT'];
 		$this->getPlatform();
 		$this->getBrowser();
 	}
