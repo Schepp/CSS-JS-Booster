@@ -28,12 +28,14 @@ header("Content-type: text/javascript");
 include('booster_inc.php');
 
 ((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',$_GET['dir']),'/') : $source = 'js');
+((isset($_GET['cachedir'])) ? $booster_cachedir = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',$_GET['cachedir']),'/') : $booster_cachedir = 'booster_cache');
 ((isset($_GET['totalparts'])) ? $totalparts = intval($_GET['totalparts']) : $totalparts = 1);
 ((isset($_GET['part'])) ? $part = intval($_GET['part']) : $part = 0);
 
 $booster = new Booster();
 if(isset($_GET['debug']) && $_GET['debug'] == 1) $booster->debug = TRUE;
 if(isset($_GET['js_minify']) && $_GET['js_minify'] == 0) $booster->js_minify = FALSE;
+$booster->booster_cachedir = $booster_cachedir;
 $booster->js_source = $source;
 $booster->js_totalparts = $totalparts;
 $booster->js_part = $part;

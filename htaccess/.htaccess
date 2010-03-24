@@ -1,4 +1,4 @@
-
+#CSS-JS-Booster Start#################################################
 #Turn ETagging off
 FileETag none
 
@@ -39,3 +39,4 @@ Header set Cache-Control "max-age=2592000, public"
 #Header set Cache-Control "max-age=0, public"
 #</FilesMatch>
 </IfModule>
+#CSS-JS-Booster End#################################################

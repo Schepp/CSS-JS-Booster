@@ -22,9 +22,11 @@
 ------------------------------------------------------------------------*/
 
 ((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',preg_replace('/!.+/i','',$_GET['dir'])),'/') : $source = 'css');
+((isset($_GET['cachedir'])) ? $booster_cachedir = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',$_GET['cachedir']),'/') : $booster_cachedir = 'booster_cache');
 
 include('booster_inc.php');
 $booster = new Booster();
+$booster->booster_cachedir = $booster_cachedir;
 $booster->css_source = $source;
 $etag = md5($source.$booster->mhtmltime());
 

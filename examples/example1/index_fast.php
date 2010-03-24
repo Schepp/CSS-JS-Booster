@@ -12,7 +12,7 @@ $booster = new Booster();
 <script type="text/javascript">beforeload = (new Date()).getTime();</script>
 <?php 
 $booster->css_source = array('css/style.css','css/style2.css');
-$booster->debug = TRUE;
+$booster->debug = FALSE;
 echo $booster->css_markup(); 
 ?>
 </head>

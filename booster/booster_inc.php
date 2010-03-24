@@ -35,8 +35,8 @@
 @ini_set('zlib.output_compression_level',4);
 
 // Turning on strict error reporting
-#@ini_set("display_errors", 1);
-#@error_reporting(E_ALL);
+#ini_set("display_errors", 1);
+#error_reporting(E_ALL);
 
 // Starting gzip-compressed output if zlib-compression is turned off
 if (
@@ -340,6 +340,7 @@ class Booster {
      */
 	public function setcachedir()
 	{
+		$errormessage = '';
 		// Check if @var $booster_cachedir_transformed is still "FALSE"
 		if(!$this->booster_cachedir_transformed) 
 		{
@@ -349,8 +350,19 @@ class Booster {
 		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
 		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
 		{
-			echo "/* You need to create a directory \"".$this->booster_cachedir."\" with CHMOD 0777 rights!!! */\r\n\r\n";
-			echo "body *:before {content: \"You need to create a directory ".$this->booster_cachedir." with CHMOD 0777 rights!!!\";}\r\n\r\n";
+			$errormessage = "\r\nYou need to create a directory \r\n".$this->booster_cachedir."\r\n with CHMOD 0777 rights!!!\r\n";
+		}
+		// Also check here for the right PHP version
+		if(strnatcmp(phpversion(),'5.0.0') < 0)
+		{
+			$errormessage = "\r\nYou need to upgrade to PHP 5 or higher to have CSS-JS-Booster work. You currently are running on PHP ".phpversion().".\r\n";
+		}
+		// If there are error, output them and stop execution
+		if($errormessage != '')
+		{
+			$errormessage_css = str_replace("\r\n","\\00000A",$errormessage);
+			echo "/* ".$errormessage." */\r\n\r\n";
+			echo "body:before {display: block; padding: 1em; background-color: #FFF9D0; color: #912C2C; border: 1px solid #912C2C; font-family: Calibri, 'Lucida Grande', Arial, Verdana, sans-serif; white-space: pre; content: \"".$errormessage_css."\";}\r\n\r\n";
 			exit;
 		}
 	}
@@ -550,7 +562,14 @@ class Booster {
 		for($i=0;$i<count($treffer[0]);$i++)
 		{
 			$importfile = realpath(dirname($source)).'/'.$treffer[1][$i];
-			if(file_exists($importfile)) $currentfilecontent = str_replace($treffer[0][$i],$this->getfilescontents($importfile,$type)."\r\n",$currentfilecontent);
+			$diroffset = dirname($treffer[1][$i]);
+			if(file_exists($importfile)) 
+			{
+				$importfilecontent = $this->getfilescontents($importfile,$type);
+				$importfilecontent = preg_replace('/(url\([\'"]*)([^\/])/ims','\1'.$diroffset.'/\2',$importfilecontent);
+			
+				$currentfilecontent = str_replace($treffer[0][$i],$importfilecontent."\r\n",$currentfilecontent);
+			}
 			
 			// @todo media-type sensivity
 			#if(trim($treffer[2][$i]) != '') $mediatype = trim($treffer[2][$i]);
@@ -970,7 +989,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the CSS was updated
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
-			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
+			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
 		}
 	
 		return $markup;
@@ -1023,7 +1042,8 @@ class Booster {
      */
 	protected function js_minify($filescontent = '')
 	{
-		if(preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
+		// Google Closure has a max limit of 200KB POST size, and will break JS with eval-command
+		if(strlen($filescontent) < 200000 && preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
 		{
 			// Working vars
 			$js_minified = '';
@@ -1170,7 +1190,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the JS was updated
 		for($j=0;$j<intval($this->js_totalparts);$j++)
 		{
-			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
+			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 		}
 
 		return $markup;
