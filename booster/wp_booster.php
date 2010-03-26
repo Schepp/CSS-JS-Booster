@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.2
+Version: 0.2.1
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -44,8 +44,8 @@ function booster_htaccess() {
 		if(file_exists($wp_htacessfile) && is_writable($wp_htacessfile))
 		{
 			$wp_htacessfile_contents = file_get_contents($wp_htacessfile);
-			$wp_htacessfile_contents = preg_replace('/[\r\n]?#CSS-JS-Booster Start#################################################.*#CSS-JS-Booster End#################################################/ims','',$wp_htacessfile_contents);
-			$wp_htacessfile_contents = $wp_htacessfile_contents."\r\n".file_get_contents($booster_htacessfile);
+			$wp_htacessfile_contents = preg_replace('/#CSS-JS-Booster Start#################################################.*#CSS-JS-Booster End#################################################/ims','',$wp_htacessfile_contents);
+			$wp_htacessfile_contents = $wp_htacessfile_contents.file_get_contents($booster_htacessfile);
 		}
 		else $wp_htacessfile_contents = file_get_contents($booster_htacessfile);
 		@file_put_contents($wp_htacessfile,$wp_htacessfile_contents);
@@ -53,6 +53,30 @@ function booster_htaccess() {
 	@mkdir(BOOSTER_CACHE_DIR,0777);
 }
 register_activation_hook(__FILE__,'booster_htaccess');
+
+
+
+function booster_cleanup() {
+	// Remove entries from .htaccess
+	$wp_htacessfile = get_home_path().'.htaccess';
+	if(file_exists($wp_htacessfile) && is_writable($wp_htacessfile))
+	{
+		$wp_htacessfile_contents = file_get_contents($wp_htacessfile);
+		$wp_htacessfile_contents = preg_replace('/#CSS-JS-Booster Start#################################################.*#CSS-JS-Booster End#################################################/ims','',$wp_htacessfile_contents);
+		@file_put_contents($wp_htacessfile,$wp_htacessfile_contents);
+	}
+	
+	// Remove all cache files
+	$handle=opendir(BOOSTER_CACHE_DIR);
+	while(false !== ($file = readdir($handle)))
+	{
+		if($file[0] != '.' && is_file(BOOSTER_CACHE_DIR.'/'.$file)) unlink(BOOSTER_CACHE_DIR.'/'.$file);
+	}
+	closedir($handle);
+}
+register_deactivation_hook(__FILE__,'booster_cleanup');
+
+
 
 function booster_wp() {
 	// Dump output buffer
@@ -84,6 +108,34 @@ function booster_wp() {
 				
 				// CSS part
 				$css_rel_files = array();
+				
+				// Start width inline-files
+				preg_match_all('/<style[^>]*>(.*?)<\/style>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
+				for($i=0;$i<count($treffer[0]);$i++) 
+				{
+					// Get media-type
+					if(preg_match('/media=[\'"]*([^\'"]+)[\'"]*/ims',$treffer[0][$i],$mediatreffer)) 
+					{
+						$media = preg_replace('/[^a-z]+/i','',$mediatreffer[1]);
+						if(trim($media) == '') $media = 'all';
+					}
+					else $media = 'all';
+
+					// Save plain CSS to file to keep everything in line
+					$filename = BOOSTER_CACHE_DIR.'/'.md5($treffer[1][$i]).'_plain.css';
+					if(!file_exists($filename)) @file_put_contents($filename,$treffer[1][$i]);
+					@chmod($filename,0777);
+		
+					// Calculate relative path from Booster to file
+					$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
+					$linkhref = get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/'.$booster_to_file_path.'/'.basename($filename);
+
+					$linkcode = '<!-- Processed by Booster '.$treffer[0][$i].' --><link rel="stylesheet" media="'.$media.'" href="'.$linkhref.'" />';
+					$headtreffer[0][0] = str_replace($treffer[0][$i],$linkcode,$headtreffer[0][0]);
+					$out = str_replace($treffer[0][$i],$linkcode,$out);
+				}
+
+				// Continue with external files
 				preg_match_all('/<link[^>]*?href=[\'"]*?([^\'"]+?\.css)[\'"]*?[^>]*?>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
 				for($i=0;$i<count($treffer[0]);$i++) 
 				{
@@ -171,8 +223,10 @@ function booster_wp() {
 				{
 					if(preg_match('/<script.*?src=[\'"]*([^\'"]+\.js)[\'"]*.*?<\/script>/ims',$treffer[0][$i],$srctreffer))
 					{
+						// Convert siteurl into a regex-safe expression
+						$host = str_replace(array('/','.'),array('\/','\.'),$_SERVER['HTTP_HOST']);
 						// Convert file's URI into an absolute local path
-						$filename = preg_replace('/^http:\/\/[^\/]+/',rtrim($_SERVER['DOCUMENT_ROOT'],'/'),$srctreffer[1]);
+						$filename = preg_replace('/^http:\/\/'.$host.'[^\/]*/',rtrim($_SERVER['DOCUMENT_ROOT'],'/'),$srctreffer[1]);
 						// Remove any parameters from file's URI
 						$filename = preg_replace('/\?.*$/','',$filename);
 						// If file exists
@@ -188,6 +242,58 @@ function booster_wp() {
 							// Enqueue file to array
 							array_push($js_rel_files,$filename);
 							array_push($js_abs_files,rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$root_to_booster_path.'/'.$filename);
+						}
+						elseif(substr($filename,0,7) == 'http://')
+						{
+							$buffered_filename = BOOSTER_CACHE_DIR.'/'.md5($filename).'_buffered.js';
+							$parsed_url = parse_url($filename);
+							if(!file_exists($buffered_filename) || filemtime($buffered_filename) < (time() - (7 * 24 * 60 * 60))) 
+							{
+								$host = $parsed_url['host'];
+								$service_uri = $parsed_url['path'];
+								$vars = $parsed_url['query'];
+								
+								// Compose HTTP request header
+								$header = "Host: $host\r\n";
+								$header .= "User-Agent: CSS-JS-Booster\r\n";
+								$header .= "Connection: close\r\n\r\n";
+
+								$fp = fsockopen($host, 80, $errno, $errstr);
+								if($fp) 
+								{
+									$body = '';
+									fputs($fp,"GET $service_uri?$vars  HTTP/1.0\r\n");
+									fputs($fp,$header.$vars);
+									while (!feof($fp)) {
+										$body .= fgets($fp,65000);
+									}
+									
+									fclose($fp);
+									$body = preg_replace('/HTTP.+[\r\n]{1}[\r\n]{1}/ims','',$body);
+									@file_put_contents($buffered_filename,$body);
+									@chmod($filename,0777);
+
+									// Put file-reference inside a comment
+									$out = str_replace($srctreffer[0],'<!-- Processed by Booster '.$srctreffer[0].' -->',$out);
+		
+									// Enqueue file to array
+									$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($buffered_filename)),str_replace('\\','/',dirname(__FILE__)));
+									array_push($js_rel_files,$booster_cachedir.'/'.md5($filename).'_buffered.js');
+									array_push($js_abs_files,rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$buffered_filename);
+								}
+								// Leave untouched but put calculated local file name into a comment for debugging
+								else $out = str_replace($srctreffer[0],$srctreffer[0].'<!-- Booster had a problems retrieving '.$filename.' -->',$out);
+							}
+							else
+							{
+								// Put file-reference inside a comment
+								$out = str_replace($srctreffer[0],'<!-- Processed by Booster '.$srctreffer[0].' -->',$out);
+	
+								// Enqueue file to array
+								$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($buffered_filename)),str_replace('\\','/',dirname(__FILE__)));
+								array_push($js_rel_files,$booster_cachedir.'/'.md5($filename).'_buffered.js');
+								array_push($js_abs_files,rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$buffered_filename);
+							}						
 						}
 						// Leave untouched but put calculated local file name into a comment for debugging
 						else $out = str_replace($srctreffer[0],$srctreffer[0].'<!-- Booster had a problems finding '.$filename.' -->',$out);

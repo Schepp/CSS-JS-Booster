@@ -557,29 +557,32 @@ class Booster {
 		else $currentfilecontent = $source;
 
 		// Find and resolve import-rules
-		preg_match_all('/@import\surl\([\'"]*?([^\'")]+\.css)[\'"]*?\);/ims',$currentfilecontent,$treffer,PREG_PATTERN_ORDER);
-		if($this->debug) $filescontent .= "/* import-rule-findings: ".count($treffer[0])." */\r\n";
-		for($i=0;$i<count($treffer[0]);$i++)
+		if($type == 'css')
 		{
-			$importfile = realpath(dirname($source)).'/'.$treffer[1][$i];
-			$diroffset = dirname($treffer[1][$i]);
-			if(file_exists($importfile)) 
+			preg_match_all('/@import\surl\([\'"]*?([^\'")]+\.css)[\'"]*?\);/ims',$currentfilecontent,$treffer,PREG_PATTERN_ORDER);
+			if($this->debug) $filescontent .= "/* import-rule-findings: ".count($treffer[0])." */\r\n";
+			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				$importfilecontent = $this->getfilescontents($importfile,$type);
-				$importfilecontent = preg_replace('/(url\([\'"]*)([^\/])/ims','\1'.$diroffset.'/\2',$importfilecontent);
-			
-				$currentfilecontent = str_replace($treffer[0][$i],$importfilecontent."\r\n",$currentfilecontent);
+				$importfile = realpath(dirname($source)).'/'.$treffer[1][$i];
+				$diroffset = dirname($treffer[1][$i]);
+				if(file_exists($importfile)) 
+				{
+					$importfilecontent = $this->getfilescontents($importfile,$type);
+					$importfilecontent = preg_replace('/(url\([\'"]*)([^\/])/ims','\1'.$diroffset.'/\2',$importfilecontent);
+				
+					$currentfilecontent = str_replace($treffer[0][$i],$importfilecontent."\r\n",$currentfilecontent);
+				}
+				
+				// @todo media-type sensivity
+				#if(trim($treffer[2][$i]) != '') $mediatype = trim($treffer[2][$i]);
+				#else $mediatype = 'all';
+				#if($this->debug) $filescontent .= "/* importfile: ".$importfile." */\r\n";
+				#if(file_exists($importfile)) $currentfilecontent = str_replace($treffer[0][$i],"@media ".$mediatype." {\r\n".$this->getfilescontents($importfile,$type)."}\r\n",$currentfilecontent);
 			}
-			
-			// @todo media-type sensivity
-			#if(trim($treffer[2][$i]) != '') $mediatype = trim($treffer[2][$i]);
-			#else $mediatype = 'all';
-			#if($this->debug) $filescontent .= "/* importfile: ".$importfile." */\r\n";
-			#if(file_exists($importfile)) $currentfilecontent = str_replace($treffer[0][$i],"@media ".$mediatype." {\r\n".$this->getfilescontents($importfile,$type)."}\r\n",$currentfilecontent);
-		}
-		
+		}		
 		// Append to @var $filescontent
-		$filescontent .= $currentfilecontent;
+		$filescontent .= $currentfilecontent."\r\n\r\n";
+
 
 		// @todo Delete as it is not needed any longer at this point
 		// if(strlen($filescontent)) file_put_contents($this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt',$filescontent);
