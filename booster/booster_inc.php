@@ -706,7 +706,12 @@ class Booster {
 			preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+				if(
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'http:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'https:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:'
+				) $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
 			}
 			
 			// Store the cache-files
@@ -729,7 +734,12 @@ class Booster {
 			preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+				if(
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'http:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'https:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:'
+				) $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
 			}
 		}
 		
@@ -773,7 +783,12 @@ class Booster {
 			preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				if(substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:') $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+				if(
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'http:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'https:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:'
+				) $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
 			}
 			
 			// Store the cache-file
