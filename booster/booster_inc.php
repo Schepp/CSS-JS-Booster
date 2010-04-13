@@ -1095,7 +1095,7 @@ class Booster {
 					$js_minified .= fgets($fp);
 				}
 				fclose($fp);
-				$js_minified = preg_replace('/HTTP.+Protection: [0-9][\r\n]{2}/ims','',$js_minified);
+				$js_minified = preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified);
 			}
 		}
 		else $js_minified = $filescontent;
