@@ -664,7 +664,15 @@ class Booster {
 			$mhtmlpath = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
 			// Cachefile for the extra MHTML-data
 			$mhtmlfile = $this->booster_cachedir.'/'.$identifier.'_datauri_mhtml_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-			
+			// Get Domainname
+			if(isset($_SERVER['SCRIPT_URI']))
+			{
+				$mhtmlhost = parse_url($_SERVER['SCRIPT_URI'],PHP_URL_HOST);
+			}
+			else
+			{
+				$mhtmlhost = $_SERVER['HTTP_HOST'];
+			}
 			
 			
 			// Start putting together the styles and MHTML
@@ -682,7 +690,7 @@ class Booster {
 				if(file_exists($imagefile) && filesize($imagefile) < 24000) 
 				{
 					// Replace reference to image with reference to MHTML-file with corresponding anchor
-					$filescontent = str_replace($treffer[0][$i],'url(mhtml:http://'.$_SERVER['HTTP_HOST'].$mhtmlpath.'/booster_mhtml.php?dir='.$identifier.'!'.$imagetag.')',$filescontent);
+					$filescontent = str_replace($treffer[0][$i],'url(mhtml:http://'.$mhtmlhost.$mhtmlpath.'/booster_mhtml.php?dir='.$identifier.'!'.$imagetag.')',$filescontent);
 
 					// Look up in our list if we did not already process that exact file, if not append it
 					if(!isset($mhtmlarray[$imagetag])) 
