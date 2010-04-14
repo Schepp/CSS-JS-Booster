@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.2.2
+Version: 0.2.5
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -33,9 +33,7 @@ if(!defined('WP_PLUGIN_URL')) define('WP_PLUGIN_URL',WP_CONTENT_URL.'/plugins');
 if(!defined('WP_PLUGIN_DIR')) define('WP_PLUGIN_DIR',WP_CONTENT_DIR.'/plugins');
 
 // Set Booster Cache Folder
-if(ini_get('safe_mode') || (get_option('upload_path') == '' && !file_exists(str_replace('\\','/',WP_CONTENT_DIR).'/uploads'))) define('BOOSTER_CACHE_DIR',str_replace('\\','/',dirname(__FILE__)).'/booster_cache');
-elseif(get_option('upload_path') == '') define('BOOSTER_CACHE_DIR',str_replace('\\','/',WP_CONTENT_DIR).'/uploads/booster_cache');
-else define('BOOSTER_CACHE_DIR',str_replace('\\','/',get_option('upload_path')).'/booster_cache');
+define('BOOSTER_CACHE_DIR',str_replace('\\','/',dirname(__FILE__)).'/booster_cache');
 
 function booster_htaccess() {
 	$wp_htacessfile = get_home_path().'.htaccess';
@@ -180,22 +178,27 @@ function booster_wp() {
 					// If file exists
 					if(file_exists($filename))
 					{
-						// Put file-reference inside a comment
-						$out = str_replace($treffer[0][$i],'<!-- Processed by Booster '.$treffer[0][$i].' -->',$out);
-	
-						// Calculate relative path from Booster to file
-						$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
-						$filename = $booster_to_file_path.'/'.basename($filename);
+						// If its a normal CSS-file
+						if(substr($filename,strlen($filename) - 4,4) == '.css' && file_exists($filename))
+						{
+							// Put file-reference inside a comment
+							$out = str_replace($treffer[0][$i],'<!-- Processed by Booster '.$treffer[0][$i].' -->',$out);
 		
-						// Create sub-arrays if not yet there
-						if(!isset($css_rel_files[$media])) $css_rel_files[$media] = array();
-						if(!isset($css_abs_files[$media])) $css_abs_files[$media] = array();
-						if(!isset($css_rel_files[$media][$rel])) $css_rel_files[$media][$rel] = array();
-						if(!isset($css_abs_files[$media][$rel])) $css_abs_files[$media][$rel] = array();
-						
-						// Enqueue file to respective array
-						array_push($css_rel_files[$media][$rel],$filename);
-						array_push($css_abs_files[$media][$rel],rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$root_to_booster_path.'/'.$filename);
+							// Calculate relative path from Booster to file
+							$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
+							$filename = $booster_to_file_path.'/'.basename($filename);
+			
+							// Create sub-arrays if not yet there
+							if(!isset($css_rel_files[$media])) $css_rel_files[$media] = array();
+							if(!isset($css_abs_files[$media])) $css_abs_files[$media] = array();
+							if(!isset($css_rel_files[$media][$rel])) $css_rel_files[$media][$rel] = array();
+							if(!isset($css_abs_files[$media][$rel])) $css_abs_files[$media][$rel] = array();
+							
+							// Enqueue file to respective array
+							array_push($css_rel_files[$media][$rel],$filename);
+							array_push($css_abs_files[$media][$rel],rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$root_to_booster_path.'/'.$filename);
+						}
+						else $out = str_replace($treffer[0][$i],$treffer[0][$i].'<!-- Booster skipped '.$filename.' -->',$out);
 					}
 					// Leave untouched but put calculated local file name into a comment for debugging
 					else $out = str_replace($treffer[0][$i],$treffer[0][$i].'<!-- Booster had a problems finding '.$filename.' -->',$out);
@@ -245,31 +248,25 @@ function booster_wp() {
 				{
 					if(preg_match('/<script.*?src=[\'"]*([^\'"]+\.js)[\'"]*.*?<\/script>/ims',$treffer[0][$i],$srctreffer))
 					{
+						// Get Domainname
+						if(isset($_SERVER['SCRIPT_URI']))
+						{
+							$host = parse_url($_SERVER['SCRIPT_URI'],PHP_URL_HOST);
+						}
+						else
+						{
+							$host = $_SERVER['HTTP_HOST'];
+						}
 						// Convert siteurl into a regex-safe expression
-						$host = str_replace(array('/','.'),array('\/','\.'),$_SERVER['HTTP_HOST']);
+						$host = str_replace(array('/','.'),array('\/','\.'),$host);
 						// Convert file's URI into an absolute local path
 						$filename = preg_replace('/^http:\/\/'.$host.'[^\/]*/',rtrim($_SERVER['DOCUMENT_ROOT'],'/'),$srctreffer[1]);
-						// Remove any parameters from file's URI
-						$filename = preg_replace('/\?.*$/','',$filename);
-						// If file exists
-						if(file_exists($filename))
-						{
-							// Put file-reference inside a comment
-							$out = str_replace($srctreffer[0],'<!-- Processed by Booster '.$srctreffer[0].' -->',$out);
-		
-							// Calculate relative path from Booster to file
-							$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
-							$filename = $booster_to_file_path.'/'.basename($filename);
-			
-							// Enqueue file to array
-							array_push($js_rel_files,$filename);
-							array_push($js_abs_files,rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$root_to_booster_path.'/'.$filename);
-						}
-						elseif(substr($filename,0,7) == 'http://')
+						// If file is external
+						if(substr($filename,0,7) == 'http://')
 						{
 							$buffered_filename = $booster_cache_dir.'/'.md5($filename).'_buffered.js';
 							$parsed_url = parse_url($filename);
-							if(!file_exists($buffered_filename) || filemtime($buffered_filename) < (time() - (7 * 24 * 60 * 60))) 
+							if(!file_exists($buffered_filename) || filemtime($buffered_filename) < (time() - (1 * 24 * 60 * 60))) 
 							{
 								$host = $parsed_url['host'];
 								$service_uri = $parsed_url['path'];
@@ -316,6 +313,28 @@ function booster_wp() {
 								array_push($js_rel_files,$booster_cache_reldir.'/'.md5($filename).'_buffered.js');
 								array_push($js_abs_files,rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$buffered_filename);
 							}						
+						}
+						// If file is internal and does exist
+						elseif(file_exists($filename))
+						{
+							// If its a normal JavaScript-file
+							if(substr($filename,strlen($filename) - 3,3) == '.js')
+							{
+								// Remove any parameters from file's URI
+								$filename = preg_replace('/\?.*$/','',$filename);
+	
+								// Put file-reference inside a comment
+								$out = str_replace($srctreffer[0],'<!-- Processed by Booster '.$srctreffer[0].' -->',$out);
+			
+								// Calculate relative path from Booster to file
+								$booster_to_file_path = $booster->getpath(str_replace('\\','/',dirname($filename)),str_replace('\\','/',dirname(__FILE__)));
+								$filename = $booster_to_file_path.'/'.basename($filename);
+				
+								// Enqueue file to array
+								array_push($js_rel_files,$filename);
+								array_push($js_abs_files,rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$root_to_booster_path.'/'.$filename);
+							}
+							else $out = str_replace($srctreffer[0],$srctreffer[0].'<!-- Booster skipped '.$filename.' -->',$out);
 						}
 						// Leave untouched but put calculated local file name into a comment for debugging
 						else $out = str_replace($srctreffer[0],$srctreffer[0].'<!-- Booster had a problems finding '.$filename.' -->',$out);
