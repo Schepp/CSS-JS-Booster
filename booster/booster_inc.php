@@ -708,7 +708,7 @@ class Booster {
 			$mhtmlcontent .= "\r\n\r\n";
 	
 			// Hack suggested by Stoyan Stefanov: prepend a star in front of background-property
-			$filescontent = preg_replace('/(background[^;]+?mhtml)/','*$1',$filescontent);
+			//$filescontent = preg_replace('/(background[^;]+?mhtml)/','*$1',$filescontent);
 			
 			// Scan for any left file-references and adjust their path
 			preg_match_all($regex_url,$filescontent,$treffer,PREG_PATTERN_ORDER);
@@ -733,9 +733,9 @@ class Booster {
 
 	
 		// If IE 6 browser on Vista or higher (like IETester under Vista / Windows 7 for example) do not embed
+		// If IE 6 browser on Vista or higher (like IETester under Vista / Windows 7 for example), or IE 7 on XP do not embed
 		elseif(
-			$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && 
-			$this->browser->platform == 'Windows' && floatval($this->browser->platformversion) >= 6
+			$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8		
 		)
 		{
 			// Scan for any file-references and adjust their path
