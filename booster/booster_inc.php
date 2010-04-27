@@ -642,7 +642,7 @@ class Booster {
 		$regex_embed = '/url\([\'"]*(.+?\.)(gif|png|jpg|otf|ttf|woff)[\'"]*\)/msi';
 		$regex_embed_ie = '/url\([\'"]*(.+?\.)(gif|png|jpg|eot)[\'"]*\)/msi';
 		// Any files
-		$regex_url = '/url\([\'"]*(.+?\..+?)[\'"]*\)/msi';
+		$regex_url = '/url\([\'"]??([^\)]+?\.[^\)]+?)[\'"]??\)/msi';
 
 		// identifier for the cache-files
 		$identifier = md5($filescontent);
