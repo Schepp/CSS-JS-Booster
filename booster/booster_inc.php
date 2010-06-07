@@ -55,9 +55,9 @@ else @ob_start();
 include_once('browser_class_inc.php');
 
 /**
- * Inclusion of 
+ * Inclusion of JSMin
  */
-include_once('csstidy-1.3/class.csstidy.php');
+include_once('jsmin/jsmin.php');
 
 /**
  * CSS-JS-BOOSTER
@@ -591,29 +591,43 @@ class Booster {
 	}
 
     /**
-     * Css_tidy calls the external library CSS Tidy in order to optimize the stylesheet
+     * Css_minify does some soft minifications to the stylesheets, avoiding damage by optimizing too much
+     * 
+     * Replaces CSSTidy 1.3 which in some cases was destroying stylesheets
+     * Removing unnecessessary spaces, tabs and newlines
+     * Leaving commments in there as they may be browser hacks or needed to fulfill the terms of a license
      * 
      * @param  string    styles-string
-     * @return string    optimized styles-string
+     * @return string    minified styles-string
      * @access protected 
      */
-	protected function css_tidy($filescontent = '')
+	protected function css_minify($filescontent = '')
 	{
-		$css = new csstidy();
-		$css->set_cfg('sort_selectors',false);
-		$css->set_cfg('sort_properties',false);
-		$css->set_cfg('merge_selectors',0);
-		$css->set_cfg('optimise_shorthands',1);
-		$css->set_cfg('compress_colors',true);
-		$css->set_cfg('compress_font-weight',true);
-		$css->set_cfg('lowercase_s',false);
-		$css->set_cfg('case_properties',1);
-		$css->set_cfg('remove_bslash',false);
-		$css->set_cfg('remove_last_;',true);
-		$css->set_cfg('discard_invalid_properties',false);
-		$css->load_template('high_compression');
-		$result = $css->parse($filescontent);
-		$filescontent = $css->print->plain();
+		// Backup any values within single or double quotes
+		preg_match_all('/(\'[^\']+\'|"[^"]+")/ims',$filescontent,$treffer,PREG_PATTERN_ORDER);
+		for($i=0;$i<count($treffer[1]);$i++)
+		{
+			$filescontent = str_replace($treffer[1][$i],'##########'.$i.'##########',$filescontent);
+		}
+		
+		// Remove traling semi-colon of selector's last property
+		$filescontent = preg_replace('/;[\s\r\n\t]*?}[\s\r\n\t]*/ims',"}\r\n",$filescontent);
+		// Remove any spaces/tabs/newlines between semi-colon and property-name
+		$filescontent = preg_replace('/;[\s\r\n\t]*?([^\s\r\n\t])/ims',';$1',$filescontent);
+		// Remove any spaces/tabs/newlines surrounding property-colon
+		$filescontent = preg_replace('/[\s\r\n\t]*:[\s\r\n\t]*?([^\s\r\n\t])/ims',':$1',$filescontent);
+		// Remove any spaces/tabs/newlines surrounding selector-comma
+		$filescontent = preg_replace('/[\s\r\n\t]*,[\s\r\n\t]*?([^\s\r\n\t])/ims',',$1',$filescontent);
+		// Remove any spaces/tabs/newlines between numbers and units
+		$filescontent = preg_replace('/([\d\.]+)[\s\r\n\t]+(px|em|pt|%)/ims','$1$2',$filescontent);
+		// Shorten zero-values
+		$filescontent = preg_replace('/([^\d\.]0)(px|em|pt|%)/ims','$1',$filescontent);
+
+		// Restore backupped values within single or double quotes
+		for($i=0;$i<count($treffer[1]);$i++)
+		{
+			$filescontent = str_replace('##########'.$i.'##########',$treffer[1][$i],$filescontent);
+		}
 		return $filescontent;
 	}
 	
@@ -917,7 +931,7 @@ class Booster {
 					else $currentfilescontent = $source;
 					
 					// Optimize stylesheets with CSS Tidy
-					if(!$this->debug) $currentfilescontent = $this->css_tidy($currentfilescontent);
+					if(!$this->debug) $currentfilescontent = $this->css_minify($currentfilescontent);
 		
 					// Prepare @var $dir that we need to prepend as path to any images we find to get the full path
 					// if @var $css_source is a folder
@@ -1064,6 +1078,9 @@ class Booster {
     /**
      * Js_minify takes a JS-string and tries to minify it with the Google Closure Webservice
      * 
+     * If the input JavaScript surpasses Google's POST-limit of 200.000 bytes it switches to
+     * minification through Douglas Crockford's JSMin
+     * 
      * @param  string    $filescontent contents to minify
      * @return string    minified Javascript
      * @access protected 
@@ -1100,7 +1117,11 @@ class Booster {
 				$js_minified = preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified);
 			}
 		}
-		else $js_minified = $filescontent;
+		// Switching over to Douglas Crockford's JSMin (which in turn breaks IE's conditional compilation)
+		else 
+		{
+			$js_minified = JSMin::minify($filescontent);
+		}
 		return $js_minified;
 	}
 	
