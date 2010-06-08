@@ -594,7 +594,7 @@ class Booster {
      * Css_minify does some soft minifications to the stylesheets, avoiding damage by optimizing too much
      * 
      * Replaces CSSTidy 1.3 which in some cases was destroying stylesheets
-     * Removing unnecessessary spaces, tabs and newlines
+     * Removing unnecessessary whitespaces, tabs and newlines
      * Leaving commments in there as they may be browser hacks or needed to fulfill the terms of a license
      * 
      * @param  string    styles-string
@@ -610,18 +610,24 @@ class Booster {
 			$filescontent = str_replace($treffer[1][$i],'##########'.$i.'##########',$filescontent);
 		}
 		
-		// Remove traling semi-colon of selector's last property
+		// Remove traling semicolon of selector's last property
 		$filescontent = preg_replace('/;[\s\r\n\t]*?}[\s\r\n\t]*/ims',"}\r\n",$filescontent);
-		// Remove any spaces/tabs/newlines between semi-colon and property-name
-		$filescontent = preg_replace('/;[\s\r\n\t]*?([^\s\r\n\t])/ims',';$1',$filescontent);
-		// Remove any spaces/tabs/newlines surrounding property-colon
+		// Remove any whitespaces/tabs/newlines between semicolon and property-name
+		$filescontent = preg_replace('/;[\s\r\n\t]*?([\r\n]?[^\s\r\n\t])/ims',';$1',$filescontent);
+		// Remove any whitespaces/tabs/newlines surrounding property-colon
 		$filescontent = preg_replace('/[\s\r\n\t]*:[\s\r\n\t]*?([^\s\r\n\t])/ims',':$1',$filescontent);
-		// Remove any spaces/tabs/newlines surrounding selector-comma
+		// Remove any whitespaces/tabs/newlines surrounding selector-comma
 		$filescontent = preg_replace('/[\s\r\n\t]*,[\s\r\n\t]*?([^\s\r\n\t])/ims',',$1',$filescontent);
-		// Remove any spaces/tabs/newlines between numbers and units
+		// Remove any whitespaces/tabs/newlines surrounding opening parenthesis
+		$filescontent = preg_replace('/[\s\r\n\t]*{[\s\r\n\t]*?([^\s\r\n\t])/ims','{$1',$filescontent);
+		// Remove any whitespaces/tabs/newlines between numbers and units
 		$filescontent = preg_replace('/([\d\.]+)[\s\r\n\t]+(px|em|pt|%)/ims','$1$2',$filescontent);
 		// Shorten zero-values
 		$filescontent = preg_replace('/([^\d\.]0)(px|em|pt|%)/ims','$1',$filescontent);
+		// Constrain multiple newlines
+		$filescontent = preg_replace('/[\r\n]+/ims',"\r\n",$filescontent);
+		// Constrain multiple whitespaces
+		$filescontent = preg_replace('/\p{Zs}+/ims',' ',$filescontent);
 
 		// Restore backupped values within single or double quotes
 		for($i=0;$i<count($treffer[1]);$i++)
@@ -656,7 +662,7 @@ class Booster {
 		$regex_embed = '/url\([\'"]*(.+?\.)(gif|png|jpg|otf|ttf|woff)[\'"]*\)/msi';
 		$regex_embed_ie = '/url\([\'"]*(.+?\.)(gif|png|jpg|eot)[\'"]*\)/msi';
 		// Any files
-		$regex_url = '/url\([\'"]??([^\)]+?\.[^\)]+?)[\'"]??\)/msi';
+		$regex_url = '/(url\([\'"]??)([^\'"\)]+?\.[^\'"\)]+?)([\'"]??\))/msi';
 
 		// identifier for the cache-files
 		$identifier = md5($filescontent);
@@ -729,11 +735,14 @@ class Booster {
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
 				if(
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'http:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'https:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:'
-				) $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,5) != 'http:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'https:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,5) != 'data:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'mhtml:'
+				) $filescontent = str_replace(
+					$treffer[1][$i].$treffer[2][$i].$treffer[3][$i],
+					$treffer[1][$i].((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[2][$i].$treffer[3][$i],
+					$filescontent);
 			}
 			
 			// Store the cache-files
@@ -757,11 +766,14 @@ class Booster {
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
 				if(
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'http:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'https:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:'
-				) $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,5) != 'http:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'https:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,5) != 'data:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'mhtml:'
+				) $filescontent = str_replace(
+					$treffer[1][$i].$treffer[2][$i].$treffer[3][$i],
+					$treffer[1][$i].((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[2][$i].$treffer[3][$i],
+					$filescontent);
 			}
 		}
 		
@@ -806,16 +818,15 @@ class Booster {
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
 				if(
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'http:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'https:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,5) != 'data:' && 
-					substr(str_replace(array('"',"'"),'',$treffer[1][$i]),0,6) != 'mhtml:'
-				) $filescontent = str_replace('url('.$treffer[1][$i].')','url('.((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[1][$i].')',$filescontent);
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,5) != 'http:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'https:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,5) != 'data:' && 
+					substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'mhtml:'
+				) $filescontent = str_replace(
+					$treffer[1][$i].$treffer[2][$i].$treffer[3][$i],
+					$treffer[1][$i].((!$this->css_stringmode) ? $dir : rtrim($this->css_stringbase,'/')).'/'.$treffer[2][$i].$treffer[3][$i],
+					$filescontent);
 			}
-			
-			// Store the cache-file
-			//@file_put_contents($cachefile,$filescontent);
-			//@chmod($cachefile,0777);
 		}
 		
 		// --------------------------------------------------------------------------------------
