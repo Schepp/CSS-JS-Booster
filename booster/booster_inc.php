@@ -1098,14 +1098,16 @@ class Booster {
      */
 	protected function js_minify($filescontent = '')
 	{
+		$encoded_content = urlencode($filescontent);
+		
 		// Google Closure has a max limit of 200KB POST size, and will break JS with eval-command
-		if(strlen($filescontent) < 200000 && preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
+		if(strlen($encoded_content) < 200000 && preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
 		{
 			// Working vars
 			$js_minified = '';
 			$host = "closure-compiler.appspot.com";
 			$service_uri = "/compile";
-			$vars = 'js_code='.urlencode($filescontent).'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
+			$vars = 'js_code='.$encoded_content.'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
 			
 			// Compose HTTP request header
 			$header = "Host: $host\r\n";
