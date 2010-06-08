@@ -309,6 +309,28 @@ class Booster {
      */
 	public $browser;
 
+	/**
+	 * You can use the closure compiler of CSS-JS-Booster with this option but ATM
+	 * it will works only on linux with java installed and there's no tests done so
+	 * carefull !
+	 * @var <type>
+	 */
+	public $use_hosted_compiler = FALSE;
+
+	/**
+	 * Will store the closure compiler path
+	 * with this
+	 * @var string
+	 * @access public
+	 */
+	private $hosted_closure_compiler_path;
+
+//	public $closure_compiler_options = array(
+//		"compilation_level" => "SIMPLE_OPTIMIZATIONS",
+//		"output_format" => "text",
+//		"output_info" => "compiled_code"
+//	);
+
     /**
      * Switch debug mode on/off
      * @var    boolean 
@@ -1098,43 +1120,54 @@ class Booster {
      */
 	protected function js_minify($filescontent = '')
 	{
-		$encoded_content = urlencode($filescontent);
-		
-		// Google Closure has a max limit of 200KB POST size, and will break JS with eval-command
-		if(strlen($encoded_content) < 200000 && preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
-		{
-			// Working vars
-			$js_minified = '';
-			$host = "closure-compiler.appspot.com";
-			$service_uri = "/compile";
-			$vars = 'js_code='.$encoded_content.'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
-			
-			// Compose HTTP request header
-			$header = "Host: $host\r\n";
-			$header .= "User-Agent: PHP Script\r\n";
-			$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-			$header .= "Content-Length: ".strlen($vars)."\r\n";
-			$header .= "Connection: close\r\n\r\n";
-			
-			$fp = pfsockopen($host, 80, $errno, $errstr);
-			// If we cannot open connection to Google Closure
-			if(!$fp) $js_minified = $filescontent;
-			else 
+		if ($this->use_hosted_compiler !== FALSE) {
+			// the webserver must have read right on the jar, again, no test done :)
+			$this->hosted_closure_compiler_path = realpath(dirname(__FILE__).'/compiler/compiler.jar');
+			// must create tmp files because closure compiler can't work with direct input..
+			$tmp_file_path = '/tmp/'.uniqid();
+			file_put_contents($tmp_file_path, $filescontent);
+			$js_minified = `java -jar $this->hosted_closure_compiler_path --js $tmp_file_path`;
+			unlink($tmp_file_path);
+		} else {
+			$encoded_content = urlencode($filescontent);
+
+			// Google Closure has a max limit of 200KB POST size, and will break JS with eval-command
+			if(strlen($encoded_content) < 200000 && preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
 			{
-				fputs($fp, "POST $service_uri  HTTP/1.0\r\n");
-				fputs($fp, $header.$vars);
-				while (!feof($fp)) {
-					$js_minified .= fgets($fp);
+				// Working vars
+				$js_minified = '';
+				$host = "closure-compiler.appspot.com";
+				$service_uri = "/compile";
+				$vars = 'js_code='.$encoded_content.'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
+
+				// Compose HTTP request header
+				$header = "Host: $host\r\n";
+				$header .= "User-Agent: PHP Script\r\n";
+				$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
+				$header .= "Content-Length: ".strlen($vars)."\r\n";
+				$header .= "Connection: close\r\n\r\n";
+
+				$fp = pfsockopen($host, 80, $errno, $errstr);
+				// If we cannot open connection to Google Closure
+				if(!$fp) $js_minified = $filescontent;
+				else
+				{
+					fputs($fp, "POST $service_uri  HTTP/1.0\r\n");
+					fputs($fp, $header.$vars);
+					while (!feof($fp)) {
+						$js_minified .= fgets($fp);
+					}
+					fclose($fp);
+					$js_minified = preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified);
 				}
-				fclose($fp);
-				$js_minified = preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified);
+			}
+			// Switching over to Douglas Crockford's JSMin (which in turn breaks IE's conditional compilation)
+			else
+			{
+				$js_minified = JSMin::minify($filescontent);
 			}
 		}
-		// Switching over to Douglas Crockford's JSMin (which in turn breaks IE's conditional compilation)
-		else 
-		{
-			$js_minified = JSMin::minify($filescontent);
-		}
+		
 		return $js_minified;
 	}
 	
@@ -1254,7 +1287,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the JS was updated
 		for($j=0;$j<intval($this->js_totalparts);$j++)
 		{
-			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
+			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->use_hosted_compiler) ? '&amp;use_hosted_compiler=1' : '').(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 		}
 
 		return $markup;
