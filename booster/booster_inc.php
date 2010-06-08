@@ -1007,7 +1007,7 @@ class Booster {
 		$markup = '';
 		
 		// Calculate possible relative path-offset created by mod_rewrite
-		$booster_offset_path = rtrim($this->getpath(dirname($_SERVER['REQUEST_URI']),dirname($_SERVER['SCRIPT_NAME'])),'/');
+		$booster_offset_path = rtrim($this->getpath((substr($_SERVER['REQUEST_URI'],strlen($_SERVER['REQUEST_URI']) - 1,1) == '/' ? $_SERVER['REQUEST_URI'] : dirname($_SERVER['REQUEST_URI'])),dirname($_SERVER['SCRIPT_NAME'])),'/');
 		// Calculate relative path from calling script to booster-folder
 		$booster_path = $booster_offset_path.'/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 		// Calculate relative path from booster-folder to calling script
@@ -1220,7 +1220,7 @@ class Booster {
 		$markup = '';
 
 		// Calculate possible relative path-offset created by mod_rewrite
-		$booster_offset_path = rtrim($this->getpath(dirname($_SERVER['REQUEST_URI']),dirname($_SERVER['SCRIPT_NAME'])),'/');
+		$booster_offset_path = rtrim($this->getpath((substr($_SERVER['REQUEST_URI'],strlen($_SERVER['REQUEST_URI']) - 1,1) == '/' ? $_SERVER['REQUEST_URI'] : dirname($_SERVER['REQUEST_URI'])),dirname($_SERVER['SCRIPT_NAME'])),'/');
 		// Calculate relative path from calling script to booster-folder
 		$booster_path = $booster_offset_path.'/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 		// Calculate relative path from booster-folder to calling script
