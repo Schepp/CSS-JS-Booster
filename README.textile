@@ -9,10 +9,10 @@ This piece of code is still fresh so that others can start testing
 and/or using and/or enhancing it. That said, there shouldn't be too many bugs 
 left. If you find some, contact me or open an issue in the bugtracker.
 
-Not a bug is that I don't plan to support browsers older than IE6SP2.
-It's also not intended to minify or further compress (like with Dean Edwards
- packer) the JS, as I experienced a lot of trouble doing that. 
-Also most large JS-libraries/frameworks are already offered heavily minified.
+Browsers older than IE6SP2 are not supported.
+The reason is that I use GZIP-compression and IE6 with service pack 2
+applied is the first IE6 to support that without quirks. Still, that should be 
+support enough as IE6SP2 was released back in August 2004.
 
 
 
