@@ -1,4 +1,4 @@
-Copyright (C) 2009 Christian "Schepp" Schaefer
+Copyright (C) 2010 Christian "Schepp" Schaefer
 "http://twitter.com/derSchepp":http://twitter.com/derSchepp
 
 
