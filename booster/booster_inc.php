@@ -194,7 +194,7 @@ class Booster {
 	private $css_stringtime = 0;
 
     /**
-     * Defines source to take the JS from.
+     * Defines source to take the JS from
      * 
      * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
      * When passing foldernames, containing files will be processed in alphabetical order.
@@ -207,11 +207,11 @@ class Booster {
 	public $js_source = 'js';
 
     /**
-     * Defines in how many parts the JS output shall be split
+     * Defines in how many parts the JS output shall be split [Deprecated, still in there for backward compatibility]
      *
      * Newer browsers support more than 2 concurrent parallel connections 
      * but NOT for JS-files. So here one single output-file would be best. 
-     * You can still uppen the number of output-files here if like.
+     * You can still uppen the number of output-files here if like. [Deprecated, still in there for backward compatibility]
      * Defaults to "1".
      * @var    integer 
      * @access public  
@@ -219,9 +219,9 @@ class Booster {
 	public $js_totalparts = 1;
 
     /**
-     * Defines which part to ouput when retrieving JS in multiple parts
+     * Defines which part to ouput when retrieving JS in multiple parts [Deprecated, still in there for backward compatibility]
      *
-     * Used by accompagning script "booster_js.php"
+     * Used by accompagning script "booster_js.php" [Deprecated, still in there for backward compatibility]
      * Defaults to "0".
      * @var    integer 
      * @access public  
@@ -229,9 +229,9 @@ class Booster {
 	public $js_part = 0;
 
     /**
-     * Defines if Google Closure Compiler should be used
+     * Defines if Google Closure Compiler should be used [Deprecated, still in there for backward compatibility]
      *
-     * Used by accompagning script "booster_js.php"
+     * Used by accompagning script "booster_js.php" [Deprecated, still in there for backward compatibility]
      * Defaults to "TRUE".
      * @var    boolean 
      * @access public  
@@ -317,6 +317,16 @@ class Booster {
 	public $debug = FALSE;
     
     /**
+     * Defines the file to use for logging in debug-mode
+     *
+     * The file is located inside cache-folder
+     * Starts empty, defaults later to "booster_cache/debug_log".
+     * @var    string 
+     * @access private 
+     */
+	private $debug_log = '';
+
+    /**
      * Constructor
      * 
      * Sets @var $css_stringtime to caller file time
@@ -345,6 +355,7 @@ class Booster {
 		if(!$this->booster_cachedir_transformed) 
 		{
 			$this->booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir;
+			$this->debug_log = $this->booster_cachedir.'/debug_log.txt';
 			$this->booster_cachedir_transformed = TRUE;
 		}
 		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
@@ -550,7 +561,7 @@ class Booster {
 		// If @var $source is a file
 		elseif(is_file($source))
 		{
-			if($this->debug) $filescontent .= "/* file: ".$source." */\r\n";
+			if($this->debug) file_put_contents($this->debug_log,"processing file: ".$source."\r\n",FILE_APPEND);
 			$currentfilecontent = file_get_contents($source);
 		}
 		// If @var $source is a string
@@ -560,10 +571,10 @@ class Booster {
 		if($type == 'css')
 		{
 			preg_match_all('/@import\surl\([\'"]*?([^\'")]+\.css)[\'"]*?\);/ims',$currentfilecontent,$treffer,PREG_PATTERN_ORDER);
-			if($this->debug) $filescontent .= "/* import-rule-findings: ".count($treffer[0])." */\r\n";
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
 				$importfile = realpath(dirname($source)).'/'.$treffer[1][$i];
+				if($this->debug) file_put_contents($this->debug_log,"found file in @import-rule: ".$importfile."\r\n",FILE_APPEND);
 				$diroffset = dirname($treffer[1][$i]);
 				if(file_exists($importfile)) 
 				{
@@ -583,10 +594,6 @@ class Booster {
 		// Append to @var $filescontent
 		$filescontent .= $currentfilecontent."\r\n\r\n";
 
-
-		// @todo Delete as it is not needed any longer at this point
-		// if(strlen($filescontent)) file_put_contents($this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$source).'_'.$type.'_cache.txt',$filescontent);
-
 		return $filescontent;
 	}
 
@@ -603,6 +610,9 @@ class Booster {
      */
 	protected function css_minify($filescontent = '')
 	{
+		// For analysis purposes we log minify input
+		if($this->debug) file_put_contents($this->debug_log,"-----------------\r\ncss_minify input:\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
+
 		// Backup any values within single or double quotes
 		preg_match_all('/(\'[^\']+\'|"[^"]+")/ims',$filescontent,$treffer,PREG_PATTERN_ORDER);
 		for($i=0;$i<count($treffer[1]);$i++)
@@ -625,15 +635,25 @@ class Booster {
 		// Shorten zero-values
 		$filescontent = preg_replace('/([^\d\.]0)(px|em|pt|%)/ims','$1',$filescontent);
 		// Constrain multiple newlines
-		$filescontent = preg_replace('/[\r\n]+/ims',"\r\n",$filescontent);
+		$filescontent = preg_replace('/[\r\n]+/ims',"\n",$filescontent);
 		// Constrain multiple whitespaces
 		$filescontent = preg_replace('/\p{Zs}+/ims',' ',$filescontent);
+
+		// Insert newline at certain points as preparation for parsing
+		$filescontent = str_replace("{","\n{",$filescontent);
+		$filescontent = str_replace("}","\n}",$filescontent);
+		$filescontent = str_replace("/*","\n/*",$filescontent);
+		$filescontent = str_replace("*/","\n*/",$filescontent);
 
 		// Restore backupped values within single or double quotes
 		for($i=0;$i<count($treffer[1]);$i++)
 		{
 			$filescontent = str_replace('##########'.$i.'##########',$treffer[1][$i],$filescontent);
 		}
+
+		// For analysis purposes we log minify output
+		if($this->debug) file_put_contents($this->debug_log,"-----------------\r\ncss_minify output:\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
+
 		return $filescontent;
 	}
 	
@@ -848,22 +868,266 @@ class Booster {
 		// Else process string
 		else
 		{
+			// In order for @-rule-blocks like @media-blocks, but also @font-face not to get stupidly ripped apart
+			// while splitting the file into multiple parts, we need to parse it take some notes for us later.
+			
+			// In this array we will store some information for later when we split
+			$line_infos = array();
+			// As we split line-based we will take notices by lines
+			$currentline = 0;
+			// Here we note during the parsing if we are currently inside a block or not, and of which type
+			$currentblock = '';
+			// Here we note during the parsing if we are currently inside a comment or not
+			$currentcomment = '';
+			// Here we note during the parsing if we are currently inside a comment or not
+			$comment_on = 0;
+			// Here we note during the parsing if we are currently inside a property and if yes save its selector
+			$currentselector = '';
+			// Here we note during the parsing if we are currently inside a selector's properties
+			$property_on = 0;
+			// Here we note during the parsing if we are currently inside a singlequote-protected string
+			$singlequote_on = 0;
+			// Here we note during the parsing if we are currently inside a doublequote-protected string
+			$doublequote_on = 0;
+			
+			// For analysis purposes we log file contents
+			if($this->debug) file_put_contents($this->debug_log,"-----------------\r\ncss_split input file:\r\n-----------------\r\n".$source."\r\n-----------------\r\n",FILE_APPEND);
+			
+			// Now we cycle through every character
+			for($i=0;$i<strlen($filescontent);$i++)
+			{
+				// Here we store current character and do different things depending on what it is
+				$currentchar = substr($filescontent,$i,1);
+				switch($currentchar)
+				{
+					// We run into or out of a single-quoted file-reference or generated content, remember that
+					case "'":
+					if($doublequote_on == 0 && $comment_on == 0) $singlequote_on = 1 - $singlequote_on;
+					break;
+					
+					// We run into or out of a double-quoted file-reference or generated content, remember that
+					case '"':
+					if($singlequote_on == 0 && $comment_on == 0) $doublequote_on = 1 - $doublequote_on;
+					break;
+					
+					// We probably ran into a comment
+					case '*':
+					if($singlequote_on == 0 && $doublequote_on == 0 && $comment_on == 0)
+					{
+						if($comment_on == 0 && substr($filescontent,$i - 1,1) == '/')
+						{
+							// Remember that we are inside some /*-comment
+							$comment_on = 1;
+							$currentcomment = 'comment';
+						}
+					}
+					break;
+					
+					// We maybe leave a comment
+					case '/':
+					if($singlequote_on == 0 && $doublequote_on == 0 && $comment_on == 1 && substr($filescontent,$i - 1,1) == '*')
+					{
+						// Remember that we finished being inside some comment
+						$comment_on = 0;
+						$currentcomment = '';
+					}
+					break;
+					
+					// Newline
+					case "\n":
+					// If not yet done: store @-rule for this line
+					if(!isset($line_infos[$currentline]['block'])) $line_infos[$currentline]['block'] = $currentblock;
+					// Store type of comment for this line
+					$line_infos[$currentline]['comment'] = $currentcomment;
+					// Store selector for this line
+					if(!isset($line_infos[$currentline]['selector'])) $line_infos[$currentline]['selector'] = $currentselector;
+					$currentline++;
+					break;
+					
+					// That what we are here for: is this a block-creating @-rule like @media{} or @font-face{}?
+					case "@":
+					if($singlequote_on == 0 && $doublequote_on == 0 && $comment_on == 0) 
+					{
+						if(preg_match('/\A@([^\{\}@]+)\{/ims', substr($filescontent,$i), $treffer) == 1)
+						{
+							// remember in what @-rule we are
+							$currentblock = $treffer[1];
+							// remove @-rule-opener for now (we will put it back in later)
+							$filescontent = substr_replace($filescontent,'',$i,strlen($currentblock) + 2);
+							// store @-rule for this line
+							$line_infos[$currentline]['block'] = $currentblock;
+							$i--;
+						}
+					}
+					break;
+	
+					// This closing parenthesis could be closing some selector's properties or an @-rule, lets see... 
+					case "}":
+					if($singlequote_on == 0 && $doublequote_on == 0 && $comment_on == 0) 
+					{
+						// We are currently inside some selector's properties
+						if($property_on == 1) 
+						{
+							$property_on = 0;
+							// remember that we are in no @-rule
+							$currentselector = '';
+							// Store selector for this line
+							$line_infos[$currentline]['selector'] = $currentselector;
+							// Remove closing parenthesis for now (we will put it back in later)
+							$filescontent = substr_replace($filescontent,'',$i,1);
+							$i--;
+						}
+						// Or else it must be a closing parenthesis of an @-rule
+						else 
+						{
+							// remember that we are in no @-rule
+							$currentblock = '';
+							// Store no-@-rule for this line
+							$line_infos[$currentline]['block'] = $currentblock;
+							// Remove closing parenthesis for now (we will put it back in later)
+							$filescontent = substr_replace($filescontent,'',$i,1);
+							$i--;
+						}
+					}
+					break;
+
+					default:
+					if($singlequote_on == 0 && $doublequote_on == 0 && $comment_on == 0 && $property_on == 0)
+					{
+						if(preg_match('/\A([a-zA-Z\.#\*:][^\{\}@;\/]+)\{/ims', substr($filescontent,$i), $treffer) == 1)
+						{
+							// remember in what selector we are
+							$currentselector = $treffer[1];
+							// remove selector for now (we will put it back in later)
+							$filescontent = substr_replace($filescontent,'',$i,strlen($currentselector) + 1);
+							// store selector for this line
+							$line_infos[$currentline]['selector'] = $currentselector;
+							// Remember that we are inside some selector's properties
+							$property_on = 1;
+							$i--;
+						}
+					}
+					break;
+				}
+			}		
+			// Store one further line-entry in array
+			$line_infos[$currentline] = array('block'=>$currentblock,'comment'=>$currentcomment,'selector'=>$currentselector);
+			
+			// For analysis purposes we log pre-parser structure findings
+			if($this->debug) file_put_contents($this->debug_log,"-----------------\r\ncss_split pre-parser structure findings:\r\n".var_export($line_infos, TRUE)."\r\n".$source."\r\n-----------------\r\n",FILE_APPEND);
+			
+			// Finished with out pre-parsing, beginning split process ///////////////////////////////////////////////////
+			
 			// Split at every new line
 			$filescontentlines = explode("\n",$filescontent);
 			// Prepare storage for parts
 			$filescontentparts = array();
 			$i = 0;
 			// Create all parts
-			// @todo could maybe be cached, too?
 			for($j=0;$j<intval($this->css_totalparts);$j++)
 			{
+				// Here we note during the processing if we are currently inside a block or not, and of which type
+				$currentblock = '';
+				// Here we note during the processing if we are currently inside a comment or not, and of which type
+				$currentcomment = '';
+				// Here we note during the processing if we are currently inside a property or not, and of which type
+				$currentselector = '';
+				// Here we will store this part's content
 				$filescontentparts[$j] = '';
-				while(strlen($filescontentparts[$j]) < ceil(strlen($filescontent) / $this->css_totalparts) && isset($filescontentlines[$i]))
+				// Starting to process the different parts
+				while(
+					(
+						// If we are not building the final part, stop at around (file / total parts) length
+						(
+							$j != (intval($this->css_totalparts) - 1) && 
+							strlen($filescontentparts[$j]) < ceil(strlen($filescontent) / $this->css_totalparts)
+						) || 
+						// If we are building the final part, no stop required
+						$j == (intval($this->css_totalparts) - 1)
+					) && 
+					// Stop if there is no corresponding line in the source (like at the end for example)
+					isset($filescontentlines[$i])
+				)
 				{
+					// If a comment begins
+					if($j > 0 && $line_infos[$i]['comment'] != '' && $currentcomment == '')
+					{
+						$filescontentparts[$j] .= '/*';
+						$currentcomment = $line_infos[$i]['comment'];
+					}
+					// If at this place an @-rule-status should start or stop (=changes)
+					if($line_infos[$i]['block'] != $currentblock) 
+					{
+						// If an @-rule begins
+						if($line_infos[$i]['block'] != '')
+						{
+							if($currentblock != '') $filescontentparts[$j] .= '}';
+							$filescontentparts[$j] .= '@'.$line_infos[$i]['block'].'{';
+							$currentblock = $line_infos[$i]['block'];
+						}
+						// If an @-rule ends
+						else
+						{
+							$filescontentparts[$j] .= '}';
+							$currentblock = $line_infos[$i]['block'];
+						}						
+					}
+					// If at this place a selector should start or stop (=changes)
+					if($line_infos[$i]['selector'] != $currentselector) 
+					{
+						// If a selector begins
+						if($line_infos[$i]['selector'] != '')
+						{
+							if($currentselector != '') $filescontentparts[$j] .= '}';
+							$filescontentparts[$j] .= $line_infos[$i]['selector'].'{';
+							$currentselector = $line_infos[$i]['selector'];
+						}
+						// If a selector ends
+						else
+						{
+							$filescontentparts[$j] .= '}';
+							$currentselector = $line_infos[$i]['selector'];
+						}						
+					}
+
 					$filescontentparts[$j] .= $filescontentlines[$i]."\n";
 					$i++;
 				}
+
+				// If at the end of this part any comment is left open, close it
+				if($line_infos[$i - 1]['comment'] != '') $filescontentparts[$j] .= '*/';
+
+				// If at the end of this part any selector is left open, close it
+				if($line_infos[$i - 1]['selector'] != '') $filescontentparts[$j] .= '}';
+
+				// If at the end of this part any @-rule-block is left open, close it
+				if($line_infos[$i - 1]['block'] != '') $filescontentparts[$j] .= '}';
+
+				// Doing a last cleanup of all the specialformatting of our pre-parser ///////////////////////////////////////////
+				
+				// Backup any values within single or double quotes
+				preg_match_all('/(\'[^\']+\'|"[^"]+")/ims',$filescontentparts[$j],$treffer,PREG_PATTERN_ORDER);
+				for($k=0;$k<count($treffer[1]);$k++)
+				{
+					$filescontentparts[$j] = str_replace($treffer[1][$k],'##########'.$k.'##########',$filescontentparts[$j]);
+				}
+				
+				// Remove newline at certain points as preparation for parsing
+				$filescontentparts[$j] = str_replace("\n{","{",$filescontentparts[$j]);
+				$filescontentparts[$j] = str_replace("\n}","}",$filescontentparts[$j]);
+				$filescontentparts[$j] = str_replace("\n/*","/*",$filescontentparts[$j]);
+				$filescontentparts[$j] = str_replace("\n*/","*/",$filescontentparts[$j]);
+				$filescontentparts[$j] = preg_replace('/\}[\r\n]+\}/ims','}}',$filescontentparts[$j]);
+		
+				// Restore backupped values within single or double quotes
+				for($k=0;$k<count($treffer[1]);$k++)
+				{
+					$filescontentparts[$j] = str_replace('##########'.$k.'##########',$treffer[1][$k],$filescontentparts[$j]);
+				}
 			}
+			// For analysis purposes we log split result
+			if($this->debug) file_put_contents($this->debug_log,"-----------------\r\ncss_split result for part ".($j + 1).":\r\n".$filescontentparts[$this->css_part - 1]."\r\n".$source."\r\n-----------------\r\n",FILE_APPEND);
+
 			// Return only the requested part
 			return $filescontentparts[$this->css_part - 1];
 		}
@@ -1003,6 +1267,9 @@ class Booster {
      */
 	public function css_markup()
 	{
+		// For CSS debugging we don't split the contents up
+		if($this->debug) $this->css_totalparts = 1;
+
 		// Empty storage for markup to come
 		$markup = '';
 		
@@ -1052,41 +1319,6 @@ class Booster {
 	
 
     /**
-     * Js_split takes a multiline JS-string and splits it according to @var $js_totalparts and @var $js_part
-     * 
-     * @param  string    $filescontent contents to split
-     * @return string    requested part-number of splitted content
-     * @access protected 
-     */
-	protected function js_split($filescontent = '')
-	{
-		// If sum of parts is 1 or requested part-number is 0 return full string
-		if($this->js_totalparts == 1 || $this->js_part == 0) return $filescontent;
-		// Else process string
-		else
-		{
-			// Split at every new line preceeded by a semicolon
-			$filescontentlines = explode(";\n",$filescontent);
-			// Prepare storage for parts
-			$filescontentparts = array();
-			$i = 0;
-			// Create all parts
-			// @todo could maybe be cached, too?
-			for($j=0;$j<intval($this->js_totalparts);$j++)
-			{
-				$filescontentparts[$j] = '';
-				while(strlen($filescontentparts[$j]) < ceil(strlen($filescontent) / $this->js_totalparts) && isset($filescontentlines[$i]))
-				{
-					$filescontentparts[$j] .= $filescontentlines[$i]."\n";
-					$i++;
-				}
-			}
-			// Return only the requested part
-			return $filescontentparts[$this->js_part - 1];
-		}
-	}
-	
-    /**
      * Js_minify takes a JS-string and tries to minify it with the Google Closure Webservice
      * 
      * If the input JavaScript surpasses Google's POST-limit of 200.000 bytes it switches to
@@ -1098,14 +1330,17 @@ class Booster {
      */
 	protected function js_minify($filescontent = '')
 	{
+		// URL-encoded file contents (Thanks vvo!)
+		$filescontent_urlencoded = urlencode($filescontent);
+		
 		// Google Closure has a max limit of 200KB POST size, and will break JS with eval-command
-		if(strlen($filescontent) < 200000 && preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
+		if(strlen($filescontent_urlencoded) < 200000 && preg_match('/[^a-z]eval\(/ism',$filescontent) == 0)
 		{
 			// Working vars
 			$js_minified = '';
 			$host = "closure-compiler.appspot.com";
 			$service_uri = "/compile";
-			$vars = 'js_code='.urlencode($filescontent).'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
+			$vars = 'js_code='.$filescontent_urlencoded.'&compilation_level=SIMPLE_OPTIMIZATIONS&output_format=text&output_info=compiled_code';
 			
 			// Compose HTTP request header
 			$header = "Host: $host\r\n";
@@ -1201,9 +1436,6 @@ class Booster {
 		}
 		$filescontent .= "\n";
 
-		// Split results up
-		$filescontent = $this->js_split($filescontent);
-		
 		// Return the currently requested part of the javascript
 		return $filescontent;
 	}
@@ -1250,10 +1482,7 @@ class Booster {
 
 		// Put together the markup linking to our booster-js-files
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the JS was updated
-		for($j=0;$j<intval($this->js_totalparts);$j++)
-		{
-			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
-		}
+		$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 
 		return $markup;
 	}
