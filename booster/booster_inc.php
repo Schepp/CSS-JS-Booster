@@ -55,11 +55,6 @@ else @ob_start();
 include_once('browser_class_inc.php');
 
 /**
- * Inclusion of JSMin
- */
-include_once('jsmin/jsmin.php');
-
-/**
  * CSS-JS-BOOSTER
  * 
  * An easy to use PHP-Library that combines, optimizes, dataURI-fies, re-splits, 
@@ -313,23 +308,29 @@ class Booster {
 	 * You can use the closure compiler of CSS-JS-Booster with this option but ATM
 	 * it will works only on linux with java installed and there's no tests done so
 	 * carefull !
-	 * @var <type>
+	 * @var boolean
 	 */
-	public $use_hosted_compiler = FALSE;
+	public $js_hosted_minifier = FALSE;
 
 	/**
 	 * Will store the closure compiler path
-	 * with this
 	 * @var string
-	 * @access public
+	 * @access private
 	 */
 	private $hosted_closure_compiler_path;
 
-//	public $closure_compiler_options = array(
-//		"compilation_level" => "SIMPLE_OPTIMIZATIONS",
-//		"output_format" => "text",
-//		"output_info" => "compiled_code"
-//	);
+	/**
+	 * You can use the hosted css minifier wich is yui compressor
+	 * @var boolean
+	 */
+	public $css_hosted_minifier = FALSE;
+
+	/**
+	 * Will store the yui compressor path
+	 * @var string
+	 * @access private
+	 */
+	private $hosted_yuicompressor_path;
 
     /**
      * Switch debug mode on/off
@@ -625,37 +626,48 @@ class Booster {
      */
 	protected function css_minify($filescontent = '')
 	{
-		// Backup any values within single or double quotes
-		preg_match_all('/(\'[^\']+\'|"[^"]+")/ims',$filescontent,$treffer,PREG_PATTERN_ORDER);
-		for($i=0;$i<count($treffer[1]);$i++)
-		{
-			$filescontent = str_replace($treffer[1][$i],'##########'.$i.'##########',$filescontent);
-		}
-		
-		// Remove traling semicolon of selector's last property
-		$filescontent = preg_replace('/;[\s\r\n\t]*?}[\s\r\n\t]*/ims',"}\r\n",$filescontent);
-		// Remove any whitespaces/tabs/newlines between semicolon and property-name
-		$filescontent = preg_replace('/;[\s\r\n\t]*?([\r\n]?[^\s\r\n\t])/ims',';$1',$filescontent);
-		// Remove any whitespaces/tabs/newlines surrounding property-colon
-		$filescontent = preg_replace('/[\s\r\n\t]*:[\s\r\n\t]*?([^\s\r\n\t])/ims',':$1',$filescontent);
-		// Remove any whitespaces/tabs/newlines surrounding selector-comma
-		$filescontent = preg_replace('/[\s\r\n\t]*,[\s\r\n\t]*?([^\s\r\n\t])/ims',',$1',$filescontent);
-		// Remove any whitespaces/tabs/newlines surrounding opening parenthesis
-		$filescontent = preg_replace('/[\s\r\n\t]*{[\s\r\n\t]*?([^\s\r\n\t])/ims','{$1',$filescontent);
-		// Remove any whitespaces/tabs/newlines between numbers and units
-		$filescontent = preg_replace('/([\d\.]+)[\s\r\n\t]+(px|em|pt|%)/ims','$1$2',$filescontent);
-		// Shorten zero-values
-		$filescontent = preg_replace('/([^\d\.]0)(px|em|pt|%)/ims','$1',$filescontent);
-		// Constrain multiple newlines
-		$filescontent = preg_replace('/[\r\n]+/ims',"\r\n",$filescontent);
-		// Constrain multiple whitespaces
-		$filescontent = preg_replace('/\p{Zs}+/ims',' ',$filescontent);
+		if ($this->css_hosted_minifier !== FALSE) {
+			// the webserver must have read right on the jar, again, no test done :)
+			$this->hosted_yuicompressor_path = realpath(dirname(__FILE__).'/yuicompressor/yuicompressor-2.4.2.jar');
+			// must create tmp files because closure compiler can't work with direct input..
+			$tmp_file_path = sys_get_temp_dir().uniqid();
+			file_put_contents($tmp_file_path, $filescontent);
+			$filescontent = `java -jar $this->hosted_yuicompressor_path $tmp_file_path --type css --charset utf-8`;
+			unlink($tmp_file_path);
+		} else {
+			// Backup any values within single or double quotes
+			preg_match_all('/(\'[^\']+\'|"[^"]+")/ims',$filescontent,$treffer,PREG_PATTERN_ORDER);
+			for($i=0;$i<count($treffer[1]);$i++)
+			{
+				$filescontent = str_replace($treffer[1][$i],'##########'.$i.'##########',$filescontent);
+			}
 
-		// Restore backupped values within single or double quotes
-		for($i=0;$i<count($treffer[1]);$i++)
-		{
-			$filescontent = str_replace('##########'.$i.'##########',$treffer[1][$i],$filescontent);
+			// Remove traling semicolon of selector's last property
+			$filescontent = preg_replace('/;[\s\r\n\t]*?}[\s\r\n\t]*/ims',"}\r\n",$filescontent);
+			// Remove any whitespaces/tabs/newlines between semicolon and property-name
+			$filescontent = preg_replace('/;[\s\r\n\t]*?([\r\n]?[^\s\r\n\t])/ims',';$1',$filescontent);
+			// Remove any whitespaces/tabs/newlines surrounding property-colon
+			$filescontent = preg_replace('/[\s\r\n\t]*:[\s\r\n\t]*?([^\s\r\n\t])/ims',':$1',$filescontent);
+			// Remove any whitespaces/tabs/newlines surrounding selector-comma
+			$filescontent = preg_replace('/[\s\r\n\t]*,[\s\r\n\t]*?([^\s\r\n\t])/ims',',$1',$filescontent);
+			// Remove any whitespaces/tabs/newlines surrounding opening parenthesis
+			$filescontent = preg_replace('/[\s\r\n\t]*{[\s\r\n\t]*?([^\s\r\n\t])/ims','{$1',$filescontent);
+			// Remove any whitespaces/tabs/newlines between numbers and units
+			$filescontent = preg_replace('/([\d\.]+)[\s\r\n\t]+(px|em|pt|%)/ims','$1$2',$filescontent);
+			// Shorten zero-values
+			$filescontent = preg_replace('/([^\d\.]0)(px|em|pt|%)/ims','$1',$filescontent);
+			// Constrain multiple newlines
+			$filescontent = preg_replace('/[\r\n]+/ims',"\r\n",$filescontent);
+			// Constrain multiple whitespaces
+			$filescontent = preg_replace('/\p{Zs}+/ims',' ',$filescontent);
+
+			// Restore backupped values within single or double quotes
+			for($i=0;$i<count($treffer[1]);$i++)
+			{
+				$filescontent = str_replace('##########'.$i.'##########',$treffer[1][$i],$filescontent);
+			}
 		}
+
 		return $filescontent;
 	}
 	
@@ -915,7 +927,6 @@ class Booster {
 		// if @var $css_stringmode is set
 		else $sources = array($this->css_source);
 		
-		
 		// if @var $css_stringmode is not set: newest filedate within the source array
 		if(!$this->css_stringmode) $filestime = $this->getfilestime($sources,$type,$this->css_recursive);
 		// if @var $css_stringmode is set
@@ -986,7 +997,7 @@ class Booster {
 		
 		// Split results up in order to have multiple parts load in parallel and get the currently requested part back
 		$filescontent = $this->css_split($filescontent);
-		
+
 		// Return the currently requested part of the stylesheets
 		return $filescontent;
 	}
@@ -1034,7 +1045,7 @@ class Booster {
 		$booster_path = $booster_offset_path.'/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 		// Calculate relative path from booster-folder to calling script
 		$css_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
-		
+
 		// If sources were defined as array
 		if(is_array($this->css_source)) $sources = $this->css_source;
 		// If sources were defined as string, convert them into an array
@@ -1064,7 +1075,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the CSS was updated
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
-			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
+			$markup .= '<link rel="'.$this->css_rel.'" media="'.$this->css_media.'" title="'.htmlentities($this->css_title,ENT_QUOTES).'" type="text/css" href="'.$booster_path.'/booster_css.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).(($this->css_hosted_minifier) ? '&amp;css_hosted_minifier=1' : '').'&amp;totalparts='.intval($this->css_totalparts).'&amp;part='.($j+1).(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'css').'" '.(($this->css_markuptype == 'XHTML') ? '/' : '').'>'."\r\n";
 		}
 	
 		return $markup;
@@ -1120,13 +1131,13 @@ class Booster {
      */
 	protected function js_minify($filescontent = '')
 	{
-		if ($this->use_hosted_compiler !== FALSE) {
+		if ($this->js_hosted_minifier !== FALSE) {
 			// the webserver must have read right on the jar, again, no test done :)
 			$this->hosted_closure_compiler_path = realpath(dirname(__FILE__).'/compiler/compiler.jar');
 			// must create tmp files because closure compiler can't work with direct input..
-			$tmp_file_path = '/tmp/'.uniqid();
+			$tmp_file_path = sys_get_temp_dir().uniqid();
 			file_put_contents($tmp_file_path, $filescontent);
-			$js_minified = `java -jar $this->hosted_closure_compiler_path --js $tmp_file_path`;
+			$js_minified = `java -jar $this->hosted_closure_compiler_path --charset utf-8 --js $tmp_file_path`;
 			unlink($tmp_file_path);
 		} else {
 			$encoded_content = urlencode($filescontent);
@@ -1164,6 +1175,10 @@ class Booster {
 			// Switching over to Douglas Crockford's JSMin (which in turn breaks IE's conditional compilation)
 			else
 			{
+				/**
+				 * Inclusion of JSMin
+				 */
+				include_once('jsmin/jsmin.php');
 				$js_minified = JSMin::minify($filescontent);
 			}
 		}
@@ -1260,7 +1275,7 @@ class Booster {
 		$booster_path = $booster_offset_path.'/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),dirname($_SERVER['SCRIPT_FILENAME']));
 		// Calculate relative path from booster-folder to calling script
 		$js_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
-		
+
 		// If sources were defined as array
 		if(is_array($this->js_source)) $sources = $this->js_source;
 		// If sources were defined as string, convert them into an array
@@ -1287,7 +1302,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the JS was updated
 		for($j=0;$j<intval($this->js_totalparts);$j++)
 		{
-			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->use_hosted_compiler) ? '&amp;use_hosted_compiler=1' : '').(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
+			$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).'&amp;totalparts='.intval($this->js_totalparts).'&amp;part='.($j+1).(($this->js_hosted_minifier) ? '&amp;js_hosted_minifier=1' : '').(($this->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 		}
 
 		return $markup;
