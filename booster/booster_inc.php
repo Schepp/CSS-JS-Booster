@@ -317,7 +317,7 @@ class Booster {
 	 * @var string
 	 * @access private
 	 */
-	private $hosted_closure_compiler_path;
+	private $js_hosted_minifier_path;
 
 	/**
 	 * You can use the hosted css minifier wich is yui compressor
@@ -330,7 +330,7 @@ class Booster {
 	 * @var string
 	 * @access private
 	 */
-	private $hosted_yuicompressor_path;
+	private $css_hosted_minifier_path;
 
     /**
      * Switch debug mode on/off
@@ -628,11 +628,11 @@ class Booster {
 	{
 		if ($this->css_hosted_minifier !== FALSE) {
 			// the webserver must have read right on the jar, again, no test done :)
-			$this->hosted_yuicompressor_path = realpath(dirname(__FILE__).'/yuicompressor/yuicompressor-2.4.2.jar');
+			$this->css_hosted_minifier_path = realpath(dirname(__FILE__).'/yuicompressor/yuicompressor-2.4.2.jar');
 			// must create tmp files because closure compiler can't work with direct input..
 			$tmp_file_path = sys_get_temp_dir().uniqid();
 			file_put_contents($tmp_file_path, $filescontent);
-			$filescontent = `java -jar $this->hosted_yuicompressor_path $tmp_file_path --type css --charset utf-8`;
+			$filescontent = `java -jar $this->css_hosted_minifier_path $tmp_file_path --type css --charset utf-8`;
 			unlink($tmp_file_path);
 		} else {
 			// Backup any values within single or double quotes
@@ -1133,11 +1133,11 @@ class Booster {
 	{
 		if ($this->js_hosted_minifier !== FALSE) {
 			// the webserver must have read right on the jar, again, no test done :)
-			$this->hosted_closure_compiler_path = realpath(dirname(__FILE__).'/compiler/compiler.jar');
+			$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/compiler/compiler.jar');
 			// must create tmp files because closure compiler can't work with direct input..
 			$tmp_file_path = sys_get_temp_dir().uniqid();
 			file_put_contents($tmp_file_path, $filescontent);
-			$js_minified = `java -jar $this->hosted_closure_compiler_path --charset utf-8 --js $tmp_file_path`;
+			$js_minified = `java -jar $this->js_hosted_minifier_path --charset utf-8 --js $tmp_file_path`;
 			unlink($tmp_file_path);
 		} else {
 			$encoded_content = urlencode($filescontent);
