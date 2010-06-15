@@ -1,4 +1,4 @@
-Copyright (C) 2009 Christian "Schepp" Schaefer
+Copyright (C) 2010 Christian "Schepp" Schaefer
 "http://twitter.com/derSchepp":http://twitter.com/derSchepp
 
 
@@ -255,18 +255,12 @@ $booster->css_rel = 'alternate stylesheet';
 $booster->css_title = 'Alternate Stylesheet';
 echo $booster->css_markup();
 
+
 *Q: For CSS, can I influence in how many even parts it gets split?*
 A: Nothing easier than this:
 
 bc. $booster->css_totalparts = 4;
 echo $booster->css_markup();
-
-
-*Q: For JS, can I increase the number of parts it gets split into?*
-A: Yes, by setting the second argument:
-
-bc. $booster->js_totalparts = 2;
-echo $booster->js_markup();
 
 
 *Q: For CSS link-tag, can I have its output-markup in HTML 4.01 fashion?*
