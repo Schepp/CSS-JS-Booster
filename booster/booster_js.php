@@ -20,7 +20,6 @@
 * If not, see <http://www.gnu.org/licenses/lgpl-3.0.txt>
 * 
 ------------------------------------------------------------------------*/
-
 header("Cache-Control: max-age=2592000");
 header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 30)))." GMT");
 header("Content-type: text/javascript"); 
@@ -35,7 +34,7 @@ include('booster_inc.php');
 $booster = new Booster();
 if(isset($_GET['debug']) && $_GET['debug'] == 1) $booster->debug = TRUE;
 if(isset($_GET['js_minify']) && $_GET['js_minify'] == 0) $booster->js_minify = FALSE;
-if(isset($_GET['use_hosted_compiler']) && $_GET['use_hosted_compiler'] == 1) $booster->use_hosted_compiler = true;
+if(isset($_GET['js_hosted_minifier']) && $_GET['js_hosted_minifier'] == 1) $booster->js_hosted_minifier = true;
 $booster->booster_cachedir = $booster_cachedir;
 $booster->js_source = $source;
 $booster->js_totalparts = $totalparts;

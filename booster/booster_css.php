@@ -20,7 +20,6 @@
 * If not, see <http://www.gnu.org/licenses/lgpl-3.0.txt>
 * 
 ------------------------------------------------------------------------*/
-
 header("Cache-Control: max-age=2592000");
 header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 30)))." GMT");
 header("Content-type: text/css"); 
@@ -38,5 +37,6 @@ $booster->booster_cachedir = $booster_cachedir;
 $booster->css_source = $source;
 $booster->css_totalparts = $totalparts;
 $booster->css_part = $part;
+if(isset($_GET['css_hosted_minifier']) && $_GET['css_hosted_minifier'] == 1) $booster->css_hosted_minifier = true;
 echo $booster->css();
 ?>
