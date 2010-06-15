@@ -38,5 +38,6 @@ $booster->css_source = $source;
 $booster->css_totalparts = $totalparts;
 $booster->css_part = $part;
 if(isset($_GET['css_hosted_minifier']) && $_GET['css_hosted_minifier'] == 1) $booster->css_hosted_minifier = true;
+
 echo $booster->css();
 ?>

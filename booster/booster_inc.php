@@ -640,7 +640,7 @@ class Booster {
 			// the webserver must have read right on the jar, again, no test done :)
 			$this->css_hosted_minifier_path = realpath(dirname(__FILE__).'/yuicompressor/yuicompressor-2.4.2.jar');
 			// must create tmp files because closure compiler can't work with direct input..
-			$tmp_file_path = sys_get_temp_dir().uniqid();
+			$tmp_file_path = sys_get_temp_dir().'/'.uniqid();
 			file_put_contents($tmp_file_path, $filescontent);
 			$filescontent = `java -jar $this->css_hosted_minifier_path $tmp_file_path --type css --charset utf-8`;
 			unlink($tmp_file_path);
@@ -1369,7 +1369,7 @@ class Booster {
 			// the webserver must have read right on the jar, again, no test done :)
 			$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/compiler/compiler.jar');
 			// must create tmp files because closure compiler can't work with direct input..
-			$tmp_file_path = sys_get_temp_dir().uniqid();
+			$tmp_file_path = sys_get_temp_dir().'/'.uniqid();
 			file_put_contents($tmp_file_path, $filescontent);
 			$js_minified = `java -jar $this->js_hosted_minifier_path --charset utf-8 --js $tmp_file_path`;
 			unlink($tmp_file_path);
