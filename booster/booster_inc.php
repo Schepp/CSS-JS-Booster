@@ -1314,6 +1314,8 @@ class Booster {
 		// Calculate relative path from booster-folder to calling script
 		$css_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
 
+		$booster_path = '/CSS-JS-Booster/booster';
+
 		// If sources were defined as array
 		if(is_array($this->css_source)) $sources = $this->css_source;
 		// If sources were defined as string, convert them into an array
@@ -1510,6 +1512,8 @@ class Booster {
 		// Calculate relative path from booster-folder to calling script
 		$js_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
 
+		$booster_path = '/CSS-JS-Booster/booster';
+
 		// If sources were defined as array
 		if(is_array($this->js_source)) $sources = $this->js_source;
 		// If sources were defined as string, convert them into an array
@@ -1534,7 +1538,7 @@ class Booster {
 
 		// Put together the markup linking to our booster-js-files
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the JS was updated
-		$markup .= '<script type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).(($this->js_hosted_minifier) ? '&amp;js_hosted_minifier=1' : '').(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
+		$markup .= '<script defer="defer" async="async" type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).(($this->js_hosted_minifier) ? '&amp;js_hosted_minifier=1' : '').(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 
 		return $markup;
 	}
