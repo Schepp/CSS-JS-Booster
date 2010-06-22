@@ -582,10 +582,23 @@ class Booster {
 			for($i=0;$i<count($files);$i++) $filescontent .= $this->getfilescontents($files[$i],$type,$recursive);
 		}
 		// If @var $source is a file
-		elseif(is_file($source))
-		{
-			if($this->debug) file_put_contents($this->debug_log,"processing file: ".$source."\r\n",FILE_APPEND);
-			$currentfilecontent = file_get_contents($source);
+		elseif(is_file($source)) {
+			if ($type === 'js')
+			{
+				if ($this->is_js($source))
+				{
+					if($this->debug) file_put_contents($this->debug_log,"processing file: ".$source."\r\n",FILE_APPEND);
+					$currentfilecontent = file_get_contents($source);
+				}
+			}
+			else if ($type === 'css')
+			{
+				if ($this->is_css($source))
+				{
+					if($this->debug) file_put_contents($this->debug_log,"processing file: ".$source."\r\n",FILE_APPEND);
+					$currentfilecontent = file_get_contents($source);
+				}
+			}
 		}
 		// If @var $source is a string
 		else $currentfilecontent = $source;
@@ -1541,6 +1554,60 @@ class Booster {
 		$markup .= '<script defer="defer" async="async" type="text/javascript" src="'.$booster_path.'/booster_js.php?dir='.htmlentities($source,ENT_QUOTES).'&amp;cachedir='.htmlentities($this->booster_cachedir,ENT_QUOTES).(($this->js_hosted_minifier) ? '&amp;js_hosted_minifier=1' : '').(($this->debug) ? '&amp;debug=1' : '').((!$this->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$this->getfilestime($timestamp_dir,'js').'"></script>'."\r\n";
 
 		return $markup;
+	}
+
+	protected function is_css($filename)
+	{
+		$finfo = new finfo(FILEINFO_MIME);
+
+		// easy check, the extension
+		$path_parts = pathinfo($filename);
+		if($path_parts['extension'] !== 'css') return false;
+
+		// hard check, mime type
+		$finfo = new finfo(FILEINFO_MIME);
+		if (!$finfo)
+		{
+			// can't get the mime type, abort
+			return false;
+		} else
+		{
+			if (strpos($finfo->file($filename), 'text/x-c') !== false)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+
+	protected function is_js($filename)
+	{
+		$finfo = new finfo(FILEINFO_MIME);
+
+		// easy check, the extension
+		$path_parts = pathinfo($filename);
+		if($path_parts['extension'] !== 'js') return false;
+
+		// hard check, mime type
+		$finfo = new finfo(FILEINFO_MIME);
+		if (!$finfo)
+		{
+			// can't get the mime type, abort
+			return false;
+		} else
+		{
+			if (strpos($finfo->file($filename), 'text/plain') !== false)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
 	}
 }
 ?>
