@@ -470,7 +470,7 @@ class Booster {
      * @return array     filenames sorted alphabetically
      * @access protected 
      */
-	protected function getfiles($source = '',$type = '',$recursive = FALSE,$files = array())
+	public function getfiles($source = '',$type = '',$recursive = FALSE,$files = array())
 	{
 		// Remove any trailing slash
 		$source = rtrim($source,'/');
