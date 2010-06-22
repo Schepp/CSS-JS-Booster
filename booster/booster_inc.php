@@ -1599,7 +1599,8 @@ class Booster {
 			return false;
 		} else
 		{
-			if (strpos($finfo->file($filename), 'text/plain') !== false)
+			if (strpos($finfo->file($filename), 'text/plain') !== false
+					|| strpos($finfo->file($filename), 'text/x-c') !== false)
 			{
 				return true;
 			}
