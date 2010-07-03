@@ -2,7 +2,7 @@
 /*------------------------------------------------------------------------
 * 
 * CSS-JS-BOOSTER
-* Copyright (C) 2009 Christian "Schepp" Schaefer
+* Copyright (C) 2010 Christian "Schepp" Schaefer
 * http://twitter.com/derSchepp
 *
 * This program is free software: you can redistribute it and/or modify
@@ -20,17 +20,19 @@
 * If not, see <http://www.gnu.org/licenses/lgpl-3.0.txt>
 * 
 ------------------------------------------------------------------------*/
-
-((isset($_GET['dir'])) ? $source = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',preg_replace('/!.+/i','',$_GET['dir'])),'/') : $source = 'css');
-((isset($_GET['cachedir'])) ? $booster_cachedir = rtrim(preg_replace('/[^a-z0-9,\-_\.\/]/i','',$_GET['cachedir']),'/') : $booster_cachedir = 'booster_cache');
-
 include('booster_inc.php');
+
+((isset($_GET['dir'])) ? $source = str_replace('>','..',rtrim(preg_replace('/[^a-z0-9,\-_\.\/>]/i','',preg_replace('/!.+/i','',$_GET['dir'])),'/')) : $source = 'css');
+((isset($_GET['cachedir'])) ? $booster_cachedir = str_replace('>','..',rtrim(preg_replace('/[^a-z0-9,\-_\.\/>]/i','',$_GET['cachedir']),'/')) : $booster_cachedir = 'booster_cache');
+
 $booster = new Booster();
 $booster->booster_cachedir = $booster_cachedir;
 $booster->css_source = $source;
+
+// Force browser to always request the file, and then serve 304 if nothing changed
 $etag = md5($source.$booster->mhtmltime());
 
-if (@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
+if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
 {
 	header('HTTP/1.1 304 Not Modified');
 	exit();

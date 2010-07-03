@@ -116,7 +116,7 @@ sorted in the desired order, e.g.:
 Then add this declaration in the HTML's head-section:
 
 bc. <?php 
-$booster->css_source = 'css';
+$booster->css_source = '../css'; //relative path from inside booster folder
 echo $booster->css_markup(); 
 ?>
 
@@ -125,13 +125,12 @@ for example:
 bc. <head>
 <title>Webpage</title>
 <?php 
-$booster->css_source = 'css';
+$booster->css_source = '../css'; //relative path from inside booster folder
 echo $booster->css_markup(); 
 ?>
 </head>
 
-The argument is the path relativ to the file calling that function. If you 
-are in a subfolder it should read *../css*.
+The argument is the path relativ to CSS-JS-Booster's folder.
 
 
 
@@ -150,21 +149,20 @@ performance and therefore recommended when you experience no errors - right
 before the closing </body>:
 
 bc. <?php 
-$booster->js_source = 'js';
+$booster->js_source = '../js'; //relative path from inside booster folder
 echo $booster->js_markup(); 
 ?>
 
 for example:
 
 bc. <?php 
-$booster->js_source = 'js';
+$booster->js_source = '../js'; //relative path from inside booster folder
 echo $booster->js_markup(); 
 ?>
 </body>
 </html>
 
-The argument is the path relativ to the file calling that function. If you 
-are in a subfolder it should read *../js*.
+The argument is the path relativ to CSS-JS-Booster's folder.
 
 *Notice:* Don't worry if on the very first call of your page your Javascript
 doesn't get loaded or your page takes long time to load. This is normal as 
@@ -179,22 +177,22 @@ h1. Q & A for Advanced Usage
 *Q: How can I combine files out of multiple CSS- or JS-folders?*
 A: By setting as directory argument a comma delimited list of folders: 
 
-bc. $booster->css_source = 'css_1,css_2';
+bc. $booster->css_source = '../css_1,../css_2';
 echo $booster->css_markup();
 
 or an array
 
-bc. $booster->css_source = array('css_1','css_2');
+bc. $booster->css_source = array('../css_1','../css_2');
 echo $booster->css_markup();
 
 The same holds true for JS:
 
-bc. $booster->js_source = 'js_1,js_2';
+bc. $booster->js_source = '../js_1,../js_2';
 echo $booster->js_markup();
 
 or
 
-bc. $booster->js_source = array('js_1','js_2');
+bc. $booster->js_source = array('../js_1','../js_2');
 echo $booster->js_markup();
 
 
@@ -206,21 +204,21 @@ what they accept as source. You don't need to specify a folder, you can
 also specify a single file, or multiple files (either comma-separated or as 
 genuine array). Here are some examples:
 
-bc. $booster->css_source = 'css_1/reset.css,css_1/base.css';
+bc. $booster->css_source = '../css_1/reset.css,../css_1/base.css';
 echo $booster->css_markup();
 
 or as array
 
-bc. $booster->css_source = array('css_1/reset.css','css_1/base.css');
+bc. $booster->css_source = array('../css_1/reset.css','../css_1/base.css');
 echo $booster->css_markup();
 
 or files and folder mixed in an array:
 
-bc. $booster->css_source = array('css_1/reset.css','css_1/base.css','css_2');
+bc. $booster->css_source = array('../css_1/reset.css','../css_1/base.css','../css_2');
 echo $booster->css_markup();
 
 
-*Q: I don't want to have CSS-JS-Booster to pull files form anywhere at all. 
+*Q: I don't want to have CSS-JS-Booster to pull files from anywhere at all. 
 I rather want to pass it a CSS-/Javascript-string and have that optimized. 
 Is this possible?*
 A: Yes, @$booster->css_source@ and @$booster->js_source@ can now also accept 
@@ -235,6 +233,24 @@ $booster->css_source = '.div1 {
 	width: 400px;
 }';
 echo $booster->css(); 
+
+
+*Q: For CSS and JS tags, can I have its output-markup in HTML 4.01 fashion?*
+A: No problem, do this:
+
+bc. $booster->markuptype = 'HTML';
+echo $booster->css_markup();
+
+or
+
+bc. $booster->markuptype = 'HTML';
+echo $booster->js_markup();
+
+
+*Q: Can I stop CSS-JS-Booster to cleanup the cache folder on sundays?*
+A: Yes, just configure this:
+
+bc. $booster->booster_cachedir_autocleanup = FALSE;
 
 
 *Q: For CSS, how can I define a different/specific target-medium?*
@@ -263,11 +279,15 @@ bc. $booster->css_totalparts = 4;
 echo $booster->css_markup();
 
 
-*Q: For CSS link-tag, can I have its output-markup in HTML 4.01 fashion?*
-A: No problem, do this:
+*Q: I would like to have YUI Compressor to minify my CSS locally. Is that
+possible?*
+A: Yes, it is possible, as long as you have a dedicated server with Java 
+installed:
 
-bc. $booster->css_markuptype = 'HTML';
+bc. $booster->css_hosted_minifier = TRUE;
 echo $booster->css_markup();
+
+*Please note* that this feature is still alpha and possibly buggy!
 
 
 *Q: The JS-minification seems to break my scripts. Can I disable it?*
@@ -277,9 +297,38 @@ bc. $booster->js_minify = FALSE;
 echo $booster->js_markup();
 
 
+*Q: The JS-minification through the Google webservice takes too long. 
+Can I have a local Google Closure minifier instead?*
+A: Yes, you can, as long as you have a dedicated server with Java installed:
+
+bc. $booster->js_hosted_minifier = TRUE;
+echo $booster->js_markup();
+
+*Please note* that this feature is still alpha and possibly buggy!
+
+
+*Q: I would like to make use of the async and/or defer attributes for JS. 
+Is there a way to enable disable them?*
+A: Yes, you can set the mode easily. Just remember that when Booster detects 
+any document.write inside your script, it will ommit those attributes.
+
+This will set the async, and as fallback for older browsers defer attribute:
+
+bc. $booster->js_executionmode = "async";
+echo $booster->js_markup();
+
+This will set the defer attribute:
+
+bc. $booster->js_executionmode = "defer";
+echo $booster->js_markup();
+
+*Please note:* if CSS-JS-Booster detects a document.write inside JavaScript
+it will omit async and defer as both conflict with document.write.
+
+
 *Q: I need to debug CSS (e.g. in Firebug) or JS in the console - but I cannot 
 find anything due to dataURI-fication and minification...*
-A: Yes I know, that's hard. In this case turn debug-mode on before outputting:
+A: Yes, that's hard. In this case turn debug-mode on before outputting:
 
 bc. $booster->debug = TRUE;
 echo $booster->css_markup();
