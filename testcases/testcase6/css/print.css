@@ -1,0 +1,55 @@
+@media print {
+
+
+/*
+ * Basics
+ * @section basics
+ */
+body { font-family:Verdana, Arial, sans-serif; font-size:10pt; }
+h2, h3, h4, h5, h6 { font-weight:normal; }
+a { color:#EE7F38; text-decoration:underline; }
+dd { font-weight:bold; }
+
+
+/*
+ * Header
+ * @section header
+ */
+h1:before { content:url(../img/header.png); }
+h1 a { display:none; }
+
+
+/*
+ * Preise
+ * @section prices
+ */
+.price, .price-box { font-weight:bold; }
+
+
+/*
+ * Header
+ * @section header
+ */
+#footer { text-align:center; }
+	#footer ul { list-style:none: margin-left:0; padding-left:0; }
+		#footer ul li { display:inline; }
+
+
+/*
+ * Hidden stuff
+ * @section hidden
+ */
+fieldset, form,
+#side, #navicontainer, #topbox, #breadcrumbs, #imagecontrol,
+#footer .halfmedium, #header ul,
+.pager, .toolbar-box, .amount, .add-to-links, .rssbutton, .rss { display:none; }
+
+
+/*
+ * Script overwrite
+ * @section overwrite
+ */
+.imageRollover-outerContainer, .imageRollover-overlay, .imageRollover-contentContainer { position:static !important; }
+
+
+}
