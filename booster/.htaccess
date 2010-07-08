@@ -13,9 +13,11 @@ Satisfy any
 
 #Let the Booster PHP files appear queryless for proxies by rewriting URL
 <IfModule mod_rewrite.c>
-</IfModule>
 RewriteEngine on
-RewriteRule ^(booster_.+\.php).??(dir.*)$ $1?$2 [L]
+RewriteRule ^booster_css\.php/(dir.*)$ booster_css.php?$1 [L]
+RewriteRule ^booster_js\.php/(dir.*)$ booster_js.php?$1 [L]
+RewriteRule ^booster_mhtml\.php/(dir.*)$ booster_mhtml.php?$1 [L]
+</IfModule>
 
 #Force caching of some common files for some time in the browser's cache, to save bandwidth.
 #"Mod_expires" needs to be installed in your Apache server, to use this feature.
