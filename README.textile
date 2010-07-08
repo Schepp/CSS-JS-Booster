@@ -383,6 +383,14 @@ JSMin is origined from here:
 Browser detection was rewritten based on work from Paul Scott found here:
 "http://www.phpclasses.org/browse/file/12369.html":http://www.phpclasses.org/browse/file/12369.html
 
+YUI Compressor comes from here:
+"http://developer.yahoo.com/yui/compressor/":http://developer.yahoo.com/yui/compressor/
+All code specific to YUI Compressor is issued under a "BSD license":http://developer.yahoo.com/yui/license.html.
+
+Google Closure Compiler originates from here:
+"http://code.google.com/intl/de-DE/closure/compiler/":http://code.google.com/intl/de-DE/closure/compiler/
+Licensed under the "Apache License, Version 2.0":http://www.apache.org/licenses/LICENSE-2.0 (the "License");
+
 h1. Copyright and License Information for 3rd party elements used in example1
 
 HTML and CSS Template named "Blog Division" is taken from here:
@@ -400,11 +408,3 @@ You find its license inside example1's js-folder
 jQuery is taken from here:
 "http://code.google.com/p/jqueryjs/":http://code.google.com/p/jqueryjs/
 You find its license inside example1's js-folder
-
-YUI Compressor comes from here:
-"http://developer.yahoo.com/yui/compressor/":http://developer.yahoo.com/yui/compressor/
-All code specific to YUI Compressor is issued under a "BSD license":http://developer.yahoo.com/yui/license.html.
-
-Google Closure Compiler originates from here:
-"http://code.google.com/intl/de-DE/closure/compiler/":http://code.google.com/intl/de-DE/closure/compiler/
-Licensed under the "Apache License, Version 2.0":http://www.apache.org/licenses/LICENSE-2.0 (the "License");

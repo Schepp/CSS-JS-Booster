@@ -475,7 +475,7 @@ class Booster {
 		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
 		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
 		{
-			$errormessage = "\r\nYou need to create a directory \r\n".$this->booster_cachedir."\r\n with CHMOD 0777 rights!!!\r\n";
+			$errormessage = "\r\nYou need to create a directory \r\n".$this->booster_cachedir."\r\n with CHMOD 0777 rights.\r\n";
 		}
 		// Also check here for the right PHP version
 		if(strnatcmp(phpversion(),'5.0.0') < 0)
