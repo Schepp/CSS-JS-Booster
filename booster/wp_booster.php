@@ -3,12 +3,12 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.2.6
+Version: 0.3.1
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
 
-/*  Copyright 2009  Christian Schepp Schaefer  (email : schaepp@gmx.de)
+/*  Copyright 2010  Christian Schepp Schaefer  (email : schaepp@gmx.de)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -213,9 +213,17 @@ function booster_wp() {
 					reset($media_rel);
 					for($j=0;$j<count($media_rel);$j++) 
 					{
+						$booster->getfilestime($media_rel[key($media_rel)],'css');
+
 						$media_rel[key($media_rel)] = implode(',',$media_rel[key($media_rel)]);
 						$media_abs[key($media_rel)] = implode(',',$media_abs[key($media_rel)]);
-						$link = '<link type="text/css" rel="'.key($media_rel).'" media="'.key($css_rel_files).'" href="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_css.php?dir='.$media_rel[key($media_rel)].'&amp;cachedir='.htmlentities($booster_cache_reldir,ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').'&amp;nocache='.$booster->getfilestime($media_abs[key($media_rel)],'css').'" />';
+						$link = '<link type="text/css" rel="'.key($media_rel).
+						'" media="'.key($css_rel_files).
+						'" href="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_css.php/dir='.htmlentities(str_replace('..','%3E',$media_rel[key($media_rel)])).
+						'&amp;cachedir='.htmlentities($booster_cache_reldir,ENT_QUOTES).
+						($booster->debug ? '&amp;debug=1' : '').
+						($booster->librarydebug ? '&amp;librarydebug=1' : '').
+						'&amp;nocache='.$booster->filestime.'" />';
 						if(key($css_rel_files) != 'print')
 						{
 							$booster_out .= $link."\r\n";
@@ -364,7 +372,7 @@ function booster_wp() {
 				$js_plain .= 'try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}
 				';
 				
-				$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_js.php?dir='.$js_rel_files.'&amp;cachedir='.htmlentities($booster_cache_reldir,ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
+				$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_js.php/dir='.htmlentities(str_replace('..','%3E',$js_rel_files)).'&amp;cachedir='.htmlentities(str_replace('..','>',$booster_cache_reldir),ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
 				<script type="text/javascript">'.$js_plain.'</script>';
 				$booster_out .= "\r\n";
 				#$booster_out .= "\r\n<!-- ".$js_abs_files." -->\r\n";

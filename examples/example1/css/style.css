@@ -1,5 +1,5 @@
 /* CSS Document */
-body{padding: 0 px; margin:0px; background:url("../images/mainbg.gif") 0 0 repeat-x #fff; color:#705D20; font:14px/18px Arial, Helvetica, sans-serif;}
+body{padding: 0px; margin:0px; background:url("../images/mainbg.gif") 0 0 repeat-x #fff; color:#705D20; font:14px/18px Arial, Helvetica, sans-serif;}
 div, p, ul, h1, h2, h3, form, img{padding:0px; margin:0px;}
 ul{list-style-type:none;}
 
@@ -7,7 +7,7 @@ a{background:#FEFEFE; color:#fff; text-decoration:none;}
 a:hover{background:#FEFEFE; color:#fff; text-decoration:underline;}
 
 
-#topPan{width: 748 px; height: 231 px; position:relative; margin:0 auto;} 
+#topPan{width: 748px; height: 231px; position:relative; margin:0 auto;} 
 
 #topHeaderPan {width:332px; height:231px; background:url(../images/header.jpg) 0 100% no-repeat; position:relative;}
 #topHeaderPan img{width:191px; height:84px; display:block; position:absolute; top:120px; left:0px;}
@@ -117,4 +117,5 @@ a:hover{background:#FEFEFE; color:#fff; text-decoration:underline;}
 #footerPan ul.validation li a:hover{text-decoration:underline;}
 
 #footerPan p.copyright{width:auto; background-color: #705D20; color:#fff; position:absolute; top:23px; left:10px;}
+
 

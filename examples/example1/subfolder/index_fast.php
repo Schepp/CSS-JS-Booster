@@ -9,7 +9,7 @@ $booster = new Booster();
 <title>Blog Division</title>
 <script type="text/javascript">beforeload = (new Date()).getTime();</script>
 <?php 
-$booster->css_source = '../css';
+$booster->css_source = array('../examples/example1/css/style.css','../examples/example1/css/style2.css');
 echo $booster->css_markup(); 
 ?>
 </head>
@@ -108,7 +108,7 @@ echo $booster->css_markup();
   </div>
 </div>
 <?php 
-$booster->js_source = '../js';
+$booster->js_source = '../examples/example1/js/01_jquery-1.3.1.min.js,../examples/example1/js/02_cufon-yui.js,../examples/example1/js/03_Sansation_400.font.js,../examples/example1/js/z_functions.js';
 echo $booster->js_markup(); 
 ?>
 </body>

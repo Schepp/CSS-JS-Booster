@@ -1,11 +1,23 @@
-
 #Turn ETagging off
 FileETag none
 
-#Turn ETagging on for MHTML-file
-<FilesMatch ".*booster_mhtml\.php$">  
+#Turn ETagging on for Booster PHP files
+<FilesMatch "booster_.+\.php$">  
 FileETag MTime Size
+
+#Give access even if webmaster has globally forbidden access
+Order deny,allow
+Allow from all
+Satisfy any
 </FilesMatch>
+
+#Let the Booster PHP files appear queryless for proxies by rewriting URL
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteRule ^booster_css\.php/(dir.*)$ booster_css.php?$1 [L]
+RewriteRule ^booster_js\.php/(dir.*)$ booster_js.php?$1 [L]
+RewriteRule ^booster_mhtml\.php/(dir.*)$ booster_mhtml.php?$1 [L]
+</IfModule>
 
 #Force caching of some common files for some time in the browser's cache, to save bandwidth.
 #"Mod_expires" needs to be installed in your Apache server, to use this feature.
