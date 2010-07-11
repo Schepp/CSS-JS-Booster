@@ -475,7 +475,7 @@ class Booster {
 		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
 		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
 		{
-			$errormessage = "\r\nYou need to create a directory \r\n".$this->booster_cachedir."\r\n with CHMOD 0777 rights.\r\n";
+			$errormessage = "\r\nYou need to create a directory \r\n".$this->booster_cachedir."\r\n with CHMOD 0777 rights.\r\nAfterwards, delete your browser's cache and reload.\r\n";
 		}
 		// Also check here for the right PHP version
 		if(strnatcmp(phpversion(),'5.0.0') < 0)
@@ -1458,7 +1458,7 @@ class Booster {
 				if($source != '')
 				{
 					// If current source is a folder or file, get its contents
-					if(is_dir($source) || is_file($source)) $currentfilescontent = $this->getfilescontents($source,$type,$this->css_recursive);
+					if(file_exists($source) || is_dir($source) || is_file($source)) $currentfilescontent = $this->getfilescontents($source,$type,$this->css_recursive);
 					// If current source is already a string
 					else $currentfilescontent = $source;
 					
@@ -1716,7 +1716,7 @@ class Booster {
 				$source = rtrim($source,'/');
 				
 				// If current source is a folder or file, get its contents
-				if(is_dir($source) || is_file($source)) $filescontent .= $this->getfilescontents($source,$type,$this->js_recursive);
+				if(file_exists($source) || is_dir($source) || is_file($source)) $filescontent .= $this->getfilescontents($source,$type,$this->js_recursive);
 				// If current source is already a string
 				else $filescontent .= $source;
 
