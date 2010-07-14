@@ -1061,7 +1061,8 @@ class Booster {
 				substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'https:' && 
 				substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,5) != 'data:' && 
 				substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,6) != 'mhtml:' && 
-				substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,1) != '/'
+				substr(str_replace(array('"',"'"),'',$treffer[2][$i]),0,1) != '/' &&
+				substr(str_replace(array('"',"'"),'',$treffer[2][$i]),strlen(str_replace(array('"',"'"),'',$treffer[2][$i])) - 4,4) != '.htc'
 			) $filescontent = str_replace($search,$replace,$filescontent);
 		}
 		return $filescontent;
