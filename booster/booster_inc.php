@@ -870,6 +870,15 @@ class Booster {
      */
 	protected function css_datauri($filescontent = '',$dir = '')
 	{
+		// For library debugging purposes we log file contents
+		if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n",FILE_APPEND);
+		if($this->librarydebug && isset($_SERVER['HTTP_USER_AGENT'])) file_put_contents($this->debug_log,"HTTP_USER_AGENT: ".$_SERVER['HTTP_USER_AGENT']."\r\n",FILE_APPEND);
+		if($this->librarydebug) file_put_contents($this->debug_log,"Browser->Family: ".$this->browser->family."\r\n",FILE_APPEND);
+		if($this->librarydebug) file_put_contents($this->debug_log,"Browser->Familyversion: ".floatval($this->browser->familyversion)."\r\n",FILE_APPEND);
+		if($this->librarydebug) file_put_contents($this->debug_log,"Browser->Platform: ".$this->browser->platform."\r\n",FILE_APPEND);
+		if($this->librarydebug) file_put_contents($this->debug_log,"Browser->Platformversion: ".floatval($this->browser->platformversion)."\r\n",FILE_APPEND);
+		if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n",FILE_APPEND);
+
 		// Call Setcachedir to make sure, cache-path has been calculated
 		$this->setcachedir();
 		
@@ -884,13 +893,7 @@ class Booster {
 		// --------------------------------------------------------------------------------------
 
 		// If User Agent is IE 6/7 on XP or IE 7 on Vista or higher proceed with MHTML-embedding
-		if(
-			$this->browser->family == 'MSIE' && $this->browser->platform == 'Windows' && 
-			(
-				(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
-				(round(floatval($this->browser->familyversion)) == 7 && floatval($this->browser->platformversion) >= 6)
-			)
-		)
+		if($this->css_mhtml_enabled_ie())
 		{
 			// The @var $mhtmlarray collects references to all processed images so that we can look up if we already have embedded a certain image
 			$mhtmlarray = array();
@@ -1032,6 +1035,25 @@ class Booster {
 	}
 
     /**
+     * Css_mhtml_enabled_ie checks IE user agent for MHTML support
+     * 
+     * @return bool
+     * @access protected 
+     */
+	protected function css_mhtml_enabled_ie()
+	{
+		if(
+			$this->browser->family == 'MSIE' && 
+			$this->browser->platform == 'Windows' && 
+			(
+				(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
+				(round(floatval($this->browser->familyversion)) == 7)
+			)
+		) return TRUE;
+		else return FALSE;
+ 	}
+
+   /**
      * Css_split takes a multiline CSS-string and splits it according to @var $css_totalparts and @var $css_part
      * 
      * @param  string    $filescontent contents to split
@@ -1093,9 +1115,11 @@ class Booster {
 		// Else process string
 		else
 		{
+			// Identifier for split-files
+			$identifier = md5($filescontent.$this->browser->family.$this->browser->familyversion.$this->browser->platform.$this->browser->platformversion);
 			// Since split processing consumes a lot of time we also cache here
-			$cachefilecontent = $this->booster_cachedir.'/'.md5($filescontent).'_splitcontent_cache.txt';
-			$cachefiledata = $this->booster_cachedir.'/'.md5($filescontent).'_splitdata_cache.txt';
+			$cachefilecontent = $this->booster_cachedir.'/'.$identifier.'_splitcontent_cache.txt';
+			$cachefiledata = $this->booster_cachedir.'/'.$identifier.'_splitdata_cache.txt';
 			
 			// For library debugging purposes we log file contents
 			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split input content:\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
@@ -1424,21 +1448,12 @@ class Booster {
 		$identifier = md5(implode('',$sources));
 		// Defining the cache-filename
 			// If IE 6/7 on XP or IE 7 on Vista/Win7
-			if(
-				$this->browser->family == 'MSIE' && $this->browser->platform == 'Windows' && 
-				(
-					(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
-					(round(floatval($this->browser->familyversion)) == 7 && floatval($this->browser->platformversion) >= 6)
-				)
-			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-			
+			if($this->css_mhtml_enabled_ie()) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 			
 			// If IE 6 browser on Vista or higher (like IETester under Windows 7 for example), skip dataURI
 			elseif(
-				$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && 
-				$this->browser->platform == 'Windows' && floatval($this->browser->platformversion) >= 6
+				$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8
 			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-			
 			
 			// If any other and (then we assume) data-URI-compatible browser
 			else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_'.(($this->debug) ? 'debug_' : '').'cache.txt';
