@@ -13,7 +13,7 @@ $booster = new Booster();
 <?php 
 $booster->css_source = array('../examples/example1/css/style.css','../examples/example1/css/style2.css');
 $booster->debug = FALSE;
-$booster->librarydebug = FALSE;
+$booster->librarydebug = TRUE;
 echo $booster->css_markup(); 
 ?>
 </head>
