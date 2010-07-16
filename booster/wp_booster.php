@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.3.2
+Version: 0.3.3
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -33,7 +33,7 @@ if(!defined('WP_PLUGIN_URL')) define('WP_PLUGIN_URL',WP_CONTENT_URL.'/plugins');
 if(!defined('WP_PLUGIN_DIR')) define('WP_PLUGIN_DIR',WP_CONTENT_DIR.'/plugins');
 
 // Set Booster Cache Folder
-define('BOOSTER_CACHE_DIR',str_replace('\\','/',dirname(__FILE__)).'/booster_cache');
+define('BOOSTER_CACHE_DIR',str_replace('\\','/',dirname(__FILE__)).'/../booster_cache');
 
 function booster_htaccess() {
 	$wp_htacessfile = get_home_path().'.htaccess';
