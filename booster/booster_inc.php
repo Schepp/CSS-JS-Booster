@@ -475,7 +475,7 @@ class Booster {
 		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
 		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
 		{
-			$errormessage = "\r\nYou need to create a directory \r\n".$this->booster_cachedir."\r\n with CHMOD 0777 rights.\r\nAfterwards, delete your browser's cache and reload.\r\n";
+			$errormessage = "\r\nYou need to create a directory \r\n".$this->get_absolute_path($this->booster_cachedir)."\r\n with CHMOD 0777 rights.\r\nAfterwards, delete your browser's cache and reload.\r\n";
 		}
 		// Also check here for the right PHP version
 		if(strnatcmp(phpversion(),'5.0.0') < 0)
@@ -493,13 +493,36 @@ class Booster {
 	}
 
     /**
+     * Get_absolute_path calculates absolute path of a any path, stripping all . and ..
+     * 
+     * @param  string    $path
+     * @return string    absolute $path
+     * @access public 
+     */
+    public function get_absolute_path($path) 
+	{
+		$path = str_replace(array('/', '\\'), '/', $path);
+        $parts = array_filter(explode('/', $path), 'strlen');
+        $absolutes = array();
+        foreach ($parts as $part) {
+            if ('.' == $part) continue;
+            if ('..' == $part) {
+                array_pop($absolutes);
+            } else {
+                $absolutes[] = $part;
+            }
+        }
+        return implode('/', $absolutes);
+    }
+ 
+    /**
      * Getpath calculates the relative path between @var $path1 and @var $path2
      * 
      * @param  string    $path1
      * @param  string    $path2
      * @param  string    $path1_sep   Sets the folder-delimiter, defaults to '/'
      * @return string    relative path between @var $path1 and @var $path2
-     * @access protected 
+     * @access public 
      */
 	public function getpath($path1 = '',$path2 = '',$path1_sep = '/')
 	{

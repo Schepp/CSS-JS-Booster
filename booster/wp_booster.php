@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.3.3
+Version: 0.3.6
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -33,7 +33,7 @@ if(!defined('WP_PLUGIN_URL')) define('WP_PLUGIN_URL',WP_CONTENT_URL.'/plugins');
 if(!defined('WP_PLUGIN_DIR')) define('WP_PLUGIN_DIR',WP_CONTENT_DIR.'/plugins');
 
 // Set Booster Cache Folder
-define('BOOSTER_CACHE_DIR',str_replace('\\','/',dirname(__FILE__)).'/../booster_cache');
+define('BOOSTER_CACHE_DIR',str_replace('\\','/',dirname(__FILE__)).'/../../booster_cache');
 
 function booster_htaccess() {
 	$wp_htacessfile = get_home_path().'.htaccess';
@@ -102,8 +102,8 @@ function booster_wp() {
 			}
 			else 
 			{
-				$booster_cache_dir = rtrim(str_replace('\\','/',dirname(__FILE__)),'/').'/booster_cache';
-				$booster_cache_reldir = 'booster_cache';
+				$booster_cache_dir = rtrim(str_replace('\\','/',dirname(__FILE__)),'/').'/../../booster_cache';
+				$booster_cache_reldir = '../../booster_cache';
 			}
 			$booster->booster_cachedir = $booster_cache_reldir;
 			$booster->js_minify = FALSE;
@@ -220,7 +220,7 @@ function booster_wp() {
 						$link = '<link type="text/css" rel="'.key($media_rel).
 						'" media="'.key($css_rel_files).
 						'" href="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_css.php/dir='.htmlentities(str_replace('..','%3E',$media_rel[key($media_rel)])).
-						'&amp;cachedir='.htmlentities($booster_cache_reldir,ENT_QUOTES).
+						'&amp;cachedir='.htmlentities(str_replace('..','%3E',$booster_cache_reldir),ENT_QUOTES).
 						($booster->debug ? '&amp;debug=1' : '').
 						($booster->librarydebug ? '&amp;librarydebug=1' : '').
 						'&amp;nocache='.$booster->filestime.'" />';
@@ -244,7 +244,7 @@ function booster_wp() {
 				}
 				
 				// Injecting the result
-				$out = str_replace('</title>',"</title>\r\n".$booster_out,$out);
+				$out = str_replace('</title>',"</title>\r\n<meta name=\"booster_cache_dir\" content=\"".BOOSTER_CACHE_DIR."\" />\r\n".$booster_out,$out);
 				$booster_out = '';
 				
 				
@@ -372,7 +372,7 @@ function booster_wp() {
 				$js_plain .= 'try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}
 				';
 				
-				$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_js.php/dir='.htmlentities(str_replace('..','%3E',$js_rel_files)).'&amp;cachedir='.htmlentities(str_replace('..','>',$booster_cache_reldir),ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
+				$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_js.php/dir='.htmlentities(str_replace('..','%3E',$js_rel_files)).'&amp;cachedir='.htmlentities(str_replace('..','%3E',$booster_cache_reldir),ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
 				<script type="text/javascript">'.$js_plain.'</script>';
 				$booster_out .= "\r\n";
 				#$booster_out .= "\r\n<!-- ".$js_abs_files." -->\r\n";
