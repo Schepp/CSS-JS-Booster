@@ -892,7 +892,7 @@ class Booster {
 		
 		// --------------------------------------------------------------------------------------
 
-		// If User Agent is IE 6/7 on XP or IE 7 on Vista or higher proceed with MHTML-embedding
+		// If any MHTML-capable IE browser
 		if($this->css_mhtml_enabled_ie())
 		{
 			// The @var $mhtmlarray collects references to all processed images so that we can look up if we already have embedded a certain image
@@ -970,8 +970,7 @@ class Booster {
 		// --------------------------------------------------------------------------------------
 
 	
-		// If IE 6 browser on Vista or higher (like IETester under Vista / Windows 7 for example) do not embed
-		// If IE 6 browser on Vista or higher (like IETester under Vista / Windows 7 for example), or IE 7 on XP do not embed
+		// If any othe older IE browser do not embed nothing
 		elseif(
 			$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8		
 		)
@@ -982,7 +981,7 @@ class Booster {
 		
 		// --------------------------------------------------------------------------------------
 
-		// If any other and (then we assume) data-URI-compatible browser
+		// If any modern data-URI-compatible browser
 		else
 		{
 			if($this->browser->family == 'MSIE') preg_match_all($regex_embed_ie,$filescontent,$treffer,PREG_PATTERN_ORDER);
@@ -1116,10 +1115,19 @@ class Booster {
 		else
 		{
 			// Identifier for split-files
-			$identifier = md5($filescontent.$this->browser->family.$this->browser->familyversion.$this->browser->platform.$this->browser->platformversion);
+			$identifier = md5($filescontent);
+			// If any MHTML-capable IE browser
+			if($this->css_mhtml_enabled_ie()) $cachefilesuffix = 'datauri_ie';
+			// If any othe older IE browser
+			elseif(
+				$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8
+			) $cachefilesuffix = 'datauri_off';
+			// If any modern data-URI-compatible browser
+			else $cachefilesuffix = 'datauri';
+
 			// Since split processing consumes a lot of time we also cache here
-			$cachefilecontent = $this->booster_cachedir.'/'.$identifier.'_splitcontent_cache.txt';
-			$cachefiledata = $this->booster_cachedir.'/'.$identifier.'_splitdata_cache.txt';
+			$cachefilecontent = $this->booster_cachedir.'/'.$identifier.'_splitcontent_'.$cachefilesuffix.'_cache.txt';
+			$cachefiledata = $this->booster_cachedir.'/'.$identifier.'_splitdata_'.$cachefilesuffix.'_cache.txt';
 			
 			// For library debugging purposes we log file contents
 			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split input content:\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
@@ -1444,20 +1452,19 @@ class Booster {
 		if(!$this->css_stringmode) $this->filestime = $this->getfilestime($sources,$type,$this->css_recursive);
 		// if @var $css_stringmode is set
 		else $this->filestime = $this->css_stringtime;
+
+
 		// identifier for the cache-files
 		$identifier = md5(implode('',$sources));
 		// Defining the cache-filename
-			// If IE 6/7 on XP or IE 7 on Vista/Win7
-			if($this->css_mhtml_enabled_ie()) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-			
-			// If IE 6 browser on Vista or higher (like IETester under Windows 7 for example), skip dataURI
-			elseif(
-				$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8
-			) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-			
-			// If any other and (then we assume) data-URI-compatible browser
-			else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-
+		// If any MHTML-capable IE browser
+		if($this->css_mhtml_enabled_ie()) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
+		// If any othe older IE browser
+		elseif(
+			$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8
+		) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_'.(($this->debug) ? 'debug_' : '').'cache.txt';
+		// If any other and (then we assume) data-URI-compatible browser
+		else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 		
 		
 		// If that cache-file is there, fetch its contents
@@ -1465,6 +1472,27 @@ class Booster {
 		// if that cache-file does not exist or is too old, create it
 		else
 		{
+			// but before, find and delete all cache files older than booster_inc.php
+			$booster_filetime = filemtime(str_replace('\\','/',__FILE__));
+			if(is_dir($this->booster_cachedir))
+			{
+				$handle=opendir($this->booster_cachedir);
+				while(false !== ($file = readdir($handle)))
+				{
+					// If it is a file and the filetype matches and it isn't the log file 
+					// and last file modified time is older than booster library itself, then delete
+					if($file[0] != '.' && 
+						strtolower(pathinfo($this->booster_cachedir.'/'.$file,PATHINFO_EXTENSION)) == 'txt' && 
+						$this->booster_cachedir.'/'.$file != $this->debug_log && 
+						filemtime($this->booster_cachedir.'/'.$file) < $booster_filetime
+					) 
+					{
+						@unlink($this->booster_cachedir.'/'.$file);
+					}
+				}
+				closedir($handle);
+			}
+		
 			reset($sources);
 			for($i=0;$i<sizeof($sources);$i++)
 			{
