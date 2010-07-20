@@ -401,7 +401,7 @@ class Booster {
      * @var    string 
      * @access private  
      */
-	private $js_executionmode = '';
+	public $js_executionmode = '';
 
 
 // Start of functions ///////////////////////////////////////////////////////////////////////////////////////////////////////
