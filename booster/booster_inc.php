@@ -1472,7 +1472,7 @@ class Booster {
 		else $sources = array($this->css_source);
 		
 		// if @var $css_stringmode is not set: newest filedate within the source array
-		if(!$this->css_stringmode) $this->filestime = $this->getfilestime($sources,$type,$this->css_recursive);
+		if(!$this->css_stringmode) $this->getfilestime($sources,$type,$this->js_recursive);
 		// if @var $css_stringmode is set
 		else $this->filestime = $this->css_stringtime;
 
@@ -1491,7 +1491,11 @@ class Booster {
 		
 		
 		// If that cache-file is there, fetch its contents
-		if(file_exists($cachefile) && filemtime($cachefile) >= $this->filestime && filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))) $filescontent .= file_get_contents($cachefile);
+		if(
+			file_exists($cachefile) && 
+			filemtime($cachefile) >= $this->filestime && 
+			filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))
+		) $filescontent .= file_get_contents($cachefile);
 		// if that cache-file does not exist or is too old, create it
 		else
 		{
@@ -1760,7 +1764,7 @@ class Booster {
 		
 		
 		// if @var $js_stringmode is not set: newest filedate within the source array
-		if(!$this->js_stringmode) $this->filestime = $this->getfilestime($sources,$type,$this->js_recursive);
+		if(!$this->js_stringmode) $this->getfilestime($sources,$type,$this->js_recursive);
 		// if @var $js_stringmode is set
 		else $this->filestime = $this->js_stringtime;
 		// identifier for the cache-files
@@ -1771,7 +1775,11 @@ class Booster {
 		$cachefile = $this->booster_cachedir.'/'.$identifier.'_js_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 
 		// If cache-file exists and cache-file date is newer than code-date, read from there
-		if(file_exists($cachefile) && filemtime($cachefile) >= $this->filestime && filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))) $filescontent .= file_get_contents($cachefile);
+		if(
+			file_exists($cachefile) && 
+			filemtime($cachefile) >= $this->filestime && 
+			filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))
+		) $filescontent .= file_get_contents($cachefile);
 		// There is no cache-file or it is outdated, create it
 		else 
 		{
