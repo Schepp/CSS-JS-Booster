@@ -768,7 +768,15 @@ class Booster {
 			preg_match_all('/@import\surl\([\'"]*?([^\'")]+\.css)[\'"]*?\);/ims',$currentfilecontent,$treffer,PREG_PATTERN_ORDER);
 			for($i=0;$i<count($treffer[0]);$i++)
 			{
-				$importfile = str_replace('\\','/',realpath(dirname($source))).'/'.$treffer[1][$i];
+				// Buffer findings
+				$import = $treffer[1][$i];
+				// If it is a full URL, extract only the path
+				if(substr($import,0,strlen($_SERVER['SERVER_NAME']) + 7) == 'http://'.$_SERVER['SERVER_NAME']) $import = parse_url($import,PHP_URL_PATH);
+				// If it is an absolute path
+				if(substr($import,0,1) == '/') $importfile = str_replace('\\','/',realpath(rtrim($_SERVER['DOCUMENT_ROOT'],'/'))).$import;
+				// Else if it is a relative path
+				else $importfile = str_replace('\\','/',realpath(dirname($source))).'/'.$import;
+				
 				if($this->librarydebug) file_put_contents($this->debug_log,"found file in @import-rule: ".$importfile."\r\n",FILE_APPEND);
 				$diroffset = dirname($treffer[1][$i]);
 				if(file_exists($importfile)) 
@@ -1474,7 +1482,7 @@ class Booster {
 		else $sources = array($this->css_source);
 		
 		// if @var $css_stringmode is not set: newest filedate within the source array
-		if(!$this->css_stringmode) $this->filestime = $this->getfilestime($sources,$type,$this->css_recursive);
+		if(!$this->css_stringmode) $this->getfilestime($sources,$type,$this->css_recursive);
 		// if @var $css_stringmode is set
 		else $this->filestime = $this->css_stringtime;
 
@@ -1493,7 +1501,11 @@ class Booster {
 		
 		
 		// If that cache-file is there, fetch its contents
-		if(file_exists($cachefile) && filemtime($cachefile) >= $this->filestime && filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))) $filescontent .= file_get_contents($cachefile);
+		if(
+			file_exists($cachefile) && 
+			filemtime($cachefile) >= $this->filestime && 
+			filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))
+		) $filescontent .= file_get_contents($cachefile);
 		// if that cache-file does not exist or is too old, create it
 		else
 		{
@@ -1762,7 +1774,7 @@ class Booster {
 		
 		
 		// if @var $js_stringmode is not set: newest filedate within the source array
-		if(!$this->js_stringmode) $this->filestime = $this->getfilestime($sources,$type,$this->js_recursive);
+		if(!$this->js_stringmode) $this->getfilestime($sources,$type,$this->js_recursive);
 		// if @var $js_stringmode is set
 		else $this->filestime = $this->js_stringtime;
 		// identifier for the cache-files
@@ -1773,7 +1785,11 @@ class Booster {
 		$cachefile = $this->booster_cachedir.'/'.$identifier.'_js_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 
 		// If cache-file exists and cache-file date is newer than code-date, read from there
-		if(file_exists($cachefile) && filemtime($cachefile) >= $this->filestime && filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))) $filescontent .= file_get_contents($cachefile);
+		if(
+			file_exists($cachefile) && 
+			filemtime($cachefile) >= $this->filestime && 
+			filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))
+		) $filescontent .= file_get_contents($cachefile);
 		// There is no cache-file or it is outdated, create it
 		else 
 		{
