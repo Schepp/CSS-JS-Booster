@@ -67,371 +67,381 @@ class Booster {
 
 // Global configuration /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Defines the markup language to use.
-     * 
-     * replaces old $css_markuptype
-     * Defaults to "XHTML".
-     * @var    string 
-     * @access public 
-     */
+	/**
+	* Defines the markup language to use.
+	* 
+	* replaces old $css_markuptype
+	* Defaults to "XHTML".
+	* @var    string 
+	* @access public 
+	*/
 	public $markuptype = 'XHTML';
-
-    /**
-     * Used to store globally the date of last change of newest file
-     *
-     * @var    integer 
-     * @access public  
-     */
+	
+	/**
+	* Used to store globally the date of last change of newest file
+	*
+	* @var    integer 
+	* @access public  
+	*/
 	public $filestime = 0;
-
-    /**
-     * Defines the directory to use for caching
-     *
-     * The directory is relative to "booster"-folder and should be write-enabled
-     * Defaults to "booster_cache".
-     * @var    string 
-     * @access public 
-     */
+	
+	/**
+	* Defines the directory to use for caching
+	*
+	* The directory is relative to "booster"-folder and should be write-enabled
+	* Defaults to "booster_cache".
+	* @var    string 
+	* @access public 
+	*/
 	public $booster_cachedir = 'booster_cache';
-
-    /**
-     * Switch cache directory automatic cleanup on sundays on/off
-     *
-     * @var    boolean 
-     * @access public  
-     */
+	
+	/**
+	* Switch cache directory automatic cleanup on sundays on/off
+	*
+	* @var    boolean 
+	* @access public  
+	*/
 	public $booster_cachedir_autocleanup = TRUE;
-
-    /**
-     * Used to remember if the working-path has already been calculated.
-     *
-     * @var    boolean 
-     * @access private 
-     * @see    setcachedir
-    */
+	
+	/**
+	* Used to remember if the working-path has already been calculated.
+	*
+	* @var    boolean 
+	* @access private 
+	* @see    setcachedir
+	*/
 	private $booster_cachedir_transformed = FALSE;
-
-    /**
-     * Used to to store user-agent info
-     *
-     * @var    object 
-     * @access public 
-     * @see    __construct
-     */
+	
+	/**
+	* Used to to store user-agent info
+	*
+	* @var    object 
+	* @access public 
+	* @see    __construct
+	*/
 	public $browser;
-
-    /**
-     * Switch debug mode on/off for debugging CSS and JS
-     *
-     * @var    boolean 
-     * @access public  
-     */
+	
+	/**
+	* Switch debug mode on/off for debugging CSS and JS
+	*
+	* @var    boolean 
+	* @access public  
+	*/
 	public $debug = FALSE;
-    
-    /**
-     * Switch debug mode on/off for development of this library
-     *
-     * @var    boolean 
-     * @access public  
-     */
+	
+	/**
+	* Switch debug mode on/off for development of this library
+	*
+	* @var    boolean 
+	* @access public  
+	*/
 	public $librarydebug = FALSE;
-    
-    /**
-     * Defines the file to use for logging in librarydebug-mode
-     *
-     * The file is located inside cache-folder
-     * Starts empty, defaults later to "booster_cache/debug_log".
-     * @var    string 
-     * @access private 
-     */
+	
+	/**
+	* Defines the file to use for logging in librarydebug-mode
+	*
+	* The file is located inside cache-folder
+	* Starts empty, defaults later to "booster_cache/debug_log".
+	* @var    string 
+	* @access private 
+	*/
 	private $debug_log = '';
 
 
 // CSS specific configuration ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Defines source to take the CSS stylesheets from.
-     * 
-     * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
-     * When passing foldernames, containing files will be processed in alphabetical order.
-     * The variable also accepts a stylesheet-string if you set css_stringmode to "TRUE"
-     * Defaults to "css".
-     * @var    mixed
-     * @access public 
-     * @see    $css_stringmode
-     */
+	/**
+	* Defines source to take the CSS stylesheets from.
+	* 
+	* It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
+	* When passing foldernames, containing files will be processed in alphabetical order.
+	* The variable also accepts a stylesheet-string if you set css_stringmode to "TRUE"
+	* Defaults to "css".
+	* @var    mixed
+	* @access public 
+	* @see    $css_stringmode
+	*/
 	public $css_source = 'css';
-
-    /**
-     * Defines media-attribute for CSS markup output
-     *
-     * Specify differing media-types like "print", "handheld", etc.
-     * Defaults to "all".
-     * @var    string 
-     * @access public 
-     */
+	
+	/**
+	* Defines media-attribute for CSS markup output
+	*
+	* Specify differing media-types like "print", "handheld", etc.
+	* Defaults to "all".
+	* @var    string 
+	* @access public 
+	*/
 	public $css_media = 'all';
-
-    /**
-     * Defines rel-attribute for CSS markup output
-     *
-     * Specify differing relations like "alternate stylesheet"
-     * Defaults to "stylesheet".
-     * @var    string 
-     * @access public 
-     */
+	
+	/**
+	* Defines rel-attribute for CSS markup output
+	*
+	* Specify differing relations like "alternate stylesheet"
+	* Defaults to "stylesheet".
+	* @var    string 
+	* @access public 
+	*/
 	public $css_rel = 'stylesheet';
-
-    /**
-     * Defines a title-attribute for CSS markup output
-     *
-     * If you like to title multiple stylesheets
-     * Defaults to "Standard".
-     * @var    string 
-     * @access public 
-     */
+	
+	/**
+	* Defines a title-attribute for CSS markup output
+	*
+	* If you like to title multiple stylesheets
+	* Defaults to "Standard".
+	* @var    string 
+	* @access public 
+	*/
 	public $css_title = 'Standard';
-
-    /**
-     * Defines in how many parts the CSS output shall be split
-     *
-     * As newer browsers support more than 2 concurrent parallel connections 
-     * to a webserver you can decrease loading-time by splitting the output up 
-     * into more than one file.
-     * Defaults to "2".
-     * @var    number 
-     * @access public 
-     */
+	
+	/**
+	* Defines in how many parts the CSS output shall be split
+	*
+	* As newer browsers support more than 2 concurrent parallel connections 
+	* to a webserver you can decrease loading-time by splitting the output up 
+	* into more than one file.
+	* Defaults to "2".
+	* @var    number 
+	* @access public 
+	*/
 	public $css_totalparts = 2;
-
-    /**
-     * Defines which part to ouput when retrieving CSS in multiple parts
-     *
-     * Used by accompagning script "booster_css.php"
-     * Defaults to "0".
-     * @var    number 
-     * @access public 
-     */
+	
+	/**
+	* Defines which part to ouput when retrieving CSS in multiple parts
+	*
+	* Used by accompagning script "booster_css.php"
+	* Defaults to "0".
+	* @var    number 
+	* @access public 
+	*/
 	public $css_part = 0;
-
+	
 	/**
-	 * You can use the full YUI Compressor included in CSS-JS-Booster instead of the 
-	 * included minification functions for stylesheets.
-	 * But be carefull, it will only work on dedicated servers with Java installed.
-	 * @var boolean
-	 */
+	* Defines if to switch to more powerful a hosted minifier
+	*
+	* You can use the full YUI Compressor included in CSS-JS-Booster instead of the 
+	* included minification functions for stylesheets.
+	* But be carefull, it will only work on dedicated servers with Java installed.
+	* @var boolean
+	* @access public
+	*/
 	public $css_hosted_minifier = FALSE;
-
+	
 	/**
-	 * Will store the local CSS minifier path
-	 * relative to dirname(__FILE__)
-	 * @var string
-	 * @access private
-	 */
-	private $css_hosted_minifier_path = '/yuicompressor/yuicompressor-2.4.2.jar';
-
-    /**
-     * Defines if source-file retrieval shall be recursive
-     *
-     * Only matters when passing folders as source-parameter.
-     * If set to "TRUE" contents of folders found inside source-folder are also fetched.
-     * Defaults to "FALSE".
-     * @var    boolean 
-     * @access public  
-     */
+	* Defines the path to a hosted minifier
+	*
+	* Will store the local CSS minifier path relative to this file
+	* @var string
+	* @access private
+	* @see $css_hosted_minifier
+	*/
+	private $css_hosted_minifier_path = 'yuicompressor/yuicompressor-2.4.2.jar';
+	
+	/**
+	* Defines if source-file retrieval shall be recursive
+	*
+	* Only matters when passing folders as source-parameter.
+	* If set to "TRUE" contents of folders found inside source-folder are also fetched.
+	* Defaults to "FALSE".
+	* @var    boolean 
+	* @access public  
+	*/
 	public $css_recursive = FALSE;
-
-    /**
-     * Switches on string-mode, when passing styleheet-strings as source
-     *
-     * Instead of folders and files to read and parse you can also pass
-     * stylesheet-code as source. But, this only works if you switch string-mode on.
-     * Defaults to "FALSE".
-     * @var    boolean 
-     * @access public  
-     * @see    $css_source
-     */
+	
+	/**
+	* Switches on string-mode, when passing styleheet-strings as source
+	*
+	* Instead of folders and files to read and parse you can also pass
+	* stylesheet-code as source. But, this only works if you switch string-mode on.
+	* Defaults to "FALSE".
+	* @var    boolean 
+	* @access public  
+	* @see    $css_source
+	*/
 	public $css_stringmode = FALSE;
-
-    /**
-     * Defines the base-folder for all files referenced in stylesheet-string
-     *
-     * When being in string-mode, the booster prepends this path going out from the caller-location 
-     * in order to find all referenced files.
-     * Defaults to "./".
-     * @var    string 
-     * @access public 
-     * @see    $css_stringmode
-     */
+	
+	/**
+	* Defines the base-folder for all files referenced in stylesheet-string
+	*
+	* When being in string-mode, the booster prepends this path going out from the caller-location 
+	* in order to find all referenced files.
+	* Defaults to "./".
+	* @var    string 
+	* @access public 
+	* @see    $css_stringmode
+	*/
 	public $css_stringbase = './';
-
-    /**
-     * Used to store the date of last change of a stylesheet-string
-     *
-     * Is set to the file-time of the calling script during construction.
-     * @var    integer 
-     * @access private  
-     * @see    $css_stringmode
-     */
+	
+	/**
+	* Used to store the date of last change of a stylesheet-string
+	*
+	* Is set to the file-time of the calling script during construction.
+	* @var    integer 
+	* @access private  
+	* @see    $css_stringmode
+	*/
 	private $css_stringtime = 0;
-
-
+	
+	
 
 // JavaScript specific configuration ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Defines source to take the JS from
-     * 
-     * It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
-     * When passing foldernames, containing files will be processed in alphabetical order.
-     * The variable also accepts a javascript-string if you set js_stringmode to "TRUE"
-     * Defaults to "js".
-     * @var    mixed 
-     * @access public 
-     * @see    $js_stringmode
-     */
+	/**
+	* Defines source to take the JS from
+	* 
+	* It accepts foldernames, filenames, multiple files and folders comma-delimited in strings or as array.
+	* When passing foldernames, containing files will be processed in alphabetical order.
+	* The variable also accepts a javascript-string if you set js_stringmode to "TRUE"
+	* Defaults to "js".
+	* @var    mixed 
+	* @access public 
+	* @see    $js_stringmode
+	*/
 	public $js_source = 'js';
-
-    /**
-     * Defines in how many parts the JS output shall be split [Deprecated, still in there for backward compatibility]
-     *
-     * Newer browsers support more than 2 concurrent parallel connections 
-     * but NOT for JS-files. So here one single output-file would be best. 
-     * You can still uppen the number of output-files here if like. [Deprecated, still in there for backward compatibility]
-     * Defaults to "1".
-     * @var    integer 
-     * @access public  
-     */
+	
+	/**
+	* Defines in how many parts the JS output shall be split [Deprecated, still in there for backward compatibility]
+	*
+	* Newer browsers support more than 2 concurrent parallel connections 
+	* but NOT for JS-files. So here one single output-file would be best. 
+	* You can still uppen the number of output-files here if like. [Deprecated, still in there for backward compatibility]
+	* Defaults to "1".
+	* @var    integer 
+	* @access public  
+	*/
 	public $js_totalparts = 1;
-
-    /**
-     * Defines which part to ouput when retrieving JS in multiple parts [Deprecated, still in there for backward compatibility]
-     *
-     * Used by accompagning script "booster_js.php" [Deprecated, still in there for backward compatibility]
-     * Defaults to "0".
-     * @var    integer 
-     * @access public  
-     */
+	
+	/**
+	* Defines which part to ouput when retrieving JS in multiple parts [Deprecated, still in there for backward compatibility]
+	*
+	* Used by accompagning script "booster_js.php" [Deprecated, still in there for backward compatibility]
+	* Defaults to "0".
+	* @var    integer 
+	* @access public  
+	*/
 	public $js_part = 0;
-
-    /**
-     * Defines if Google Closure Compiler should be used [Deprecated, still in there for backward compatibility]
-     *
-     * Used by accompagning script "booster_js.php" [Deprecated, still in there for backward compatibility]
-     * Defaults to "TRUE".
-     * @var    boolean 
-     * @access public  
-     */
+	
+	/**
+	* Defines if Google Closure Compiler should be used
+	*
+	* Used by accompagning script "booster_js.php"
+	* Defaults to "TRUE".
+	* @var    boolean 
+	* @access public  
+	*/
 	public $js_minify = TRUE;
-
+	
 	/**
-	 * You can use the full Google Closure Compiler included in CSS-JS-Booster instead of the 
-	 * webservice, in order to minify javascript.
-	 * But be carefull, it will only work on dedicated servers with Java installed.
-	 * @var boolean
-	 */
+	* Defines if to switch to more powerful a hosted minifier
+	*
+	* You can use the full Google Closure Compiler included in CSS-JS-Booster instead of the 
+	* webservice, in order to minify javascript.
+	* But be carefull, it will only work on dedicated servers with Java installed.
+	* @var boolean
+	* @access public  
+	*/
 	public $js_hosted_minifier = FALSE;
-
+	
 	/**
-	 * Will store the local Google Closure Compiler path
-	 * relative to dirname(__FILE__)
-	 * @var string
-	 * @access private
-	 */
-	private $js_hosted_minifier_path = '/compiler/compiler.jar';
-
-    /**
-     * Defines if source-file retrieval shall be recursive
-     *
-     * Only matters when passing folders as source-parameter.
-     * If set to "TRUE" contents of folders found inside source-folder are also fetched.
-     * Defaults to "FALSE".
-     * @var    boolean 
-     * @access public  
-     */
+	* Defines the path to a hosted minifier
+	*
+	* Will store the local Google Closure Compiler path relative to this file
+	* @var string
+	* @access private
+	* @see $js_hosted_minifier
+	*/
+	private $js_hosted_minifier_path = 'compiler/compiler.jar';
+	
+	/**
+	* Defines if source-file retrieval shall be recursive
+	*
+	* Only matters when passing folders as source-parameter.
+	* If set to "TRUE" contents of folders found inside source-folder are also fetched.
+	* Defaults to "FALSE".
+	* @var    boolean 
+	* @access public  
+	*/
 	public $js_recursive = FALSE;
-
-    /**
-     * Switches on string-mode, when passing javascript-strings as source
-     *
-     * Instead of folders and files to read and parse you can also pass
-     * javascript-code as source. But, this only works if you switch string-mode on.
-     * Defaults to "FALSE".
-     * @var    boolean 
-     * @access public  
-     * @see    $js_source
-     */
+	
+	/**
+	* Switches on string-mode, when passing javascript-strings as source
+	*
+	* Instead of folders and files to read and parse you can also pass
+	* javascript-code as source. But, this only works if you switch string-mode on.
+	* Defaults to "FALSE".
+	* @var    boolean 
+	* @access public  
+	* @see    $js_source
+	*/
 	public $js_stringmode = FALSE;
-
-    /**
-     * Defines the base-folder for all files referenced in javascript-string
-     *
-     * When being in string-mode, the booster prepends this path going out from the caller-location 
-     * in order to find all referenced files.
-     * Defaults to "./".
-     * @var    string 
-     * @access public 
-     * @see    $js_stringmode
-     */
+	
+	/**
+	* Defines the base-folder for all files referenced in javascript-string
+	*
+	* When being in string-mode, the booster prepends this path going out from the caller-location 
+	* in order to find all referenced files.
+	* Defaults to "./".
+	* @var    string 
+	* @access public 
+	* @see    $js_stringmode
+	*/
 	public $js_stringbase = './';
-
-    /**
-     * Used to store the date of last change of a javascript-string
-     *
-     * Is set to the file-time of the calling script during construction.
-     * @var    integer 
-     * @access private  
-     * @see    $js_stringmode
-     */
+	
+	/**
+	* Used to store the date of last change of a javascript-string
+	*
+	* Is set to the file-time of the calling script during construction.
+	* @var    integer 
+	* @access private  
+	* @see    $js_stringmode
+	*/
 	private $js_stringtime = 0;
-
-    /**
-     * Define if you want the javacript to get executed async or defered
-     *
-     * Default is "", file gets loaded and executed instantly, blocking the HTML parser until done.
-     *
-     * Set to "async" if you want the script to load while HTML parser is moving on.
-     * Will get executed as soon as script is loaded. Automatically gets a "defer"-backup-attribute for IE.
-     * Will get deactivated when document.write() is detected by Booster
-     *
-     * Set to "defer" if you want the script to load and execute after HTML parser has finished parsing the page.
-     * Will get deactivated when document.write() is detected by Booster
-     *
-     * @var    string 
-     * @access private  
-     */
+	
+	/**
+	* Define if you want the javacript to get executed async or defered
+	*
+	* Default is "", file gets loaded and executed instantly, blocking the HTML parser until done.
+	*
+	* Set to "async" if you want the script to load while HTML parser is moving on.
+	* Will get executed as soon as script is loaded. Automatically gets a "defer"-backup-attribute for IE.
+	* Will get deactivated when document.write() is detected by Booster
+	*
+	* Set to "defer" if you want the script to load and execute after HTML parser has finished parsing the page.
+	* Will get deactivated when document.write() is detected by Booster
+	*
+	* @var    string 
+	* @access public  
+	*/
 	public $js_executionmode = '';
 
 
 // Start of functions ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Constructor
-     * 
-     * Sets @var $css_stringtime to caller file time
-     * Invokes new browser object for further use
-     * 
-     * @return void   
-     * @access public 
-     */
-    public function __construct()
-    {
+	/**
+	* Constructor
+	* 
+	* Sets @var $css_stringtime to caller file time
+	* Invokes new browser object for further use
+	* 
+	* @return void   
+	* @access public 
+	*/
+	public function __construct()
+	{
 		$this->filestime = filemtime(__FILE__);
 		$this->css_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
-		$this->css_hosted_minifier_path = realpath(dirname(__FILE__).$this->css_hosted_minifier_path);
+		$this->css_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->css_hosted_minifier_path);
 		$this->js_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
-		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).$this->js_hosted_minifier_path);
+		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
 		$this->browser = new browser();
-    }
+	}
 
-    /**
-     * Setcachedir calculates correct cache-path once and checks directory's writability
-     * and adjusts things not adjustable while constructing
-     * 
-     * @return void   
-     * @access public 
-     */
+	/**
+	* Setcachedir calculates correct cache-path once and checks directory's writability
+	* and adjusts things not adjustable while constructing
+	* 
+	* @return void   
+	* @access public 
+	*/
 	public function setcachedir()
 	{
 		// Turn on strict error reporting when library debug is on
@@ -494,14 +504,14 @@ class Booster {
 		}
 	}
 
-    /**
-     * Get_absolute_path calculates absolute path of a any path, stripping all . and ..
-     * 
-     * @param  string    $path
-     * @return string    absolute $path
-     * @access public 
-     */
-    public function get_absolute_path($path) 
+	/**
+	* Get_absolute_path calculates absolute path of a any path, stripping all . and ..
+	* 
+	* @param  string    $path
+	* @return string    absolute $path
+	* @access public 
+	*/
+	public function get_absolute_path($path) 
 	{
 		$path = str_replace(array('/', '\\'), '/', $path);
         $parts = array_filter(explode('/', $path), 'strlen');
@@ -517,15 +527,15 @@ class Booster {
         return implode('/', $absolutes);
     }
  
-    /**
-     * Getpath calculates the relative path between @var $path1 and @var $path2
-     * 
-     * @param  string    $path1
-     * @param  string    $path2
-     * @param  string    $path1_sep   Sets the folder-delimiter, defaults to '/'
-     * @return string    relative path between @var $path1 and @var $path2
-     * @access public 
-     */
+	/**
+	* Getpath calculates the relative path between @var $path1 and @var $path2
+	* 
+	* @param  string    $path1
+	* @param  string    $path2
+	* @param  string    $path1_sep   Sets the folder-delimiter, defaults to '/'
+	* @return string    relative path between @var $path1 and @var $path2
+	* @access public 
+	*/
 	public function getpath($path1 = '',$path2 = '',$path1_sep = '/')
 	{
 		$path2 = str_replace('\\','/',realpath($path2));
@@ -576,16 +586,16 @@ class Booster {
 		return $pathfix;
 	} 
 
-    /**
-     * Getfiles returns all files of a certain type within a folder
-     * 
-     * @param  string    $source    folder to look for files
-     * @param  string    $type      sets file-type/suffix (for security reasons)
-     * @param  boolean   $recursive tells the script to scan all subfolders, too
-     * @param  array     $files     prepopulated array of files to append to and return
-     * @return array     filenames sorted alphabetically
-     * @access protected 
-     */
+	/**
+	* Getfiles returns all files of a certain type within a folder
+	* 
+	* @param  string    $source    folder to look for files
+	* @param  string    $type      sets file-type/suffix (for security reasons)
+	* @param  boolean   $recursive tells the script to scan all subfolders, too
+	* @param  array     $files     prepopulated array of files to append to and return
+	* @return array     filenames sorted alphabetically
+	* @access protected 
+	*/
 	public function getfiles($source = '',$type = '',$recursive = FALSE,$files = array())
 	{
 		// Remove any trailing slash
@@ -643,16 +653,16 @@ class Booster {
 		return $files;
 	}
 
-    /**
-     * Getfilestime returns the timestamp of the newest file of a certain type within a folder
-     * 
-     * @param  mixed   $source    single folder or multiple comma-delimited folders or array of folders in which to look for files
-     * @param  string  $type      sets file-type/suffix (for security reasons)
-     * @param  boolean $recursive tells the script to scan all subfolders, too
-     * @param  integer $this->filestime prepopulated timestamp to also check against
-     * @return integer timestamp of the newest of all scanned files
-     * @access public  
-     */
+	/**
+	* Getfilestime returns the timestamp of the newest file of a certain type within a folder
+	* 
+	* @param  mixed   $source    single folder or multiple comma-delimited folders or array of folders in which to look for files
+	* @param  string  $type      sets file-type/suffix (for security reasons)
+	* @param  boolean $recursive tells the script to scan all subfolders, too
+	* @param  integer $this->filestime prepopulated timestamp to also check against
+	* @return integer timestamp of the newest of all scanned files
+	* @access public  
+	*/
 	public function getfilestime($source = '',$type = '',$recursive = FALSE)
 	{
 		// Load @var $source with an array made form @var $source parameter
@@ -726,16 +736,16 @@ class Booster {
 		}
 	}
 
-    /**
-     * Getfilescontents puts together all contents from files of a certain type within a folder
-     * 
-     * @param  string    $source       folder to look for files or file or code-string
-     * @param  string    $type         sets file-type/suffix (for security reasons)
-     * @param  boolean   $recursive    tells the script to scan all subfolders, too
-     * @param  string    $filescontent prepopulated string to append to and return
-     * @return string    Return all file contents
-     * @access protected 
-     */
+	/**
+	* Getfilescontents puts together all contents from files of a certain type within a folder
+	* 
+	* @param  string    $source       folder to look for files or file or code-string
+	* @param  string    $type         sets file-type/suffix (for security reasons)
+	* @param  boolean   $recursive    tells the script to scan all subfolders, too
+	* @param  string    $filescontent prepopulated string to append to and return
+	* @return string    Return all file contents
+	* @access protected 
+	*/
 	protected function getfilescontents($source = '',$type = '',$recursive = FALSE,$filescontent = '')
 	{
 		// Remove any trailing slash
@@ -800,17 +810,17 @@ class Booster {
 		return $filescontent;
 	}
 
-    /**
-     * Css_minify does some soft minifications to the stylesheets, avoiding damage by optimizing too much
-     * 
-     * Replaces CSSTidy 1.3 which in some cases was destroying stylesheets
-     * Removing unnecessessary whitespaces, tabs and newlines
-     * Leaving commments in there as they may be browser hacks or needed to fulfill the terms of a license
-     * 
-     * @param  string    styles-string
-     * @return string    minified styles-string
-     * @access protected 
-     */
+	/**
+	* Css_minify does some soft minifications to the stylesheets, avoiding damage by optimizing too much
+	* 
+	* Replaces CSSTidy 1.3 which in some cases was destroying stylesheets
+	* Removing unnecessessary whitespaces, tabs and newlines
+	* Leaving commments in there as they may be browser hacks or needed to fulfill the terms of a license
+	* 
+	* @param  string    styles-string
+	* @return string    minified styles-string
+	* @access protected 
+	*/
 	protected function css_minify($filescontent = '')
 	{
 		// For library debugging purposes
@@ -819,7 +829,7 @@ class Booster {
 			file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_minify input:\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
 		}
 
-		// If somebody want to use the included minifier
+		// If somebody wants to use the included minifier
 		if($this->css_hosted_minifier && is_readable($this->css_hosted_minifier_path))
 		{
 			// Implementation by Vincent Voyer (http://twitter.com/vvoyer)
@@ -886,21 +896,21 @@ class Booster {
 		return $filescontent;
 	}
 	
-    /**
-     * Css_datauri embeds external files like images into the stylesheet
-     * 
-     * Depending on the browser and operating system, this funtion does the following:
-     * IE 6 and 7 on XP and IE 7 on Vista or higher don't understand data-URIs, but a proprietary format named MHTML. 
-     * So they get served that.
-     * Any other common browser understands data-URIs, even IE 8 up to a file-size of 24KB, so those get data-URI-embedding
-     * IE 6 on Vista or higher doesn't understand any of the embeddings so it just gets standard styles.
-     * 
-     * @param  integer   $this->filestime    timestamp of the last modification of the content following
-     * @param  string    $filescontent stylesheet-content
-     * @return string    stylesheet-content with data-URI or MHTML embeddings
-     * @see    function  Setcachedir
-     * @access protected 
-     */
+	/**
+	* Css_datauri embeds external files like images into the stylesheet
+	* 
+	* Depending on the browser and operating system, this funtion does the following:
+	* IE 6 and 7 on XP and IE 7 on Vista or higher don't understand data-URIs, but a proprietary format named MHTML. 
+	* So they get served that.
+	* Any other common browser understands data-URIs, even IE 8 up to a file-size of 24KB, so those get data-URI-embedding
+	* IE 6 on Vista or higher doesn't understand any of the embeddings so it just gets standard styles.
+	* 
+	* @param  integer   $this->filestime    timestamp of the last modification of the content following
+	* @param  string    $filescontent stylesheet-content
+	* @return string    stylesheet-content with data-URI or MHTML embeddings
+	* @see    function  Setcachedir
+	* @access protected 
+	*/
 	protected function css_datauri($filescontent = '',$dir = '')
 	{
 		// For library debugging purposes we log file contents
@@ -1066,12 +1076,12 @@ class Booster {
 		return $filescontent;
 	}
 
-    /**
-     * Css_mhtml_enabled_ie checks IE user agent for MHTML support
-     * 
-     * @return bool
-     * @access protected 
-     */
+	/**
+	* Css_mhtml_enabled_ie checks IE user agent for MHTML support
+	* 
+	* @return bool
+	* @access protected 
+	*/
 	protected function css_mhtml_enabled_ie()
 	{
 		if(
@@ -1085,13 +1095,13 @@ class Booster {
 		else return FALSE;
  	}
 
-   /**
-     * Css_split takes a multiline CSS-string and splits it according to @var $css_totalparts and @var $css_part
-     * 
-     * @param  string    $filescontent contents to split
-     * @return string    requested part-number of splitted content
-     * @access protected 
-     */
+	/**
+	* Css_split takes a multiline CSS-string and splits it according to @var $css_totalparts and @var $css_part
+	* 
+	* @param  string    $filescontent contents to split
+	* @return string    requested part-number of splitted content
+	* @access protected 
+	*/
 	protected function css_datauri_cleanup($filescontent = '',$dir = '')
 	{
 		// Calculate absolute path for booster-folder
@@ -1122,13 +1132,13 @@ class Booster {
 		return $filescontent;
 	}
 
-    /**
-     * Css_split takes a multiline CSS-string and splits it according to @var $css_totalparts and @var $css_part
-     * 
-     * @param  string    $filescontent contents to split
-     * @return string    requested part-number of splitted content
-     * @access protected 
-     */
+	/**
+	* Css_split takes a multiline CSS-string and splits it according to @var $css_totalparts and @var $css_part
+	* 
+	* @param  string    $filescontent contents to split
+	* @return string    requested part-number of splitted content
+	* @access protected 
+	*/
 	protected function css_split($filescontent = '')
 	{
 		// If sum of parts is 1 or requested part-number is 0 return full string
@@ -1457,12 +1467,12 @@ class Booster {
 		}
 	}
 		
-    /**
-     * Css fetches and optimizes all stylesheet-files
-     * 
-     * @return string optimized stylesheet-code
-     * @access public 
-     */
+	/**
+	* Css fetches and optimizes all stylesheet-files
+	* 
+	* @return string optimized stylesheet-code
+	* @access public 
+	*/
 	public function css()
 	{
 		// Call Setcachedir to make sure, cache-path has been calculated
@@ -1571,12 +1581,12 @@ class Booster {
 		return $filescontent;
 	}
 		
-    /**
-     * Mhtmltime returns the last-modified-timestamp of the MHTML-cache-file
-     * 
-     * @return integer timestamp of the requested MHTML-cache-file
-     * @access public  
-     */
+	/**
+	* Mhtmltime returns the last-modified-timestamp of the MHTML-cache-file
+	* 
+	* @return integer timestamp of the requested MHTML-cache-file
+	* @access public  
+	*/
 	public function mhtmltime()
 	{
 		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_'.(($this->debug) ? 'debug_' : '').'cache.txt';
@@ -1584,12 +1594,12 @@ class Booster {
 		else return 0;
 	}
 	
-    /**
-     * Mhtml reads and returns the contents of the requested MHTML-cache-file
-     * 
-     * @return string contents of the MHTML-cache-file
-     * @access public 
-     */
+	/**
+	* Mhtml reads and returns the contents of the requested MHTML-cache-file
+	* 
+	* @return string contents of the MHTML-cache-file
+	* @access public 
+	*/
 	public function mhtml()
 	{
 		$mhtmlfile = $this->booster_cachedir.'/'.preg_replace('/[^a-z0-9,\-_]/i','',$this->css_source).'_datauri_mhtml_'.(($this->debug) ? 'debug_' : '').'cache.txt';
@@ -1597,12 +1607,12 @@ class Booster {
 		else return '';
 	}
 	
-    /**
-     * Css_markup creates HTML-<link>-tags for all CSS
-     * 
-     * @return string the markup
-     * @access public 
-     */
+	/**
+	* Css_markup creates HTML-<link>-tags for all CSS
+	* 
+	* @return string the markup
+	* @access public 
+	*/
 	public function css_markup()
 	{
 		// Preparing call
@@ -1675,19 +1685,19 @@ class Booster {
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 
-    /**
-     * Js_minify takes a JS-string and tries to minify it with the Google Closure Webservice
-     * 
-     * If the input JavaScript surpasses Google's POST-limit of 200.000 bytes it switches to
-     * minification through Douglas Crockford's JSMin
-     * 
-     * @param  string    $filescontent contents to minify
-     * @return string    minified Javascript
-     * @access protected 
-     */
+	/**
+	* Js_minify takes a JS-string and tries to minify it with the Google Closure Webservice
+	* 
+	* If the input JavaScript surpasses Google's POST-limit of 200.000 bytes it switches to
+	* minification through Douglas Crockford's JSMin
+	* 
+	* @param  string    $filescontent contents to minify
+	* @return string    minified Javascript
+	* @access protected 
+	*/
 	protected function js_minify($filescontent = '')
 	{
-		// If somebody want to use the included minifier
+		// If somebody wants to use the included minifier
 		if($this->js_hosted_minifier && is_readable($this->js_hosted_minifier_path))
 		{
 			// Implementation by Vincent Voyer (http://twitter.com/vvoyer)
@@ -1697,7 +1707,7 @@ class Booster {
 			$js_minified = `java -jar $this->js_hosted_minifier_path --charset utf-8 --js $tmp_file_path`;
 			unlink($tmp_file_path);
 		} 
-		// Use own Google Closure Webservice or JSMin
+		// Use Google Closure Webservice or JSMin
 		else
 		{
 			// URL-encoded file contents
@@ -1747,12 +1757,12 @@ class Booster {
 		return $js_minified;
 	}
 	
-    /**
-     * Js fetches and optimizes all javascript-files
-     * 
-     * @return string optimized javascript-code
-     * @access public 
-     */
+	/**
+	* Js fetches and optimizes all javascript-files
+	* 
+	* @return string optimized javascript-code
+	* @access public 
+	*/
 	public function js()
 	{
 		// Call Setcachedir to make sure, cache-path has been calculated
@@ -1827,12 +1837,12 @@ class Booster {
 		return $filescontent;
 	}
 
-    /**
-     * Js_markup creates HTML-<script>-tags for all JS
-     * 
-     * @return string the markup
-     * @access public 
-     */
+	/**
+	* Js_markup creates HTML-<script>-tags for all JS
+	* 
+	* @return string the markup
+	* @access public 
+	*/
 	public function js_markup()
 	{
 		// Preparing call
