@@ -225,10 +225,11 @@ class Booster {
 
 	/**
 	 * Will store the local CSS minifier path
+	 * relative to dirname(__FILE__)
 	 * @var string
 	 * @access private
 	 */
-	private $css_hosted_minifier_path = 'yuicompressor/yuicompressor-2.4.2.jar';
+	private $css_hosted_minifier_path = '/yuicompressor/yuicompressor-2.4.2.jar';
 
     /**
      * Defines if source-file retrieval shall be recursive
@@ -334,10 +335,11 @@ class Booster {
 
 	/**
 	 * Will store the local Google Closure Compiler path
+	 * relative to dirname(__FILE__)
 	 * @var string
 	 * @access private
 	 */
-	private $js_hosted_minifier_path = 'compiler/compiler.jar';
+	private $js_hosted_minifier_path = '/compiler/compiler.jar';
 
     /**
      * Defines if source-file retrieval shall be recursive
@@ -399,7 +401,7 @@ class Booster {
      * @var    string 
      * @access private  
      */
-	private $js_executionmode = '';
+	public $js_executionmode = '';
 
 
 // Start of functions ///////////////////////////////////////////////////////////////////////////////////////////////////////
