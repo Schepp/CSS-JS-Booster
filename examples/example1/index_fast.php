@@ -11,9 +11,9 @@ $booster = new Booster();
 <title>Blog Division</title>
 <script type="text/javascript">beforeload = (new Date()).getTime();</script>
 <?php 
-$booster->css_source = array('../examples/example1/css/style.css','../examples/example1/css/style2.css');
+$booster->css_source = array('../examples/example1/css/style.css');
 $booster->debug = FALSE;
-$booster->librarydebug = FALSE;
+$booster->librarydebug = TRUE;
 echo $booster->css_markup(); 
 ?>
 </head>
