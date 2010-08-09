@@ -52,16 +52,6 @@ include_once('browser_class_inc.php');
 
 /**
 * CSS-JS-BOOSTER
-* 
-* An easy to use PHP-Library that combines, optimizes, dataURI-fies, re-splits, 
-* compresses and caches your CSS and JS for quicker loading times.
-* 
-* @category  PHP 
-* @package   CSS-JS-Booster 
-* @author    Christian Schepp Schaefer <schaepp@gmx.de> <http://twitter.com/derSchepp>
-* @copyright 2009 Christian Schepp Schaefer
-* @license   http://www.gnu.org/copyleft/lesser.html The GNU LESSER GENERAL PUBLIC LICENSE, Version 3.0
-* @link      http://github.com/Schepp/CSS-JS-Booster 
 */
 class Booster {
 
@@ -84,6 +74,28 @@ class Booster {
 	* @access public  
 	*/
 	public $filestime = 0;
+	
+	/**
+	* Defines the server's root directory
+	*
+	* Use this if you changed the root with mod_userdir or something else
+	* Defaults to $_SERVER['DOCUMENT_ROOT']
+	* @var    string 
+	* @access public 
+	*/
+	public $document_root = '';
+	
+	/**
+	* Defines the a base offset if $_SERVER['DOCUMENT_ROOT'] is not equal to http://domain/ 
+	* but e.g. points to http://domain/~user/
+	*
+	* Use this if you changed the root with mod_userdir or something else
+	* Defaults to '/';
+	* Change for example to '/~user/';
+	* @var    string 
+	* @access public 
+	*/
+	public $base_offset = '/';
 	
 	/**
 	* Defines the directory to use for caching
@@ -146,6 +158,14 @@ class Booster {
 	* @access private 
 	*/
 	private $debug_log = '';
+
+	/**
+	* Variable in which to put error messages
+	*
+	* @var    string 
+	* @access private 
+	*/
+	private $errormessage = '';
 
 
 // CSS specific configuration ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,7 +241,7 @@ class Booster {
 	* You can use the full YUI Compressor included in CSS-JS-Booster instead of the 
 	* included minification functions for stylesheets.
 	* But be carefull, it will only work on dedicated servers with Java installed.
-	* @var boolean
+	* @var    boolean
 	* @access public
 	*/
 	public $css_hosted_minifier = FALSE;
@@ -230,9 +250,9 @@ class Booster {
 	* Defines the path to a hosted minifier
 	*
 	* Will store the local CSS minifier path relative to this file
-	* @var string
+	* @var    string
 	* @access private
-	* @see $css_hosted_minifier
+	* @see    $css_hosted_minifier
 	*/
 	private $css_hosted_minifier_path = 'yuicompressor/yuicompressor-2.4.2.jar';
 	
@@ -345,9 +365,9 @@ class Booster {
 	* Defines the path to a hosted minifier
 	*
 	* Will store the local Google Closure Compiler path relative to this file
-	* @var string
+	* @var    string
 	* @access private
-	* @see $js_hosted_minifier
+	* @see    $js_hosted_minifier
 	*/
 	private $js_hosted_minifier_path = 'compiler/compiler.jar';
 	
@@ -428,11 +448,43 @@ class Booster {
 	public function __construct()
 	{
 		$this->filestime = filemtime(__FILE__);
+		$this->document_root = $_SERVER['DOCUMENT_ROOT'];
 		$this->css_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		$this->css_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->css_hosted_minifier_path);
 		$this->js_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
 		$this->browser = new browser();
+		$this->errorcheck();
+	}
+
+	/**
+	* Looks after some parameters and outputs an error if applicable
+	* 
+	* @return void   
+	* @access private 
+	*/
+	private function errorcheck()
+	{
+		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
+		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
+		{
+			$this->errormessage = "\r\nYou need to create a directory \r\n".$this->get_absolute_path($this->booster_cachedir)."\r\n with CHMOD 0777 rights.\r\nAfterwards, delete your browser's cache and reload.\r\n";
+		}
+		// Also check here for the right PHP version
+		if(strnatcmp(phpversion(),'5.0.0') < 0)
+		{
+			$this->errormessage = "\r\nYou need to upgrade to PHP 5 or higher to have CSS-JS-Booster work. You currently are running on PHP ".phpversion().".\r\n";
+		}
+		// Check for incorrect document root (e.g. due to Apache's mod_userdir)
+		if($this->document_root == $_SERVER['DOCUMENT_ROOT'] && substr($this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$_SERVER['DOCUMENT_ROOT'])),0,2) == '..')
+		{
+			$this->errormessage = "\r\n".'$_SERVER[\'DOCUMENT_ROOT\'] variable is set to '.$_SERVER['DOCUMENT_ROOT'].'. But you seem to have a differing real document root. Please set the variable $booster->document_root to reflect your real document root'."\r\n";
+		}
+		// Check for incorrect base path (e.g. due to Apache's mod_userdir)
+		if($this->base_offset.str_replace($this->document_root,'',$_SERVER['SCRIPT_FILENAME']) != parse_url($_SERVER['SCRIPT_NAME'],PHP_URL_PATH))
+		{
+			$this->errormessage = "\r\n".'$booster->base_offset variable is set to '.$this->base_offset.'. But this server\'s document root seems to be differently offsetted. Please set the variable $booster->base_offset to reflect this offset'."\r\n".$this->base_offset.str_replace($this->document_root,'',$_SERVER['SCRIPT_FILENAME'])."\r\n".parse_url($_SERVER['SCRIPT_NAME'],PHP_URL_PATH)."\r\n";
+		}
 	}
 
 	/**
@@ -472,7 +524,7 @@ class Booster {
 						if($file[0] != '.' && 
 							strtolower(pathinfo($this->booster_cachedir.'/'.$file,PATHINFO_EXTENSION)) == 'txt' && 
 							$this->booster_cachedir.'/'.$file != $this->debug_log && 
-							fileatime($this->booster_cachedir.'/'.$file) < (time() - 604800)
+							fileatime($this->booster_cachedir.'/'.$file) < ($_SERVER['REQUEST_TIME'] - 604800)
 						) 
 						{
 							@unlink($this->booster_cachedir.'/'.$file);
@@ -481,26 +533,6 @@ class Booster {
 					closedir($handle);
 				}
 			}
-		}
-
-		$errormessage = '';
-		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
-		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
-		{
-			$errormessage = "\r\nYou need to create a directory \r\n".$this->get_absolute_path($this->booster_cachedir)."\r\n with CHMOD 0777 rights.\r\nAfterwards, delete your browser's cache and reload.\r\n";
-		}
-		// Also check here for the right PHP version
-		if(strnatcmp(phpversion(),'5.0.0') < 0)
-		{
-			$errormessage = "\r\nYou need to upgrade to PHP 5 or higher to have CSS-JS-Booster work. You currently are running on PHP ".phpversion().".\r\n";
-		}
-		// If there are error, output them and stop execution
-		if($errormessage != '')
-		{
-			$errormessage_css = str_replace("\r\n","\\00000A",$errormessage);
-			echo "/* ".$errormessage." */\r\n\r\n";
-			echo "body:before {display: block; padding: 1em; background-color: #FFF9D0; color: #912C2C; border: 1px solid #912C2C; font-family: Calibri, 'Lucida Grande', Arial, Verdana, sans-serif; white-space: pre; content: \"".$errormessage_css."\";}\r\n\r\n";
-			exit;
 		}
 	}
 
@@ -783,7 +815,7 @@ class Booster {
 				// If it is a full URL, extract only the path
 				if(substr($import,0,strlen($_SERVER['SERVER_NAME']) + 7) == 'http://'.$_SERVER['SERVER_NAME']) $import = parse_url($import,PHP_URL_PATH);
 				// If it is an absolute path
-				if(substr($import,0,1) == '/') $importfile = str_replace('\\','/',realpath(rtrim($_SERVER['DOCUMENT_ROOT'],'/'))).$import;
+				if(substr($import,0,1) == '/') $importfile = str_replace('\\','/',realpath(rtrim($this->document_root,'/'))).$import;
 				// Else if it is a relative path
 				else $importfile = str_replace('\\','/',realpath(dirname($source))).'/'.$import;
 				
@@ -874,12 +906,6 @@ class Booster {
 			// Constrain multiple whitespaces
 			$filescontent = preg_replace('/\p{Zs}+/ims',' ',$filescontent);
 
-			// Insert newline at certain points as preparation for parsing
-			$filescontent = str_replace("{","\n{",$filescontent);
-			$filescontent = str_replace("}","\n}",$filescontent);
-			$filescontent = str_replace("/*","\n/*",$filescontent);
-			$filescontent = str_replace("*/","\n*/",$filescontent);
-
 			// Restore backupped values within single or double quotes
 			for($i=0;$i<count($treffer[1]);$i++)
 			{
@@ -941,7 +967,7 @@ class Booster {
 			// The @var $mhtmlarray collects references to all processed images so that we can look up if we already have embedded a certain image
 			$mhtmlarray = array();
 			// The external absolute path to where "booster_mhtml.php" resides
-			$mhtmlpath = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($_SERVER['DOCUMENT_ROOT'],'/'));
+			$mhtmlpath = $this->base_offset.$this->getpath(str_replace('\\','/',dirname(__FILE__)),rtrim($this->document_root,'/'));
 			// Cachefile for the extra MHTML-data
 			$mhtmlfile = $this->booster_cachedir.'/'.$identifier.'_datauri_mhtml_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 			// Get Domainname
@@ -965,7 +991,7 @@ class Booster {
 				// If it is an absolute path
 				if(substr($treffer[1][$i],0,1) == '/')
 				{
-					$imagefile = rtrim($_SERVER['DOCUMENT_ROOT'],'/').$treffer[1][$i].$treffer[2][$i];
+					$imagefile = rtrim($this->document_root,'/').$treffer[1][$i].$treffer[2][$i];
 				}
 				// If it is a relative path
 				else
@@ -1035,7 +1061,7 @@ class Booster {
 				// If it is an absolute path
 				if(substr($treffer[1][$i],0,1) == '/')
 				{
-					$imagefile = rtrim($_SERVER['DOCUMENT_ROOT'],'/').$treffer[1][$i].$treffer[2][$i];
+					$imagefile = rtrim($this->document_root,'/').$treffer[1][$i].$treffer[2][$i];
 				}
 				// If it is a relative path
 				else
@@ -1096,16 +1122,17 @@ class Booster {
  	}
 
 	/**
-	* Css_split takes a multiline CSS-string and splits it according to @var $css_totalparts and @var $css_part
+	* Css_datauri_cleanup prepends $dir to the path of all file-references found
 	* 
-	* @param  string    $filescontent contents to split
-	* @return string    requested part-number of splitted content
+	* @param  string    $filescontent contents to scan
+	* @param  string    $dir folder name to prepend
+	* @return string    content with adjusted paths
 	* @access protected 
 	*/
 	protected function css_datauri_cleanup($filescontent = '',$dir = '')
 	{
 		// Calculate absolute path for booster-folder
-		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']));
+		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$this->document_root));
 
 		// Scan for any left file-references and adjust their path
 		$regex_url = '/(url\([\'"]??)([^\'"\)]+?\.[^\'"\)]+?)([\'"]??\))/msi';
@@ -1144,15 +1171,9 @@ class Booster {
 		// If sum of parts is 1 or requested part-number is 0 return full string
 		if($this->css_totalparts == 1 || $this->css_part == 0 || $this->css_stringmode) 
 		{
-			// Cleanup newlines
-			$filescontent = preg_replace('/[\r\n]+/ims',"\n",$filescontent);
-			$filescontent = preg_replace('/\n[\t]+/ims',"\n",$filescontent);
-			$filescontent = preg_replace('/\{[\s\t]+/ims',"{",$filescontent);
-			$filescontent = str_replace("\n{","{",$filescontent);
-			$filescontent = str_replace("\n}","}",$filescontent);
-			$filescontent = str_replace(" \n","\n",$filescontent);
-			$filescontent = str_replace("\n\n*/","\n*/",$filescontent);
-			return $filescontent;
+			
+			// For library debugging purposes we log file contents
+			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split input content (solo part ".$this->css_part."):\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
 		}
 		// Else process string
 		else
@@ -1173,15 +1194,40 @@ class Booster {
 			$cachefiledata = $this->booster_cachedir.'/'.$identifier.'_splitdata_'.$cachefilesuffix.'_cache.txt';
 			
 			// For library debugging purposes we log file contents
-			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split input content:\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
+			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split input content (part ".$this->css_part."):\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
 
 			if(file_exists($cachefilecontent) && file_exists($cachefiledata)) 
 			{
 				$filescontent = file_get_contents($cachefilecontent);
 				$line_infos = unserialize(file_get_contents($cachefiledata));
+
+				// For library debugging purposes we log file contents
+				if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split data files found (part ".$this->css_part."):\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
 			}
 			else
 			{
+				// Backup any values within single or double quotes
+				preg_match_all('/(\'[^\']*?\'|"[^"]*?")/ims',$filescontent,$treffer,PREG_PATTERN_ORDER);
+				for($i=0;$i<count($treffer[1]);$i++)
+				{
+					$filescontent = str_replace($treffer[1][$i],'##########'.$i.'##########',$filescontent);
+				}
+	
+				// Insert newline at certain points as preparation for parsing
+				$filescontent = str_replace("{","\n{",$filescontent);
+				$filescontent = str_replace("}","\n}",$filescontent);
+				$filescontent = str_replace("/*","\n/*",$filescontent);
+				$filescontent = str_replace("*/","\n*/",$filescontent);
+	
+				// Restore backupped values within single or double quotes
+				for($i=0;$i<count($treffer[1]);$i++)
+				{
+					$filescontent = str_replace('##########'.$i.'##########',$treffer[1][$i],$filescontent);
+				}
+			
+				// For library debugging purposes we log file contents
+				if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split prepared content (part ".$this->css_part."):\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
+	
 				// In order for @-rule-blocks like @media-blocks, but also @font-face not to get stupidly ripped apart
 				// while splitting the file into multiple parts, we need to parse it take some notes for us later.
 				
@@ -1230,6 +1276,9 @@ class Booster {
 								// Remember that we are inside some /*-comment
 								$comment_on = 1;
 								$currentcomment = 'comment';
+			
+								// For library debugging purposes we log pre-parser structure findings
+								if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log,"* comment start (part ".$this->css_part."): ".$currentcomment."\r\n",FILE_APPEND);
 							}
 							elseif(preg_match('/\A([a-zA-Z\.#\*:][^\{\}@;\/]+)\{/ims', substr($filescontent,$i), $treffer) == 1)
 							{
@@ -1242,6 +1291,9 @@ class Booster {
 								// Remember that we are inside some selector's properties
 								$property_on = 1;
 								$i--;
+			
+								// For library debugging purposes we log pre-parser structure findings
+								if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log,"} selector start (part ".$this->css_part."): ".$currentselector." -> ".$line_infos[$currentline]['selector']."\r\n",FILE_APPEND);
 							}
 	
 						}
@@ -1254,21 +1306,41 @@ class Booster {
 							// Remember that we finished being inside some comment
 							$comment_on = 0;
 							$currentcomment = '';
+			
+							// For library debugging purposes we log pre-parser structure findings
+							if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log,"/ comment end (part ".$this->css_part."): ".$currentcomment."\r\n",FILE_APPEND);
 						}
 						break;
 						
 						// Newline
 						case "\n":
+						if(!isset($line_infos[$currentline])) $line_infos[$currentline] = array();
+
 						// If not yet done: store @-rule for this line
 						if(!isset($line_infos[$currentline]['block'])) $line_infos[$currentline]['block'] = $currentblock;
 						// Store type of comment for this line
 						$line_infos[$currentline]['comment'] = $currentcomment;
 						// Store selector for this line
 						if(!isset($line_infos[$currentline]['selector'])) $line_infos[$currentline]['selector'] = $currentselector;
+
+						// For library debugging purposes we log pre-parser structure findings
+						if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log,"-----------------\r\n
+						newline (part ".$this->css_part."):\r\n
+						currentline: ".$currentline."\r\n
+						currentblock: ".$currentblock."\r\n
+						block: ".$line_infos[$currentline]['block']."\r\n
+						currentcomment: ".$currentcomment."\r\n
+						comment: ".$line_infos[$currentline]['comment']."\r\n
+						currentselector: ".$currentselector."\r\n
+						selector: ".$line_infos[$currentline]['selector']."\r\n
+						-----------------\r\n",FILE_APPEND);
+
 						$currentline++;
+						if(!isset($line_infos[$currentline])) $line_infos[$currentline] = array();
+
 						break;
 						
-						// That what we are here for: is this a block-creating @-rule like @media{} or @font-face{}?
+						// That's what we are here for: is this a block-creating @-rule like @media{} or @font-face{}?
 						case "@":
 						if($singlequote_on == 0 && $doublequote_on == 0 && $comment_on == 0) 
 						{
@@ -1281,6 +1353,9 @@ class Booster {
 								// store @-rule for this line
 								$line_infos[$currentline]['block'] = $currentblock;
 								$i--;
+			
+								// For library debugging purposes we log pre-parser structure findings
+								if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log,"@ block start (part ".$this->css_part."): ".$currentblock." -> ".$line_infos[$currentline]['block']."\r\n",FILE_APPEND);
 							}
 						}
 						break;
@@ -1300,6 +1375,9 @@ class Booster {
 								// Remove closing parenthesis for now (we will put it back in later)
 								$filescontent = substr_replace($filescontent,'',$i,1);
 								$i--;
+			
+								// For library debugging purposes we log pre-parser structure findings
+								if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log,"} selector end (part ".$this->css_part."): ".$currentselector." -> ".$line_infos[$currentline]['selector']."\r\n",FILE_APPEND);
 							}
 							// Or else it must be a closing parenthesis of an @-rule
 							else 
@@ -1311,6 +1389,9 @@ class Booster {
 								// Remove closing parenthesis for now (we will put it back in later)
 								$filescontent = substr_replace($filescontent,'',$i,1);
 								$i--;
+			
+								// For library debugging purposes we log pre-parser structure findings
+								if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log," } block end (part ".$this->css_part."): ".$currentblock." -> ".$line_infos[$currentline]['block']."\r\n",FILE_APPEND);
 							}
 						}
 						break;
@@ -1329,6 +1410,9 @@ class Booster {
 								// Remember that we are inside some selector's properties
 								$property_on = 1;
 								$i--;
+			
+								// For library debugging purposes we log pre-parser structure findings
+								if($this->librarydebug && $this->css_part == 1) file_put_contents($this->debug_log,"\A([a-zA-Z\.#\*:][^\{\}@;\/]+)\{ selector start (part ".$this->css_part."): ".$currentselector." -> ".$line_infos[$currentline]['selector']."\r\n",FILE_APPEND);
 							}
 						}
 						break;
@@ -1338,15 +1422,15 @@ class Booster {
 				$line_infos[$currentline] = array('block'=>$currentblock,'comment'=>$currentcomment,'selector'=>$currentselector);
 			
 				// Store in cache files
-				file_put_contents($cachefilecontent,$filescontent);
-				file_put_contents($cachefiledata,serialize($line_infos));
+				if(!file_exists($cachefilecontent)) file_put_contents($cachefilecontent,$filescontent);
+				if(!file_exists($cachefiledata)) file_put_contents($cachefiledata,serialize($line_infos));
 			}
 			
-			// For library debugging purposes we log file contents
-			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split output content:\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
-			
 			// For library debugging purposes we log pre-parser structure findings
-			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split pre-parser structure findings:\r\n".var_export($line_infos, TRUE)."\r\n-----------------\r\n",FILE_APPEND);
+			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." (part ".$this->css_part."):\r\n".var_export($line_infos, TRUE)."\r\n-----------------\r\n",FILE_APPEND);
+			
+			// For library debugging purposes we log file contents
+			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split output content (part ".$this->css_part."):\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
 			
 			// Finished with out pre-parsing, beginning split process ///////////////////////////////////////////////////
 			
@@ -1384,7 +1468,7 @@ class Booster {
 					// If a comment begins
 					if($j > 0 && $line_infos[$i]['comment'] != '' && $currentcomment == '')
 					{
-						$filescontentparts[$j] .= '/*';
+						if($i == 0) $filescontentparts[$j] .= '/*';
 						$currentcomment = $line_infos[$i]['comment'];
 					}
 					// If at this place an @-rule-status should start or stop (=changes)
@@ -1460,7 +1544,7 @@ class Booster {
 				}
 			}
 			// For library debugging purposes we log file contents
-			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split result for part ".($j + 1).":\r\n".$filescontentparts[$this->css_part - 1]."\r\n-----------------\r\n",FILE_APPEND);
+			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split result for part (part ".$this->css_part."):\r\n".$filescontentparts[$this->css_part - 1]."\r\n-----------------\r\n",FILE_APPEND);
 
 			// Return only the requested part
 			return $filescontentparts[$this->css_part - 1];
@@ -1508,14 +1592,25 @@ class Booster {
 		) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 		// If any other and (then we assume) data-URI-compatible browser
 		else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-		
+		// Interim  cache file
+		$interim_cachefile = str_replace('.txt','.working.txt',$cachefile);
 		
 		// If that cache-file is there, fetch its contents
 		if(
 			file_exists($cachefile) && 
 			filemtime($cachefile) >= $this->filestime && 
 			filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))
-		) $filescontent .= file_get_contents($cachefile);
+		) 
+		{
+			$filescontent .= file_get_contents($cachefile)."\n";
+			// Split results up in order to have multiple parts load in parallel and get the currently requested part back
+			$filescontent = $this->css_split($filescontent);
+		}
+		// Check for interim file existance, and if it is no older than 2 minutes
+		elseif(file_exists($interim_cachefile) && filemtime($interim_cachefile) > ($_SERVER['REQUEST_TIME'] - 120))
+		{
+			$filescontent .= file_get_contents($interim_cachefile)."\n";
+		}
 		// if that cache-file does not exist or is too old, create it
 		else
 		{
@@ -1540,6 +1635,8 @@ class Booster {
 				closedir($handle);
 			}
 		
+			// In order to deflect other concurrent clients' requests for this file while it being compiled
+			// we first create a non-optimized cache-file to serve it to them during compile time.
 			reset($sources);
 			for($i=0;$i<sizeof($sources);$i++)
 			{
@@ -1553,9 +1650,6 @@ class Booster {
 					// If current source is already a string
 					else $currentfilescontent = $source;
 					
-					// Optimize stylesheets with CSS Tidy
-					if(!$this->debug) $currentfilescontent = $this->css_minify($currentfilescontent);
-		
 					// Prepare @var $dir that we need to prepend as path to any images we find to get the full path
 					// if @var $css_source is a folder
 					if(is_dir($source)) $dir = $source;
@@ -1563,6 +1657,40 @@ class Booster {
 					elseif(is_file($source)) $dir = dirname($source);
 					// if @var $css_source is code-string
 					else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
+					
+					$filescontent .= $this->css_datauri_cleanup($currentfilescontent,$dir);
+				}
+				next($sources);
+			}
+			// Write interim cachefile
+			file_put_contents($interim_cachefile,$filescontent);
+			@chmod($interim_cachefile,0777);
+
+
+			// Now we create the optimized version
+			$filescontent = '';
+			reset($sources);
+			for($i=0;$i<sizeof($sources);$i++)
+			{
+				$source = current($sources);
+				// Remove any trailing slash
+				$source = rtrim($source,'/');
+				if($source != '')
+				{
+					// If current source is a folder or file, get its contents
+					if(file_exists($source) || is_dir($source) || is_file($source)) $currentfilescontent = $this->getfilescontents($source,$type,$this->css_recursive);
+					// If current source is already a string
+					else $currentfilescontent = $source;
+					
+					// Prepare @var $dir that we need to prepend as path to any images we find to get the full path
+					// if @var $css_source is a folder
+					if(is_dir($source)) $dir = $source;
+					// if @var $css_source is a file
+					elseif(is_file($source)) $dir = dirname($source);
+					// if @var $css_source is code-string
+					else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
+					
+					
 					// Embed media to save HTTP-requests
 					$filescontent .= $this->css_datauri($currentfilescontent,$dir);
 				}
@@ -1571,11 +1699,13 @@ class Booster {
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
 			@chmod($cachefile,0777);
+
+			// Delete interim cache-file
+			if(file_exists($interim_cachefile)) @unlink($interim_cachefile);
+
+			// Split results up in order to have multiple parts load in parallel and get the currently requested part back
+			$filescontent = $this->css_split($filescontent."\n");
 		}
-		$filescontent .= "\n";
-		
-		// Split results up in order to have multiple parts load in parallel and get the currently requested part back
-		$filescontent = $this->css_split($filescontent);
 
 		// Return the currently requested part of the stylesheets
 		return $filescontent;
@@ -1625,7 +1755,7 @@ class Booster {
 		$markup = '';
 		
 		// Calculate absolute path for booster-folder
-		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']));
+		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$this->document_root));
 		
 		// Calculate relative path from booster-folder to calling script
 		#Schepp $css_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
@@ -1668,7 +1798,7 @@ class Booster {
 			$markup .= '<link rel="'.$this->css_rel.
 			'" media="'.$this->css_media.
 			'" title="'.htmlentities($this->css_title,ENT_QUOTES).
-			'" type="text/css" href="'.$booster_path.'/booster_css.php/dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).
+			'" type="text/css" href="'.$this->base_offset.ltrim($booster_path,'/').'/booster_css.php/dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).
 			($this->css_hosted_minifier ? '&amp;css_hosted_minifier=1' : '').
 			'&amp;totalparts='.intval($this->css_totalparts).
 			'&amp;part='.($j+1).
@@ -1677,6 +1807,13 @@ class Booster {
 			(!$this->js_minify ? '&amp;js_minify=0' : '').
 			'&amp;nocache='.$this->filestime.'" '.
 			($this->markuptype == 'XHTML' ? '/' : '').'>'."\r\n";
+		}
+		
+		// If there are errors, output them
+		if($this->errormessage != '')
+		{
+			$this->errormessage = trim($this->errormessage,"\r\n");
+			$markup .= '<style type="text/css">'."\r\nhtml:before {display: block; padding: 1em; background-color: #FFF9D0; color: #912C2C; border: 1px solid #912C2C; font-family: Calibri, 'Lucida Grande', Arial, Verdana, sans-serif; white-space: pre; content: \"".str_replace("\r\n","\\00000A","CSS-JS-Booster problems:\r\n\r\n".$this->errormessage)."\";}\r\n".'</style>'."\r\n";
 		}
 	
 		return $markup;
@@ -1740,7 +1877,7 @@ class Booster {
 						$js_minified .= fgets($fp);
 					}
 					fclose($fp);
-					$js_minified = preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified);
+					$js_minified = "/* Minified by Google Closure Webservice */\r\ntry{\r\n".preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified)."\r\nvar boostererror = null;\r\n} catch(e) {}";
 				}
 			}
 			// Switching over to Douglas Crockford's JSMin (which in turn breaks IE's conditional compilation)
@@ -1750,7 +1887,7 @@ class Booster {
 				 * Inclusion of JSMin
 				 */
 				include_once('jsmin/jsmin.php');
-				$js_minified = JSMin::minify($filescontent);
+				$js_minified = "/* Minified by JSMin */\r\ntry{\r\n".JSMin::minify($filescontent)."\r\nvar boostererror = null;\r\n} catch(e) {}";
 			}
 		}
 		
@@ -1793,13 +1930,23 @@ class Booster {
 
 		// Defining the cache-filename
 		$cachefile = $this->booster_cachedir.'/'.$identifier.'_js_'.(($this->debug) ? 'debug_' : '').'cache.txt';
+		// Interim cache file
+		$interim_cachefile = str_replace('.txt','.working.txt',$cachefile);
 
 		// If cache-file exists and cache-file date is newer than code-date, read from there
 		if(
 			file_exists($cachefile) && 
 			filemtime($cachefile) >= $this->filestime && 
 			filemtime($cachefile) >= filemtime(str_replace('\\','/',dirname(__FILE__)))
-		) $filescontent .= file_get_contents($cachefile);
+		) 
+		{
+			$filescontent .= file_get_contents($cachefile);
+		}
+		// Check for interim file existance, and if it is no older than 2 minutes
+		elseif(file_exists($interim_cachefile) && filemtime($interim_cachefile) > ($_SERVER['REQUEST_TIME'] - 120))
+		{
+			$filescontent .= file_get_contents($interim_cachefile);
+		}
 		// There is no cache-file or it is outdated, create it
 		else 
 		{
@@ -1817,6 +1964,11 @@ class Booster {
 
 				next($sources);
 			}
+
+			// In order to deflect other concurrent clients' requests for this file while it being compiled
+			// we first create a non-optimized cache-file to serve it to them during compile time.
+			file_put_contents($interim_cachefile,$filescontent);
+			@chmod($interim_cachefile,0777);
 			
 			// Check for document.write inside JS. If found disable any lazy-loadings.
 			if(strpos($filescontent,'document.write')) 
@@ -1830,6 +1982,9 @@ class Booster {
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
 			@chmod($cachefile,0777);
+
+			// Delete interim cache-file
+			if(file_exists($interim_cachefile)) @unlink($interim_cachefile);
 		}
 		$filescontent .= "\n";
 
@@ -1852,7 +2007,7 @@ class Booster {
 		$markup = '';
 
 		// Calculate absolute path for booster-folder
-		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$_SERVER['DOCUMENT_ROOT']));
+		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$this->document_root));
 
 		// If sources were defined as array
 		if(is_array($this->js_source)) $sources = $this->js_source;
@@ -1882,6 +2037,13 @@ class Booster {
 		// Populate $this->filestime with newest file's timestamp
 		$this->getfilestime($source,'js');
 
+		// If there are errors, output them
+		if($this->errormessage != '')
+		{
+			$this->errormessage = trim($this->errormessage,"\r\n");
+			$markup .= '<script type="text/javascript">alert(\'CSS-JS-Booster problems:\r\n\r\n'.str_replace("'",'"',$this->errormessage).'\');</script>'."\r\n";		
+		}
+
 		// Put together the markup linking to our booster-js-files
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the JS was updated
 		$markup .= '<script type="text/javascript"';
@@ -1895,13 +2057,15 @@ class Booster {
 			$markup .= ($this->markuptype == 'XHTML' ? ' defer="defer"' : ' defer');
 			break;
 		}
-		$markup .= ' src="'.$booster_path.'/booster_js.php/dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
+		$markup .= ' src="'.$this->base_offset.ltrim($booster_path,'/').'/booster_js.php/dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
 		'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).
 		($this->js_hosted_minifier ? '&amp;js_hosted_minifier=1' : '').
 		($this->debug ? '&amp;debug=1' : '').
 		($this->librarydebug ? '&amp;librarydebug=1' : '').
 		(!$this->js_minify ? '&amp;js_minify=0' : '').
 		'&amp;nocache='.$this->filestime.'"></script>'."\r\n";
+		
+		if($this->js_minify && $this->js_executionmode == '') $markup .= '<script type="text/javascript">if(typeof boostererror == "undefined") alert("CSS-JS-Booster notice: Minification may have broken your JavaScript. Consider turning minification off by setting \$booster->js_minify = FALSE;");</script>'."\r\n";
 
 		return $markup;
 	}
