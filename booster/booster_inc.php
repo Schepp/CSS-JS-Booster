@@ -464,12 +464,13 @@ class Booster {
 	*/
 	private function errorcheck()
 	{
-		$this->setcachedir();
+		// Calculate absolute path only for this function
+		$booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir;
 		
 		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
-		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
+		if(!@is_dir($booster_cachedir) && !@mkdir($booster_cachedir,0777)) 
 		{
-			$this->errormessage = "\r\nYou need to create a directory \r\n".$this->get_absolute_path($this->booster_cachedir)."\r\n with CHMOD 0777 rights.\r\nAfterwards, delete your browser's cache and reload.\r\n";
+			$this->errormessage = "\r\nYou need to create a directory \r\n".$this->get_absolute_path($booster_cachedir)."\r\n with CHMOD 0777 rights.\r\nAfterwards, delete your browser's cache and reload.\r\n";
 		}
 		// Also check here for the right PHP version
 		if(strnatcmp(phpversion(),'5.0.0') < 0)
@@ -1693,6 +1694,8 @@ class Booster {
 					// if @var $css_source is code-string
 					else $dir = rtrim($this->getpath(dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->css_stringbase,str_replace('\\','/',dirname(__FILE__))),'/');
 					
+					 // Optimize stylesheets with CSS Minify
+					if(!$this->debug) $currentfilescontent = $this->css_minify($currentfilescontent);
 					
 					// Embed media to save HTTP-requests
 					$filescontent .= $this->css_datauri($currentfilescontent,$dir);
