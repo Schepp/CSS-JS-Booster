@@ -454,7 +454,6 @@ class Booster {
 		$this->js_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
 		$this->browser = new browser();
-		$this->errorcheck();
 	}
 
 	/**
@@ -481,9 +480,9 @@ class Booster {
 			$this->errormessage = "\r\n".'$_SERVER[\'DOCUMENT_ROOT\'] variable is set to '.$_SERVER['DOCUMENT_ROOT'].'. But you seem to have a differing real document root. Please set the variable $booster->document_root to reflect your real document root'."\r\n";
 		}
 		// Check for incorrect base path (e.g. due to Apache's mod_userdir)
-		if($this->base_offset.str_replace($this->document_root,'',$_SERVER['SCRIPT_FILENAME']) != parse_url($_SERVER['SCRIPT_NAME'],PHP_URL_PATH))
+		if($this->base_offset.ltrim(str_replace($this->document_root,'',$_SERVER['SCRIPT_FILENAME']),'/') != parse_url($_SERVER['SCRIPT_NAME'],PHP_URL_PATH))
 		{
-			$this->errormessage = "\r\n".'$booster->base_offset variable is set to '.$this->base_offset.'. But this server\'s document root seems to be differently offsetted. Please set the variable $booster->base_offset to reflect this offset'."\r\n".$this->base_offset.str_replace($this->document_root,'',$_SERVER['SCRIPT_FILENAME'])."\r\n".parse_url($_SERVER['SCRIPT_NAME'],PHP_URL_PATH)."\r\n";
+			$this->errormessage = "\r\n".'$booster->base_offset variable is set to '.$this->base_offset.'. But this server\'s document root seems to be differently offsetted. Please set the variable $booster->base_offset to reflect this offset'."\r\n".$this->base_offset.ltrim(str_replace($this->document_root,'',$_SERVER['SCRIPT_FILENAME']),'/')."\r\n".parse_url($_SERVER['SCRIPT_NAME'],PHP_URL_PATH)."\r\n";
 		}
 	}
 
@@ -1174,6 +1173,8 @@ class Booster {
 			
 			// For library debugging purposes we log file contents
 			if($this->librarydebug) file_put_contents($this->debug_log,"-----------------\r\n".date("d.m.Y H:i:s")." css_split input content (solo part ".$this->css_part."):\r\n-----------------\r\n".$filescontent."\r\n-----------------\r\n",FILE_APPEND);
+			
+			return $filescontent;
 		}
 		// Else process string
 		else
@@ -1745,6 +1746,9 @@ class Booster {
 	*/
 	public function css_markup()
 	{
+		// Check for configuration errors
+		$this->errorcheck();
+
 		// Preparing call
 		$this->debug_log = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir.'/debug_log.txt';
 		
@@ -2000,6 +2004,9 @@ class Booster {
 	*/
 	public function js_markup()
 	{
+		// Check for configuration errors
+		$this->errorcheck();
+
 		// Preparing call
 		$this->debug_log = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir.'/debug_log.txt';
 		
@@ -2041,7 +2048,7 @@ class Booster {
 		if($this->errormessage != '')
 		{
 			$this->errormessage = trim($this->errormessage,"\r\n");
-			$markup .= '<script type="text/javascript">alert(\'CSS-JS-Booster problems:\r\n\r\n'.str_replace("'",'"',$this->errormessage).'\');</script>'."\r\n";		
+			$markup .= '<script type="text/javascript">alert("CSS-JS-Booster problems:\r\n\r\n'.str_replace('"',"'",$this->errormessage).'");</script>'."\r\n";		
 		}
 
 		// Put together the markup linking to our booster-js-files
@@ -2065,7 +2072,7 @@ class Booster {
 		(!$this->js_minify ? '&amp;js_minify=0' : '').
 		'&amp;nocache='.$this->filestime.'"></script>'."\r\n";
 		
-		if($this->js_minify && $this->js_executionmode == '') $markup .= '<script type="text/javascript">if(typeof boostererror == "undefined") alert("CSS-JS-Booster notice: Minification may have broken your JavaScript. Consider turning minification off by setting \$booster->js_minify = FALSE;");</script>'."\r\n";
+		if($this->js_minify && $this->js_executionmode == '') $markup .= '<script type="text/javascript">if(typeof boostererror == "undefined") alert("CSS-JS-Booster notice: Minification may have broken your JavaScript. Consider turning minification off by setting $booster->js_minify = FALSE;");</script>'."\r\n";
 
 		return $markup;
 	}
