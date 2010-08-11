@@ -464,6 +464,8 @@ class Booster {
 	*/
 	private function errorcheck()
 	{
+		$this->setcachedir();
+		
 		// Throw a warning and quit if cache-directory doesn't exist or isn't writable
 		if(!@is_dir($this->booster_cachedir) && !@mkdir($this->booster_cachedir,0777)) 
 		{
@@ -505,9 +507,9 @@ class Booster {
 		// Check if @var $booster_cachedir_transformed is still "FALSE"
 		if(!$this->booster_cachedir_transformed) 
 		{
+			$this->booster_cachedir_transformed = TRUE;
 			$this->booster_cachedir = str_replace('\\','/',dirname(__FILE__)).'/'.$this->booster_cachedir;
 			$this->debug_log = $this->booster_cachedir.'/debug_log.txt';
-			$this->booster_cachedir_transformed = TRUE;
 			
 			// Automatic cleanup of old files in booster_cache folder, if switched on, and only on sundays
 			$today = getdate();
