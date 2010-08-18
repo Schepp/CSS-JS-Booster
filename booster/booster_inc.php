@@ -167,6 +167,14 @@ class Booster {
 	*/
 	private $errormessage = '';
 
+	/**
+	* Variable in which we store if mod_rewrite is active
+	*
+	* @var    bool 
+	* @access private 
+	*/
+	private $mod_rewrite = FALSE;
+
 
 // CSS specific configuration ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -454,6 +462,12 @@ class Booster {
 		$this->js_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
 		$this->browser = new browser();
+
+		// Checking if Apache runs with mod_rewrite
+		ob_clean();
+		phpinfo(INFO_MODULES);
+		$result = ob_get_clean();
+		if(stristr($result,'mod_rewrite')) $this->mod_rewrite = TRUE;
 	}
 
 	/**
@@ -1807,7 +1821,10 @@ class Booster {
 			$markup .= '<link rel="'.$this->css_rel.
 			'" media="'.$this->css_media.
 			'" title="'.htmlentities($this->css_title,ENT_QUOTES).
-			'" type="text/css" href="'.$this->base_offset.ltrim($booster_path,'/').'/booster_css.php/dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).
+			'" type="text/css" href="'.$this->base_offset.ltrim($booster_path,'/').'/booster_css.php'.
+			($this->mod_rewrite ? '/' : '?').
+			'dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
+			'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).
 			($this->css_hosted_minifier ? '&amp;css_hosted_minifier=1' : '').
 			'&amp;totalparts='.intval($this->css_totalparts).
 			'&amp;part='.($j+1).
@@ -2069,7 +2086,9 @@ class Booster {
 			$markup .= ($this->markuptype == 'XHTML' ? ' defer="defer"' : ' defer');
 			break;
 		}
-		$markup .= ' src="'.$this->base_offset.ltrim($booster_path,'/').'/booster_js.php/dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
+		$markup .= ' src="'.$this->base_offset.ltrim($booster_path,'/').'/booster_js.php'.
+		($this->mod_rewrite ? '/' : '?').
+		'dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
 		'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).
 		($this->js_hosted_minifier ? '&amp;js_hosted_minifier=1' : '').
 		($this->debug ? '&amp;debug=1' : '').
