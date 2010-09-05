@@ -2070,7 +2070,7 @@ class Booster {
 		if($this->errormessage != '')
 		{
 			$this->errormessage = trim($this->errormessage,"\r\n");
-			$markup .= '<script type="text/javascript">alert("CSS-JS-Booster problems:\r\n\r\n'.str_replace('"',"'",$this->errormessage).'");</script>'."\r\n";		
+			$markup .= '<script type="text/javascript">throw("CSS-JS-Booster problems:\r\n\r\n'.str_replace('"',"'",$this->errormessage).'");</script>'."\r\n";		
 		}
 
 		// Put together the markup linking to our booster-js-files
@@ -2096,7 +2096,7 @@ class Booster {
 		(!$this->js_minify ? '&amp;js_minify=0' : '').
 		'&amp;nocache='.$this->filestime.'"></script>'."\r\n";
 		
-		if($this->js_minify && $this->js_executionmode == '') $markup .= '<script type="text/javascript">if(typeof boostererror == "undefined") alert("CSS-JS-Booster notice: Minification may have broken your JavaScript. Consider turning minification off by setting $booster->js_minify = FALSE;");</script>'."\r\n";
+		if($this->js_minify && $this->js_executionmode == '') $markup .= '<script type="text/javascript">if(typeof boostererror == "undefined") throw("CSS-JS-Booster notice: Minification may have broken your JavaScript. Consider turning minification off by setting $booster->js_minify = FALSE;");</script>'."\r\n";
 
 		return $markup;
 	}
