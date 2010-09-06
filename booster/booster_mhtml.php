@@ -40,6 +40,7 @@ if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
 
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: ".gmdate('D, d M Y H:i:s',time() - (24 * 3600))." GMT");
+header("Vary: Accept-Encoding"); 
 header("Content-type: text/plain"); 
 header("ETag: ".$etag);
 

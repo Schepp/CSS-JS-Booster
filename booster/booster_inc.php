@@ -46,11 +46,6 @@ else @ob_start();
 
 
 /**
-* Inclusion of user agent detection class
-*/
-include_once('browser_class_inc.php');
-
-/**
 * CSS-JS-BOOSTER
 */
 class Booster {
@@ -123,15 +118,6 @@ class Booster {
 	* @see    setcachedir
 	*/
 	private $booster_cachedir_transformed = FALSE;
-	
-	/**
-	* Used to to store user-agent info
-	*
-	* @var    object 
-	* @access public 
-	* @see    __construct
-	*/
-	public $browser;
 	
 	/**
 	* Switch debug mode on/off for debugging CSS and JS
@@ -309,6 +295,15 @@ class Booster {
 	*/
 	private $css_stringtime = 0;
 	
+	/**
+	* Used to store if we are dealing with an older IE
+	*
+	* Is set to TRUE if IE < 8.
+	* @var    bool 
+	* @access public  
+	*/
+	public $css_mhtml_enabled_ie = FALSE;
+	
 	
 
 // JavaScript specific configuration ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,7 +443,6 @@ class Booster {
 	* Constructor
 	* 
 	* Sets @var $css_stringtime to caller file time
-	* Invokes new browser object for further use
 	* 
 	* @return void   
 	* @access public 
@@ -461,7 +455,6 @@ class Booster {
 		$this->css_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->css_hosted_minifier_path);
 		$this->js_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
-		$this->browser = new browser();
 
 		// Checking if Apache runs with mod_rewrite
 		ob_clean();
@@ -978,7 +971,7 @@ class Booster {
 		// --------------------------------------------------------------------------------------
 
 		// If any MHTML-capable IE browser
-		if($this->css_mhtml_enabled_ie())
+		if($this->css_mhtml_enabled_ie)
 		{
 			// The @var $mhtmlarray collects references to all processed images so that we can look up if we already have embedded a certain image
 			$mhtmlarray = array();
@@ -1051,26 +1044,11 @@ class Booster {
 			@file_put_contents($mhtmlfile,$mhtmlcontent);
 			@chmod($mhtmlfile,0777);
 		}
-		
-		// --------------------------------------------------------------------------------------
-
-	
-		// If any othe older IE browser do not embed nothing
-		elseif(
-			$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8		
-		)
-		{
-			// Scan for any file-references and adjust their path
-			$filescontent = $this->css_datauri_cleanup($filescontent,$dir);
-		}
-		
-		// --------------------------------------------------------------------------------------
 
 		// If any modern data-URI-compatible browser
 		else
 		{
-			if($this->browser->family == 'MSIE') preg_match_all($regex_embed_ie,$filescontent,$treffer,PREG_PATTERN_ORDER);
-			else preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
+			preg_match_all($regex_embed,$filescontent,$treffer,PREG_PATTERN_ORDER);
 			if(!$this->debug) for($i=0;$i<count($treffer[0]);$i++)
 			{
 				// Calculate full image path
@@ -1117,25 +1095,6 @@ class Booster {
 
 		return $filescontent;
 	}
-
-	/**
-	* Css_mhtml_enabled_ie checks IE user agent for MHTML support
-	* 
-	* @return bool
-	* @access protected 
-	*/
-	protected function css_mhtml_enabled_ie()
-	{
-		if(
-			$this->browser->family == 'MSIE' && 
-			$this->browser->platform == 'Windows' && 
-			(
-				(round(floatval($this->browser->familyversion)) == 6 && floatval($this->browser->platformversion) < 6) || 
-				(round(floatval($this->browser->familyversion)) == 7)
-			)
-		) return TRUE;
-		else return FALSE;
- 	}
 
 	/**
 	* Css_datauri_cleanup prepends $dir to the path of all file-references found
@@ -1199,11 +1158,7 @@ class Booster {
 			// Identifier for split-files
 			$identifier = md5($filescontent);
 			// If any MHTML-capable IE browser
-			if($this->css_mhtml_enabled_ie()) $cachefilesuffix = 'datauri_ie';
-			// If any othe older IE browser
-			elseif(
-				$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8
-			) $cachefilesuffix = 'datauri_off';
+			if($this->css_mhtml_enabled_ie) $cachefilesuffix = 'datauri_ie';
 			// If any modern data-URI-compatible browser
 			else $cachefilesuffix = 'datauri';
 
@@ -1603,11 +1558,7 @@ class Booster {
 		$identifier = md5(implode('',$sources));
 		// Defining the cache-filename
 		// If any MHTML-capable IE browser
-		if($this->css_mhtml_enabled_ie()) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
-		// If any othe older IE browser
-		elseif(
-			$this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 8
-		) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_off_'.(($this->debug) ? 'debug_' : '').'cache.txt';
+		if($this->css_mhtml_enabled_ie) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 		// If any other and (then we assume) data-URI-compatible browser
 		else $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_'.(($this->debug) ? 'debug_' : '').'cache.txt';
 		// Interim  cache file
@@ -1776,6 +1727,7 @@ class Booster {
 
 		// Empty storage for markup to come
 		$markup = '';
+		$linkcode = '';
 		
 		// Calculate absolute path for booster-folder
 		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$this->document_root));
@@ -1810,15 +1762,12 @@ class Booster {
 		}
 		// Populate $this->filestime with newest file's timestamp
 		$this->getfilestime($source,'css');
-
-		// Insert IE6 fix image flicker
-		if($this->browser->family == 'MSIE' && floatval($this->browser->familyversion) < 7 && $this->browser->platform == 'Windows') $markup .= '<script type="text/javascript">try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}</script>'."\r\n";
 	
 		// Put together the markup linking to our booster-css-files
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the CSS was updated
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
-			$markup .= '<link rel="'.$this->css_rel.
+			$linkcode .= '<link rel="'.$this->css_rel.
 			'" media="'.$this->css_media.
 			'" title="'.htmlentities($this->css_title,ENT_QUOTES).
 			'" type="text/css" href="'.$this->base_offset.ltrim($booster_path,'/').'/booster_css.php'.
@@ -1834,7 +1783,21 @@ class Booster {
 			'&amp;nocache='.$this->filestime.'" '.
 			($this->markuptype == 'XHTML' ? '/' : '').'>'."\r\n";
 		}
-		
+
+		// Repeat markup for IE (CC's now replacing former UA-sniffing)
+		$markup .= '<!--[if IE]><![endif]-->'."\r\n";
+		$markup .= '<!--[if (gte IE 8)|!(IE)]><!-->'."\r\n";
+		$markup .= $linkcode;
+		$markup .= '<!--<![endif]-->'."\r\n";
+		$markup .= '<!--[if lte IE 7 ]>'."\r\n";
+		$markup .= str_replace('booster_css.php','booster_css_ie.php',$linkcode);
+		$markup .= '<![endif]-->'."\r\n";
+		/*
+		$markup .= '<!--[if lte IE 6 ]>'."\r\n";
+		$markup .= '<script type="text/javascript">try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}</script>'."\r\n";
+		$markup .= '<![endif]-->'."\r\n";
+		*/
+				
 		// If there are errors, output them
 		if($this->errormessage != '')
 		{

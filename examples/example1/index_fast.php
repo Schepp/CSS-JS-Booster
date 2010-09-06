@@ -13,7 +13,8 @@ $booster = new Booster();
 <?php 
 $booster->css_source = array('../examples/example1/css/style.css');
 $booster->debug = FALSE;
-$booster->librarydebug = TRUE;
+$booster->librarydebug = FALSE;
+$booster->css_totalparts = 2;
 echo $booster->css_markup(); 
 ?>
 </head>
@@ -40,7 +41,6 @@ echo $booster->css_markup();
     <h2>Coordination</h2>
     <p class="greentext">M Robert</p>
     <p class="browntext">23rd september 2006</p>
-    <p>Your User Agent: <?php echo $booster->browser->family.' '.floatval($booster->browser->familyversion).', OS: '.$booster->browser->platform.' '.floatval($booster->browser->platformversion); ?></p>
 	<p>Blog Division is a free, tableless, W3C-compliant web design layout by Template World. This template has been tested and proven compatible with all major browser environments and operating systems. You are free to modify the design to suit your tastes in any way you like.</p>
     <p>We only ask you to not remove "Design by Template World" and the link http://www.templateworld.com from the footer of the template.</p>
     <p>If you are interested in seeing more of our free web template designs feel free to visit our website, Template World. We intend to add at least 25 new free templates in the coming month.</p>
@@ -113,6 +113,7 @@ echo $booster->css_markup();
   </div>
 </div>
 <?php 
+$booster->js_minify = TRUE;
 $booster->js_source = '../examples/example1/js/01_jquery-1.3.1.min.js,../examples/example1/js/02_cufon-yui.js,../examples/example1/js/03_Sansation_400.font.js,../examples/example1/js/z_functions.js';
 echo $booster->js_markup(); 
 ?>
