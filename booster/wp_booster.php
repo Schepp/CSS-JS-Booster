@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.3.7
+Version: 0.4.0
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -205,6 +205,7 @@ function booster_wp() {
 				}
 	
 				// Creating Booster markup for each media and relation seperately
+				$links = '';
 				reset($css_rel_files);
 				for($i=0;$i<count($css_rel_files);$i++) 
 				{
@@ -224,24 +225,33 @@ function booster_wp() {
 						($booster->debug ? '&amp;debug=1' : '').
 						($booster->librarydebug ? '&amp;librarydebug=1' : '').
 						'&amp;nocache='.$booster->filestime.'" />';
+						
 						if(key($css_rel_files) != 'print')
 						{
-							$booster_out .= $link."\r\n";
+							$links .= $link."\r\n";
 						}
 						else
 						{
-							$booster_out .= '<noscript>'.$link.'</noscript>'."\r\n";
+							$links .= '<noscript>'.$link.'</noscript>'."\r\n";
 							$js_plain .= 'jQuery(document).ready(function () {
 								jQuery("head").append("'.addslashes($link).'");
 							});
 							';
 						}
-						$booster_out .= "\r\n";
-						#$booster_out .= "\r\n<!-- ".$media_abs[key($media_rel)]." -->\r\n";
+						$links .= "\r\n";
 						next($media_rel);
 					}
 					next($css_rel_files);
 				}
+
+				// Insert markup for normal browsers and IEs (CC's now replacing former UA-sniffing)
+				$booster_out .= '<!--[if IE]><![endif]-->'."\r\n";
+				$booster_out .= '<!--[if (gte IE 8)|!(IE)]><!-->'."\r\n";
+				$booster_out .= $links;
+				$booster_out .= '<!--<![endif]-->'."\r\n";
+				$booster_out .= '<!--[if lte IE 7 ]>'."\r\n";
+				$booster_out .= str_replace('booster_css.php','booster_css_ie.php',$links);
+				$booster_out .= '<![endif]-->'."\r\n";
 				
 				// Injecting the result
 				$out = str_replace('</title>',"</title>\r\n<meta name=\"booster_cache_dir\" content=\"".BOOSTER_CACHE_DIR."\" />\r\n".$booster_out,$out);
