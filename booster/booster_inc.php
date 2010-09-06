@@ -1784,7 +1784,7 @@ class Booster {
 			($this->markuptype == 'XHTML' ? '/' : '').'>'."\r\n";
 		}
 
-		// Repeat markup for IE (CC's now replacing former UA-sniffing)
+		// Insert markup for normal browsers and IEs (CC's now replacing former UA-sniffing)
 		$markup .= '<!--[if IE]><![endif]-->'."\r\n";
 		$markup .= '<!--[if (gte IE 8)|!(IE)]><!-->'."\r\n";
 		$markup .= $linkcode;
