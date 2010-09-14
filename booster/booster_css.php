@@ -37,7 +37,13 @@ $booster->css_totalparts = $totalparts;
 $booster->css_part = $part;
 
 // Check if file gets requested with an eTag, serve 304 if nothing changed
-$etag = md5($source.$booster->filestime);
+$etag = md5(
+$source.
+intval($booster->debug).
+intval($booster->librarydebug).
+intval($booster->css_hosted_minifier).
+$booster->filestime
+);
 
 if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
 {

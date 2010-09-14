@@ -457,7 +457,7 @@ class Booster {
 		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
 
 		// Checking if Apache runs with mod_rewrite
-		ob_clean();
+		if(ob_get_length()) ob_clean();
 		phpinfo(INFO_MODULES);
 		$result = ob_get_clean();
 		if(stristr($result,'mod_rewrite')) $this->mod_rewrite = TRUE;
@@ -810,8 +810,17 @@ class Booster {
 				$currentfilecontent = file_get_contents($source);
 			}
 		}
-		// If @var $source is a string
-		else $currentfilecontent = $source;
+		// If @var $source is a string and we are in stringmode
+		elseif(
+			($type == 'css' && $this->css_stringmode) || 
+			($type == 'js' && $this->js_stringmode)
+		) $currentfilecontent = $source;
+		// If @var $source can't be identified
+		else 
+		{
+			if($type == 'css') $currentfilecontent = "\r\n".'/* Could not locate '.$source.' */'."\r\n";
+			if($type == 'js') $currentfilecontent = "\r\n".'// Could not locate '.$source."\r\n";
+		}
 
 		// Find and resolve import-rules
 		if($type == 'css')
@@ -1555,7 +1564,12 @@ class Booster {
 
 
 		// identifier for the cache-files
-		$identifier = md5(implode('',$sources));
+		$identifier = md5(
+			implode('',$sources).
+			intval($this->debug).
+			intval($this->librarydebug).
+			intval($this->css_hosted_minifier)
+		);
 		// Defining the cache-filename
 		// If any MHTML-capable IE browser
 		if($this->css_mhtml_enabled_ie) $cachefile = $this->booster_cachedir.'/'.$identifier.'_datauri_ie_'.(($this->debug) ? 'debug_' : '').'cache.txt';
@@ -1914,7 +1928,13 @@ class Booster {
 		// if @var $js_stringmode is set
 		else $this->filestime = $this->js_stringtime;
 		// identifier for the cache-files
-		$identifier = md5(implode('',$sources));
+		$identifier = md5(
+			implode('',$sources).
+			intval($this->debug).
+			intval($this->librarydebug).
+			intval($this->js_minify).
+			intval($this->js_hosted_minifier)
+		);
 
 
 		// Defining the cache-filename
