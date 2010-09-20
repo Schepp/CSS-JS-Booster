@@ -2081,7 +2081,7 @@ class Booster {
 			$markup .= ($this->markuptype == 'XHTML' ? ' defer="defer"' : ' defer');
 			break;
 		}
-		$markup .= ($this->js_onload != '' ? ' onload="'.addslashes($this->js_onload).'"' : '');
+		$markup .= ($this->js_onload != '' ? ' onload="'.str_replace('"','\\"',$this->js_onload).'"' : '');
 		$markup .= ' src="'.$this->base_offset.ltrim($booster_path,'/').'/booster_js.php'.
 		($this->mod_rewrite ? '/' : '?').
 		'dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).

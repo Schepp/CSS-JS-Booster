@@ -5,10 +5,6 @@ Copyright (C) 2010 Christian "Schepp" Schaefer
 
 h1. Important notice
 
-This piece of code is still fresh so that others can start testing
-and/or using and/or enhancing it. That said, there shouldn't be too many bugs 
-left. If you find some, contact me or open an issue in the bugtracker.
-
 Browsers older than IE6SP2 are not supported.
 The reason is that I use GZIP-compression and IE6 with service pack 2
 applied is the first IE6 to support that without quirks. Still, that should be 
@@ -308,7 +304,7 @@ echo $booster->js_markup();
 
 
 *Q: I would like to make use of the async and/or defer attributes for JS. 
-Is there a way to enable disable them?*
+Is there a way to enable them?*
 A: Yes, you can set the mode easily. Just remember that when Booster detects 
 any document.write inside your script, it will ommit those attributes.
 
@@ -324,6 +320,14 @@ echo $booster->js_markup();
 
 *Please note:* if CSS-JS-Booster detects a document.write inside JavaScript
 it will omit async and defer as both conflict with document.write.
+
+
+*Q: I would like to make use of the onload attribute for JS (like for example 
+together with the async and/or defer attributes). How?*
+A: This will fill the onload attribute with the function "initialize();":
+
+bc. $booster->js_onload = "initialize();";
+echo $booster->js_markup();
 
 
 *Q: I need to debug CSS (e.g. in Firebug) or JS in the console - but I cannot 
@@ -380,9 +384,6 @@ h1. Copyright and License Information for 3rd party elements used in the scripts
 JSMin is origined from here:
 "http://www.crockford.com/javascript/jsmin.html":http://www.crockford.com/javascript/jsmin.html
 
-Browser detection was rewritten based on work from Paul Scott found here:
-"http://www.phpclasses.org/browse/file/12369.html":http://www.phpclasses.org/browse/file/12369.html
-
 YUI Compressor comes from here:
 "http://developer.yahoo.com/yui/compressor/":http://developer.yahoo.com/yui/compressor/
 All code specific to YUI Compressor is issued under a "BSD license":http://developer.yahoo.com/yui/license.html.
@@ -401,7 +402,7 @@ The Sansation Font is © 2008 Bernd Montag and taken from here:
 "http://www.free-css.com/free-css-templates/page1/blog-division.php":http://www.free-css.com/free-css-templates/page1/blog-division.php
 You find its license inside example1's js-folder
 
-cufón has its home here:
+cufon has its home here:
 "http://github.com/sorccu/cufon":http://github.com/sorccu/cufon
 You find its license inside example1's js-folder
 
