@@ -420,7 +420,7 @@ class Booster {
 	private $js_stringtime = 0;
 	
 	/**
-	* Define if you want the javacript to get executed async or defered
+	* Define if you want the javacript to get executed async or defered (HTML5)
 	*
 	* Default is "", file gets loaded and executed instantly, blocking the HTML parser until done.
 	*
@@ -435,6 +435,18 @@ class Booster {
 	* @access public  
 	*/
 	public $js_executionmode = '';
+
+	/**
+	* Define which JavaScript function to run once a async or defered has reached execution status (HTML5)
+	*
+	* Default is "", no JavaScript function is being executed.
+	*
+	* Set to any function contained within the boosted JavaScript, e.g. "initialize();"
+	*
+	* @var    string 
+	* @access public  
+	*/
+	public $js_onload = '';
 
 
 // Start of functions ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2069,6 +2081,7 @@ class Booster {
 			$markup .= ($this->markuptype == 'XHTML' ? ' defer="defer"' : ' defer');
 			break;
 		}
+		$markup .= ($this->js_onload != '' ? ' onload="'.addslashes($this->js_onload).'"' : '');
 		$markup .= ' src="'.$this->base_offset.ltrim($booster_path,'/').'/booster_js.php'.
 		($this->mod_rewrite ? '/' : '?').
 		'dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
