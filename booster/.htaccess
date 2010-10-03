@@ -32,16 +32,10 @@ RewriteRule ^booster_mhtml\.php/(dir.*)$ booster_mhtml.php?$1 [L]
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresDefault "access plus 1 years"
-  <FilesMatch ".*booster_mhtml\.php$">
-    ExpiresActive Off
-  </FilesMatch>
 </IfModule>
 <IfModule mod_expires.so>
   ExpiresActive On
   ExpiresDefault "access plus 1 years"
-  <FilesMatch ".*booster_mhtml\.php$">
-    ExpiresActive Off
-  </FilesMatch>
 </IfModule>
 
 
@@ -51,26 +45,18 @@ RewriteRule ^booster_mhtml\.php/(dir.*)$ booster_mhtml.php?$1 [L]
 <IfModule mod_headers.c>
   Header set Cache-Control "max-age=2592000, public"
 
-  <FilesMatch ".*booster_mhtml\.php$">
-    Header set Cache-Control "no-cache, must-revalidate"
-  </FilesMatch>
-
 #Remove comments, to disable video caching to the user's browser
 #  <FilesMatch "\.(flv|wmv|avi|mpg|3gp|rm|mpeg|mp4|qt|mov|divx|xvid|wmv|asf|dat|xml)$">
-#    #Header set Cache-Control "max-age=0, public"
-#  #</FilesMatch>
+#    Header set Cache-Control "max-age=0, public"
+#  </FilesMatch>
 
 </IfModule>
 <IfModule mod_headers.so>
   Header set Cache-Control "max-age=2592000, public"
 
-  <FilesMatch ".*booster_mhtml\.php$">
-    Header set Cache-Control "no-cache, must-revalidate"
-  </FilesMatch>
-
 #Remove comments, to disable video caching to the user's browser
 #  <FilesMatch "\.(flv|wmv|avi|mpg|3gp|rm|mpeg|mp4|qt|mov|divx|xvid|wmv|asf|dat|xml)$">
-#    #Header set Cache-Control "max-age=0, public"
-#  #</FilesMatch>
+#    Header set Cache-Control "max-age=0, public"
+#  </FilesMatch>
 
 </IfModule>

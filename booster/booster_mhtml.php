@@ -29,7 +29,7 @@ $booster = new Booster();
 $booster->booster_cachedir = $booster_cachedir;
 $booster->css_source = $source;
 
-// Force browser to always request the file, and then serve 304 if nothing changed
+// Check if file gets requested with an eTag, serve 304 if nothing changed
 $etag = md5($source.$booster->mhtmltime());
 
 if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag) 
@@ -38,8 +38,8 @@ if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
 	exit();
 }
 
-header("Cache-Control: no-cache, must-revalidate");
-header("Expires: ".gmdate('D, d M Y H:i:s',time() - (24 * 3600))." GMT");
+header("Cache-Control: max-age=2592000, public");
+header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 35)))." GMT");
 header("Vary: Accept-Encoding"); 
 header("Content-type: text/plain"); 
 header("ETag: ".$etag);

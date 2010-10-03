@@ -1051,11 +1051,10 @@ class Booster {
 					}
 				}
 			}
+			// Fix the caching problems of IE7, see: http://www.phpied.com/the-proper-mhtml-syntax/
+			$mhtmlcontent .= "--_ANY_STRING_WILL_DO_AS_A_SEPARATOR--\r\n";
 			$mhtmlcontent .= "\r\n\r\n";
 	
-			// Hack suggested by Stoyan Stefanov: prepend a star in front of background-property
-			//$filescontent = preg_replace('/(background[^;]+?mhtml)/','*$1',$filescontent);
-			
 			// Scan for any left file-references and adjust their path
 			$filescontent = $this->css_datauri_cleanup($filescontent,$dir);
 			
