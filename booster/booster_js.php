@@ -48,12 +48,13 @@ if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
 	header('HTTP/1.1 304 Not Modified');
 	exit();
 }
-
+$js = $booster->js();
 header("Cache-Control: max-age=2592000, public");
 header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 35)))." GMT");
 header("Vary: Accept-Encoding"); 
 header("Content-type: text/javascript"); 
+header("Content-Length: ".strlen($js)); 
 header("ETag: ".$etag);
 
-echo $booster->js();
+echo $js;
 ?>

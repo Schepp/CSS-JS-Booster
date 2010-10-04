@@ -50,12 +50,22 @@ if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
 	header('HTTP/1.1 304 Not Modified');
 	exit();
 }
-
+$css = $booster->css();
 header("Cache-Control: max-age=2592000, public");
 header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 35)))." GMT");
 header("Vary: Accept-Encoding"); 
 header("Content-type: text/css"); 
+header("Content-Length: ".strlen($css)); 
 header("ETag: ".$etag);
 
-echo $booster->css();
+for($i=0;$i<strlen($css);$i=$i+2048) 
+{
+	echo substr($css,$i,2048);
+	if(ob_get_length())
+	{           
+        @ob_flush();
+        @flush();
+        @ob_end_flush();
+    }    
+}
 ?>
