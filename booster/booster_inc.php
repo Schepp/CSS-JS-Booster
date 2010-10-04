@@ -34,14 +34,6 @@
 @ini_set('zlib.output_compression',2048);
 @ini_set('zlib.output_compression_level',4);
 
-// Checking if Apache runs with mod_rewrite
-if(ob_get_length()) ob_flush();
-else ob_start();
-phpinfo(INFO_MODULES);
-$result = ob_get_clean();
-if(stristr($result,'mod_rewrite')) define('BOOSTER_MOD_REWRITE', TRUE);
-else define('BOOSTER_MOD_REWRITE', FALSE);
-
 // Starting gzip-compressed output if zlib-compression is turned off
 if (
 isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
@@ -475,9 +467,10 @@ class Booster {
 		$this->css_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->css_hosted_minifier_path);
 		$this->js_stringtime = filemtime(realpath($_SERVER['SCRIPT_FILENAME']));
 		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
-
+		
 		// Checking if Apache runs with mod_rewrite
-		$this->mod_rewrite = BOOSTER_MOD_REWRITE;
+		$apache_modules = apache_get_modules();
+		if(in_array('mod_rewrite',$apache_modules))	$this->mod_rewrite = TRUE;
 	}
 
 	/**

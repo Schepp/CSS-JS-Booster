@@ -55,7 +55,6 @@ header("Cache-Control: max-age=2592000, public");
 header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 35)))." GMT");
 header("Vary: Accept-Encoding"); 
 header("Content-type: text/css"); 
-header("Content-Length: ".strlen($css)); 
 header("ETag: ".$etag);
 
 for($i=0;$i<strlen($css);$i=$i+2048) 
