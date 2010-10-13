@@ -154,12 +154,12 @@ class Booster {
 	private $errormessage = '';
 
 	/**
-	* Variable in which we store if mod_rewrite is active
+	* Variable in which we store if mod_rewrite is active (if we can detect it)
 	*
 	* @var    bool 
 	* @access private 
 	*/
-	private $mod_rewrite = FALSE;
+	private $mod_rewrite = TRUE;
 
 
 // CSS specific configuration ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -469,8 +469,10 @@ class Booster {
 		$this->js_hosted_minifier_path = realpath(dirname(__FILE__).'/'.$this->js_hosted_minifier_path);
 		
 		// Checking if Apache runs with mod_rewrite
-		$apache_modules = apache_get_modules();
-		if(in_array('mod_rewrite',$apache_modules))	$this->mod_rewrite = TRUE;
+		if(function_exists('apache_get_modules') && $apache_modules = apache_get_modules())
+		{
+			if(!in_array('mod_rewrite',$apache_modules)) $this->mod_rewrite = FALSE;
+		}
 	}
 
 	/**
