@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.4.0
+Version: 0.5.177
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -113,8 +113,16 @@ function booster_wp() {
 			
 			if(preg_match_all('/<head.*<\/head>/ims',$out,$headtreffer,PREG_PATTERN_ORDER) > 0)
 			{
-				// Prevent processing of conditional comments
-				$headtreffer[0][0] = preg_replace('/<!--\[if.+?endif\]-->/ims','',$headtreffer[0][0]);
+				// Prevent processing of (conditional) comments
+				$headtreffer[0][0] = preg_replace('/<!--.+?-->/ims','',$headtreffer[0][0]);
+				
+				// Detect charset
+				if(preg_match('/<meta http-equiv="Content-Type" content="text\/html; charset=(.+?)" \/>/',$headtreffer[0][0],$charset))
+				{
+					$headtreffer[0][0] = str_replace($charset[1],'',$headtreffer[0][0]);
+					$charset = $charset[1];
+				}
+				else $charset = '';
 				
 				// CSS part
 				$css_rel_files = array();
@@ -220,7 +228,11 @@ function booster_wp() {
 						$media_abs[key($media_rel)] = implode(',',$media_abs[key($media_rel)]);
 						$link = '<link type="text/css" rel="'.key($media_rel).
 						'" media="'.key($css_rel_files).
-						'" href="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_css.php/dir='.htmlentities(str_replace('..','%3E',$media_rel[key($media_rel)])).
+						'" href="'.get_option('siteurl').'/wp-content/plugins/'.
+						$booster_folder.
+						'/booster_css.php'.
+						($booster->mod_rewrite ? '/' : '?').
+						'dir='.htmlentities(str_replace('..','%3E',$media_rel[key($media_rel)])).
 						'&amp;cachedir='.htmlentities(str_replace('..','%3E',$booster_cache_reldir),ENT_QUOTES).
 						($booster->debug ? '&amp;debug=1' : '').
 						($booster->librarydebug ? '&amp;librarydebug=1' : '').
@@ -245,6 +257,7 @@ function booster_wp() {
 				}
 
 				// Insert markup for normal browsers and IEs (CC's now replacing former UA-sniffing)
+				if($charset != '') $booster_out .= '<meta http-equiv="Content-Type" content="text/html; charset='.$charset.'" />'."\r\n";
 				$booster_out .= '<!--[if IE]><![endif]-->'."\r\n";
 				$booster_out .= '<!--[if (gte IE 8)|!(IE)]><!-->'."\r\n";
 				$booster_out .= $links;
@@ -254,7 +267,7 @@ function booster_wp() {
 				$booster_out .= '<![endif]-->'."\r\n";
 				
 				// Injecting the result
-				$out = str_replace('</title>',"</title>\r\n<meta name=\"booster_cache_dir\" content=\"".BOOSTER_CACHE_DIR."\" />\r\n".$booster_out,$out);
+				$out = str_replace('</title>',"</title>\r\n".$booster_out,$out);
 				$booster_out = '';
 				
 				

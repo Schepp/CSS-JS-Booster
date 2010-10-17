@@ -157,9 +157,9 @@ class Booster {
 	* Variable in which we store if mod_rewrite is active (if we can detect it)
 	*
 	* @var    bool 
-	* @access private 
+	* @access public 
 	*/
-	private $mod_rewrite = TRUE;
+	public $mod_rewrite = TRUE;
 
 
 // CSS specific configuration ///////////////////////////////////////////////////////////////////////////////////////////////////////
