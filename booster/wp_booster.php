@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.5.177
+Version: 0.6.1.179
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
@@ -274,10 +274,11 @@ function booster_wp() {
 				// JS-part
 				$js_rel_files = array();
 				$js_abs_files = array();
+				$js_parameters = array();
 				preg_match_all('/<script[^>]*>(.*?)<\/script>/ims',$headtreffer[0][0],$treffer,PREG_PATTERN_ORDER);
 				for($i=0;$i<count($treffer[0]);$i++) 
 				{
-					if(preg_match('/<script.*?src=[\'"]*([^\'"]+\.js)[\'"]*.*?<\/script>/ims',$treffer[0][$i],$srctreffer))
+					if(preg_match('/<script.*?src=[\'"]*([^\'"]+\.js)\??([^\'"]*)[\'"]*.*?<\/script>/ims',$treffer[0][$i],$srctreffer))
 					{
 						// Get Domainname
 						if(isset($_SERVER['SCRIPT_URI']))
@@ -295,10 +296,16 @@ function booster_wp() {
 						// If file is external
 						if(substr($filename,0,7) == 'http://')
 						{
+							// Skip processing of external files altogether
+							/* 
+							$vars_array = explode('&',html_entity_decode($srctreffer[2],ENT_QUOTES,'ISO-8859-1'));
+							$js_parameters = array_merge($js_parameters,$vars_array);
+
 							$buffered_filename = $booster_cache_dir.'/'.md5($filename).'_buffered.js';
-							$parsed_url = parse_url($filename);
-							if(!file_exists($buffered_filename) || filemtime($buffered_filename) < (time() - (1 * 24 * 60 * 60))) 
+							
+							if(!file_exists($buffered_filename) || filemtime($buffered_filename) < filemtime(__FILE__) || filemtime($buffered_filename) < (time() - (1 * 24 * 60 * 60))) 
 							{
+								$parsed_url = parse_url($filename);
 								$host = $parsed_url['host'];
 								$service_uri = $parsed_url['path'];
 								$vars = $parsed_url['query'];
@@ -319,7 +326,7 @@ function booster_wp() {
 									}
 									
 									fclose($fp);
-									$body = preg_replace('/HTTP.+[\r\n]{1}[\r\n]{1}/ims','',$body);
+									$body = preg_replace('/^HTTP.+?[\r\n]{1}[\r\n]{1}[\r\n]{1}/ms','',$body);
 									@file_put_contents($buffered_filename,$body);
 									@chmod($filename,0777);
 
@@ -344,6 +351,7 @@ function booster_wp() {
 								array_push($js_rel_files,$booster_cache_reldir.'/'.md5($filename).'_buffered.js');
 								array_push($js_abs_files,rtrim(str_replace('\\','/',dirname(realpath(ABSPATH))),'/').'/'.$buffered_filename);
 							}						
+							*/
 						}
 						// If file is internal and does exist
 						elseif(file_exists($filename))
@@ -395,7 +403,14 @@ function booster_wp() {
 				$js_plain .= 'try {document.execCommand("BackgroundImageCache", false, true);} catch(err) {}
 				';
 				
-				$booster_out .= '<script type="text/javascript" src="'.get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_js.php/dir='.htmlentities(str_replace('..','%3E',$js_rel_files)).'&amp;cachedir='.htmlentities(str_replace('..','%3E',$booster_cache_reldir),ENT_QUOTES).(($booster->debug) ? '&amp;debug=1' : '').((!$booster->js_minify) ? '&amp;js_minify=0' : '').'&amp;nocache='.$booster->getfilestime($js_abs_files,'js').'"></script>
+				$booster_out .= '<script type="text/javascript" src="'.
+				get_option('siteurl').'/wp-content/plugins/'.$booster_folder.'/booster_js.php/dir='.
+				htmlentities(str_replace('..','%3E',$js_rel_files)).
+				'&amp;cachedir='.htmlentities(str_replace('..','%3E',$booster_cache_reldir),ENT_QUOTES).
+				(($booster->debug) ? '&amp;debug=1' : '').
+				((!$booster->js_minify) ? '&amp;js_minify=0' : '').
+				'&amp;nocache='.$booster->filestime.
+				'?'.implode('&amp;',$js_parameters).'"></script>
 				<script type="text/javascript">'.$js_plain.'</script>';
 				$booster_out .= "\r\n";
 				#$booster_out .= "\r\n<!-- ".$js_abs_files." -->\r\n";

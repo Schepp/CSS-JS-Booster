@@ -1066,10 +1066,7 @@ class Booster {
 			$filescontent = $this->css_datauri_cleanup($filescontent,$dir);
 			
 			// Store the cache-files
-			// @file_put_contents($cachefile,$filescontent);
-			// @chmod($cachefile,0777);
 			@file_put_contents($mhtmlfile,$mhtmlcontent);
-			@chmod($mhtmlfile,0777);
 		}
 
 		// If any modern data-URI-compatible browser
@@ -1665,7 +1662,6 @@ class Booster {
 			}
 			// Write interim cachefile
 			file_put_contents($interim_cachefile,$filescontent);
-			@chmod($interim_cachefile,0777);
 
 
 			// Now we create the optimized version
@@ -1701,7 +1697,6 @@ class Booster {
 			}
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
-			@chmod($cachefile,0777);
 
 			// Delete interim cache-file
 			if(file_exists($interim_cachefile)) @unlink($interim_cachefile);
@@ -1995,7 +1990,6 @@ class Booster {
 			// In order to deflect other concurrent clients' requests for this file while it being compiled
 			// we first create a non-optimized cache-file to serve it to them during compile time.
 			file_put_contents($interim_cachefile,$filescontent);
-			@chmod($interim_cachefile,0777);
 			
 			// Check for document.write inside JS. If found disable any lazy-loadings.
 			if(strpos($filescontent,'document.write')) 
@@ -2008,7 +2002,6 @@ class Booster {
 
 			// Write cache-file
 			file_put_contents($cachefile,$filescontent);
-			@chmod($cachefile,0777);
 
 			// Delete interim cache-file
 			if(file_exists($interim_cachefile)) @unlink($interim_cachefile);
