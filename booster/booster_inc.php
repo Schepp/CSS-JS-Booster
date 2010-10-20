@@ -1043,7 +1043,8 @@ class Booster {
 				if(file_exists($imagefile) && filesize($imagefile) < 24000) 
 				{
 					// Replace reference to image with reference to MHTML-file with corresponding anchor
-					$filescontent = str_replace($treffer[0][$i],'url(mhtml:http://'.$mhtmlhost.$mhtmlpath.'/booster_mhtml.php?dir='.$identifier.'!'.$imagetag.')',$filescontent);
+					((isset($_GET['cachedir'])) ? $booster_cachedir = str_replace('>','..',rtrim(preg_replace('/[^a-z0-9,\-_\.\/>]/i','',$_GET['cachedir']),'/')) : $booster_cachedir = 'booster_cache');
+					$filescontent = str_replace($treffer[0][$i],'url(mhtml:http://'.$mhtmlhost.$mhtmlpath.'/booster_mhtml.php?dir='.$identifier.'&cachedir='.$booster_cachedir.'&nocache='.$this->filestime.'!'.$imagetag.')',$filescontent);
 
 					// Look up in our list if we did not already process that exact file, if not append it
 					if(!isset($mhtmlarray[$imagetag])) 

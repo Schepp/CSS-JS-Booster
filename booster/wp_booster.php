@@ -3,7 +3,7 @@
 Plugin Name: CSS-JS-Booster
 Plugin URI: http://github.com/Schepp/CSS-JS-Booster
 Description: automates performance optimizing steps related to CSS, Media and Javascript linking/embedding.
-Version: 0.6.1.179
+Version: 0.6.2.179
 Author: Christian "Schepp" Schaefer
 Author URI: http://twitter.com/derSchepp
 */
