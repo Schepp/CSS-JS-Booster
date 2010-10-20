@@ -58,14 +58,18 @@ header("Vary: Accept-Encoding");
 header("Content-type: text/css"); 
 header("ETag: ".$etag);
 
-for($i=0;$i<strlen($css);$i=$i+2048) 
+if(isset($booster_use_ob_gzhandler))
 {
-	echo substr($css,$i,2048);
-	if(ob_get_length())
-	{           
-        @ob_flush();
-        @flush();
-        @ob_end_flush();
-    }    
+	for($i=0;$i<strlen($css);$i=$i+2048) 
+	{
+		echo substr($css,$i,2048);
+		if(ob_get_length())
+		{           
+			@ob_flush('ob_gzhandler');
+			@flush('ob_gzhandler');
+			@ob_end_flush('ob_gzhandler');
+		}    
+	}
 }
+else echo $css;
 ?>

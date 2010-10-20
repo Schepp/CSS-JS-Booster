@@ -55,5 +55,18 @@ header("Vary: Accept-Encoding");
 header("Content-type: text/javascript"); 
 header("ETag: ".$etag);
 
-echo $js;
+if(isset($booster_use_ob_gzhandler))
+{
+	for($i=0;$i<strlen($js);$i=$i+2048) 
+	{
+		echo substr($js,$i,2048);
+		if(ob_get_length())
+		{           
+			@ob_flush('ob_gzhandler');
+			@flush('ob_gzhandler');
+			@ob_end_flush('ob_gzhandler');
+		}    
+	}
+}
+else echo $js;
 ?>

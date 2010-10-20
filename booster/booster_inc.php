@@ -36,13 +36,20 @@
 
 // Starting gzip-compressed output if zlib-compression is turned off
 if (
-isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
-&& substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') 
+isset($_SERVER['HTTP_ACCEPT_ENCODING'])
+&& substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')
 && function_exists('ob_gzhandler') 
 && (!ini_get('zlib.output_compression') || intval(ini_get('zlib.output_compression')) != 2048)
 && !function_exists('booster_wp')
-) @ob_start('ob_gzhandler');
-else @ob_start();
+)
+{
+	$booster_use_ob_gzhandler = TRUE;
+	@ob_start('ob_gzhandler');
+}
+else 
+{
+	@ob_start();
+}
 
 
 /**
@@ -201,11 +208,11 @@ class Booster {
 	* Defines a title-attribute for CSS markup output
 	*
 	* If you like to title multiple stylesheets
-	* Defaults to "Standard".
+	* Defaults to "".
 	* @var    string 
 	* @access public 
 	*/
-	public $css_title = 'Standard';
+	public $css_title = '';
 	
 	/**
 	* Defines in how many parts the CSS output shall be split
@@ -1793,9 +1800,9 @@ class Booster {
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
 			$linkcode .= '<link rel="'.$this->css_rel.
-			'" media="'.$this->css_media.
-			'" title="'.htmlentities($this->css_title,ENT_QUOTES).
-			'" type="text/css" href="'.$this->base_offset.ltrim($booster_path,'/').'/booster_css.php'.
+			'" media="'.$this->css_media.'"'.
+			($this->css_title != '' ? ' title="'.htmlentities($this->css_title,ENT_QUOTES).'"' : '').
+			' type="text/css" href="'.$this->base_offset.ltrim($booster_path,'/').'/booster_css.php'.
 			($this->mod_rewrite ? '/' : '?').
 			'dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
 			'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).

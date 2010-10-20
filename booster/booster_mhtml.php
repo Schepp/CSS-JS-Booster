@@ -38,11 +38,25 @@ if(@$_SERVER['HTTP_IF_NONE_MATCH'] === $etag)
 	exit();
 }
 
+$mhtml = $booster->mhtml();
 header("Cache-Control: max-age=2592000, public");
 header("Expires: ".gmdate('D, d M Y H:i:s', mktime(date('h') + (24 * 35)))." GMT");
 header("Vary: Accept-Encoding"); 
 header("Content-type: text/plain"); 
 header("ETag: ".$etag);
 
-echo $booster->mhtml();
+if(isset($booster_use_ob_gzhandler))
+{
+	for($i=0;$i<strlen($mhtml);$i=$i+2048) 
+	{
+		echo substr($mhtml,$i,2048);
+		if(ob_get_length())
+		{           
+			@ob_flush('ob_gzhandler');
+			@flush('ob_gzhandler');
+			@ob_end_flush('ob_gzhandler');
+		}    
+	}
+}
+else echo $mhtml;
 ?>
