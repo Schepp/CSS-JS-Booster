@@ -237,7 +237,16 @@ class Booster {
 	public $css_part = 0;
 	
 	/**
-	* Defines if to switch to more powerful a hosted minifier
+	* Defines if we want these styles to be lazy loaded
+	*
+	* Usefull for CSS with large inlined images to load after the rest
+	* @var    boolean
+	* @access public
+	*/
+	public $css_lazyload = FALSE;
+	
+	/**
+	* Defines if to switch to a more powerful hosted minifier
 	*
 	* You can use the full YUI Compressor included in CSS-JS-Booster instead of the 
 	* included minification functions for stylesheets.
@@ -1756,13 +1765,11 @@ class Booster {
 		// Empty storage for markup to come
 		$markup = '';
 		$linkcode = '';
+		$linkarray = array();
 		
 		// Calculate absolute path for booster-folder
 		$booster_path = '/'.$this->getpath(str_replace('\\','/',dirname(__FILE__)),str_replace('\\','/',$this->document_root));
 		
-		// Calculate relative path from booster-folder to calling script
-		#Schepp $css_path = $this->getpath(dirname($_SERVER['SCRIPT_FILENAME']),str_replace('\\','/',dirname(__FILE__)));
-
 		// If sources were defined as array
 		if(is_array($this->css_source)) $sources = $this->css_source;
 		// If sources were defined as string, convert them into an array
@@ -1795,10 +1802,7 @@ class Booster {
 		// Append timestamps of the $timestamp_dir to make sure browser reloads once the CSS was updated
 		for($j=0;$j<intval($this->css_totalparts);$j++)
 		{
-			$linkcode .= '<link rel="'.$this->css_rel.
-			'" media="'.$this->css_media.'"'.
-			($this->css_title != '' ? ' title="'.htmlentities($this->css_title,ENT_QUOTES).'"' : '').
-			' type="text/css" href="'.$this->base_offset.ltrim($booster_path,'/').'/booster_css.php'.
+			$linkurl = $this->base_offset.ltrim($booster_path,'/').'/booster_css.php'.
 			($this->mod_rewrite ? '/' : '?').
 			'dir='.htmlentities(str_replace('..','%3E',$source),ENT_QUOTES).
 			'&amp;cachedir='.htmlentities(str_replace('..','%3E',$this->booster_cachedir),ENT_QUOTES).
@@ -1808,17 +1812,29 @@ class Booster {
 			($this->debug ? '&amp;debug=1' : '').
 			($this->librarydebug ? '&amp;librarydebug=1' : '').
 			(!$this->js_minify ? '&amp;js_minify=0' : '').
-			'&amp;nocache='.$this->filestime.'" '.
+			'&amp;nocache='.$this->filestime;
+			
+			$linkcode .= '<link rel="'.$this->css_rel.
+			'" media="'.$this->css_media.'"'.
+			($this->css_title != '' ? ' title="'.htmlentities($this->css_title,ENT_QUOTES).'"' : '').
+			' type="text/css" href="'.$linkurl.'" '.
 			($this->markuptype == 'XHTML' ? '/' : '').'>'."\r\n";
+			
+			$linkarray[] = '"'.$linkurl.'"';
 		}
 
 		// Insert markup for normal browsers and IEs (CC's now replacing former UA-sniffing)
+		if($this->css_lazyload) $markup .= '<script type="text/javascript">//<![CDATA['."\r\n".'var booster_stylesheets = new Array('.implode(',',$linkarray).');'.file_get_contents(str_replace('\\','/',dirname(__FILE__)).'/booster.css_lazyload.min.js')."\r\n".'//]]>'."\r\n".'</script>'."\r\n";
 		$markup .= '<!--[if IE]><![endif]-->'."\r\n";
 		$markup .= '<!--[if (gte IE 8)|!(IE)]><!-->'."\r\n";
+		if($this->css_lazyload) $markup .= '<noscript>'."\r\n";
 		$markup .= $linkcode;
+		if($this->css_lazyload) $markup .= '</noscript>'."\r\n";
 		$markup .= '<!--<![endif]-->'."\r\n";
 		$markup .= '<!--[if lte IE 7 ]>'."\r\n";
+		if($this->css_lazyload) $markup .= '<noscript>'."\r\n";
 		$markup .= str_replace('booster_css.php','booster_css_ie.php',$linkcode);
+		if($this->css_lazyload) $markup .= '</noscript>'."\r\n";
 		$markup .= '<![endif]-->'."\r\n";
 		/*
 		$markup .= '<!--[if lte IE 6 ]>'."\r\n";
