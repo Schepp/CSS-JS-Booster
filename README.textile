@@ -339,6 +339,22 @@ echo $booster->css_markup();
 echo $booster->js_markup();
   
 
+*Q: Can I have CSS with big inlined images lazyload on DOM ready?*
+A: Yes, just set the following parameter:
+
+bc. $booster->css_lazyload = TRUE;
+
+In an ideal way you would split your image-heavy CSS apart from your normal CSS 
+and just load that one later: 
+
+bc. $booster = new Booster();
+$booster->css_source = 'styles_without_images.css';
+echo $booster->css_markup();
+$booster->css_source = 'styles_with_images.css';
+$booster->css_lazyload = TRUE;
+echo $booster->css_markup();
+
+
 
 h1. .htaccess Acceleration
 
