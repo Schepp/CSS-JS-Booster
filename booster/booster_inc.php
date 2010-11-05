@@ -39,7 +39,7 @@ if (
 isset($_SERVER['HTTP_ACCEPT_ENCODING'])
 && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')
 && function_exists('ob_gzhandler') 
-&& (!ini_get('zlib.output_compression') || intval(ini_get('zlib.output_compression')) != 2048)
+&& (!ini_get('zlib.output_compression') || ini_get('zlib.output_compression') == '' || strtolower(ini_get('zlib.output_compression')) == 'off' || intval(ini_get('zlib.output_compression')) != 2048)
 && !function_exists('booster_wp')
 )
 {
@@ -1244,6 +1244,7 @@ class Booster {
 				$currentline = 0;
 				// Here we note during the parsing if we are currently inside a block or not, and of which type
 				$currentblock = '';
+				$currentblockancestors = array();
 				// Here we note during the parsing if we are currently inside a comment or not
 				$currentcomment = '';
 				// Here we note during the parsing if we are currently inside a comment or not
@@ -1354,11 +1355,13 @@ class Booster {
 							if(preg_match('/\A@([^\{\}@]+)\{/ims', substr($filescontent,$i), $treffer) == 1)
 							{
 								// remember in what @-rule we are
+								if($currentblock != '') array_push($currentblockancestors,$currentblock);
 								$currentblock = $treffer[1];
 								// remove @-rule-opener for now (we will put it back in later)
 								$filescontent = substr_replace($filescontent,'',$i,strlen($currentblock) + 2);
 								// store @-rule for this line
 								$line_infos[$currentline]['block'] = $currentblock;
+								$line_infos[$currentline]['blockclosing'] = FALSE;
 								$i--;
 			
 								// For library debugging purposes we log pre-parser structure findings
@@ -1390,9 +1393,11 @@ class Booster {
 							else 
 							{
 								// remember that we are in no @-rule
-								$currentblock = '';
+								if(count($currentblockancestors) > 0) $currentblock = array_pop($currentblockancestors);
+								else $currentblock = '';
 								// Store no-@-rule for this line
 								$line_infos[$currentline]['block'] = $currentblock;
+								$line_infos[$currentline]['blockclosing'] = TRUE;
 								// Remove closing parenthesis for now (we will put it back in later)
 								$filescontent = substr_replace($filescontent,'',$i,1);
 								$i--;
@@ -1426,7 +1431,7 @@ class Booster {
 					}
 				}		
 				// Store one further line-entry in array
-				$line_infos[$currentline] = array('block'=>$currentblock,'comment'=>$currentcomment,'selector'=>$currentselector);
+				$line_infos[$currentline] = array('block'=>$currentblock,'blockclosing'=>FALSE,'comment'=>$currentcomment,'selector'=>$currentselector);
 			
 				// Store in cache files
 				if(!file_exists($cachefilecontent)) file_put_contents($cachefilecontent,$filescontent);
@@ -1482,9 +1487,9 @@ class Booster {
 					if($line_infos[$i]['block'] != $currentblock) 
 					{
 						// If an @-rule begins
-						if($line_infos[$i]['block'] != '')
+						if($line_infos[$i]['block'] != '' && !$line_infos[$i]['blockclosing'])
 						{
-							if($currentblock != '') $filescontentparts[$j] .= '}';
+							if($currentblock != '' && $line_infos[$i]['blockclosing']) $filescontentparts[$j] .= '}';
 							$filescontentparts[$j] .= '@'.$line_infos[$i]['block'].'{';
 							$currentblock = $line_infos[$i]['block'];
 						}
@@ -1910,7 +1915,7 @@ class Booster {
 						$js_minified .= fgets($fp);
 					}
 					fclose($fp);
-					$js_minified = "/* Minified by Google Closure Webservice */\r\ntry{\r\n".preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified)."\r\nvar boostererror = null;\r\n} catch(e) {}";
+					$js_minified = "/* Minified by Google Closure Webservice */\r\n\r\n".preg_replace('/^HTTP.+[\r\n]{2}/ims','',$js_minified)."\r\n";
 				}
 			}
 			// Switching over to Douglas Crockford's JSMin (which in turn breaks IE's conditional compilation)
@@ -1920,7 +1925,7 @@ class Booster {
 				 * Inclusion of JSMin
 				 */
 				include_once('jsmin/jsmin.php');
-				$js_minified = "/* Minified by JSMin */\r\ntry{\r\n".JSMin::minify($filescontent)."\r\nvar boostererror = null;\r\n} catch(e) {}";
+				$js_minified = "/* Minified by JSMin */\r\n\r\n".JSMin::minify($filescontent)."\r\n";
 			}
 		}
 		
@@ -2107,8 +2112,6 @@ class Booster {
 		($this->librarydebug ? '&amp;librarydebug=1' : '').
 		(!$this->js_minify ? '&amp;js_minify=0' : '').
 		'&amp;nocache='.$this->filestime.'"></script>'."\r\n";
-		
-		if($this->js_minify && $this->js_executionmode == '') $markup .= '<script type="text/javascript">if(typeof boostererror == "undefined") throw("CSS-JS-Booster notice: Minification may have broken your JavaScript. Consider turning minification off by setting $booster->js_minify = FALSE;");</script>'."\r\n";
 
 		return $markup;
 	}
