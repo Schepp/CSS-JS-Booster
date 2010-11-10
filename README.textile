@@ -1,7 +1,9 @@
-Copyright (C) 2010 Christian "Schepp" Schaefer
-"http://twitter.com/derSchepp":http://twitter.com/derSchepp
+h1. CSS-JS-Booster
 
 !http://www.der-schepp.de/css-js-booster-github.jpg!
+
+Copyright (C) 2010 Christian "Schepp" Schaefer
+"http://twitter.com/derSchepp":http://twitter.com/derSchepp
 
 h1. Functionality and Benefits
 
