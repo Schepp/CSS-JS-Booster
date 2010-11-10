@@ -1,16 +1,7 @@
 Copyright (C) 2010 Christian "Schepp" Schaefer
 "http://twitter.com/derSchepp":http://twitter.com/derSchepp
 
-
-
-h1. Important notice
-
-Browsers older than IE6SP2 are not supported.
-The reason is that I use GZIP-compression and IE6 with service pack 2
-applied is the first IE6 to support that without quirks. Still, that should be 
-support enough as IE6SP2 was released back in August 2004.
-
-
+[[http://www.der-schepp.de/css-js-booster-github.jpg]]
 
 h1. Functionality and Benefits
 
