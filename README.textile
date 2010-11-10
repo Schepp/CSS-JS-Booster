@@ -11,7 +11,7 @@ CSS-JS-Booster is a PHP-script that tries to automate as many performance
 optimizing steps related to CSS and JS embedding as possible.
 
 For CSS these steps are:
-* combine multiple CSS-files resulting in HTTP-requests going down
+* combine multiple CSS-files resulting in number of HTTP-requests going down
 * minify CSS
 * Embed any CSS-images smaller 24KB as data-URI or MHTML (for IE <= 7)
 * Split the output back into 2 even files that can load in parallel (not for WP)
@@ -20,7 +20,7 @@ For CSS these steps are:
 * If IE6: Issue a JS-command to fix background image caching behaviour 
 
 For JS these steps are:
-* combine multiple JS-files resulting in HTTP-requests going down
+* combine multiple JS-files resulting in number of HTTP-requests going down
 * Minify the JS through the Google Closure Compiler Webservice, or JSMin as fallback (not for WP)
 * GZIP-compress the resulting JS
 * Have browsers cache the result as long as it remains unchanged
