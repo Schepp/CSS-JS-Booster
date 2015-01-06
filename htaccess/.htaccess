@@ -1,6 +1,12 @@
 #CSS-JS-Booster Start#################################################
 #Turn ETagging off
-FileETag none
+Header unset Pragma
+FileETag None
+Header unset ETag
+
+<FilesMatch "\\.(js|css|html|htm|php|xml|)$">
+SetOutputFilter DEFLATE
+</FilesMatch>
 
 #Turn ETagging on for Booster PHP files
 <FilesMatch ".*booster_.+\.php$">  
@@ -28,6 +34,17 @@ Satisfy any
   ExpiresByType image/jpg "access plus 1 years"
   ExpiresByType image/png "access plus 1 years"
   ExpiresByType image/x-icon "access plus 1 years"
+</IfModule>
+
+<IfModule mod_gzip.c>
+mod_gzip_on Yes
+mod_gzip_dechunk Yes
+mod_gzip_item_include file \.(html?|txt|css|js|php|pl)$
+mod_gzip_item_include handler ^cgi-script$
+mod_gzip_item_include mime ^text/.*
+mod_gzip_item_include mime ^application/x-javascript.*
+mod_gzip_item_exclude mime ^image/.*
+mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
 </IfModule>
 
 #Alternative caching using Apache's "mod_headers", if it's installed.
