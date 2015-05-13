@@ -44,7 +44,7 @@ function booster_htaccess() {
 		{
 			$wp_htacessfile_contents = file_get_contents($wp_htacessfile);
 			$wp_htacessfile_contents = preg_replace('/#CSS-JS-Booster Start#################################################.*#CSS-JS-Booster End#################################################/ims','',$wp_htacessfile_contents);
-			$wp_htacessfile_contents = $wp_htacessfile_contents.file_get_contents($booster_htacessfile);
+			$wp_htacessfile_contents = rtrim($wp_htacessfile_contents)."\n\n".file_get_contents($booster_htacessfile);
 		}
 		else $wp_htacessfile_contents = file_get_contents($booster_htacessfile);
 		@file_put_contents($wp_htacessfile,$wp_htacessfile_contents);
@@ -63,6 +63,7 @@ function booster_cleanup() {
 	{
 		$wp_htacessfile_contents = file_get_contents($wp_htacessfile);
 		$wp_htacessfile_contents = preg_replace('/#CSS-JS-Booster Start#################################################.*#CSS-JS-Booster End#################################################/ims','',$wp_htacessfile_contents);
+		$wp_htacessfile_contents = rtrim($wp_htacessfile_contents)."\n";
 		@file_put_contents($wp_htacessfile,$wp_htacessfile_contents);
 	}
 	
